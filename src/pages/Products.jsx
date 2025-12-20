@@ -109,10 +109,10 @@ const Products = () => {
             animate={{ y: 0, opacity: 1 }}
             className="text-center"
           >
-            <h1 className="text-5xl md:text-7xl font-bold text-white tracking-tighter mb-4">
+            <h1 className="text-5xl md:text-7xl font-bold text-slate-800 tracking-tighter mb-4">
               SẢN <span className="text-primary">PHẨM</span>
             </h1>
-            <p className="text-gray-400 text-lg max-w-xl mx-auto">
+            <p className="text-slate-500 text-lg max-w-xl mx-auto">
               Tìm kiếm và lọc phụ tùng chính hãng theo nhu cầu của bạn
             </p>
           </motion.div>
@@ -129,7 +129,7 @@ const Products = () => {
               placeholder="Tìm kiếm sản phẩm, mã sản phẩm..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-12 pr-4 py-4 bg-surface border border-border rounded-2xl text-white placeholder-gray-500 focus:outline-none focus:border-primary transition-all"
+              className="w-full pl-12 pr-4 py-4 bg-white border border-slate-200 rounded-2xl text-slate-800 placeholder-slate-400 focus:outline-none focus:border-primary transition-all shadow-sm"
             />
             {searchTerm && (
               <span className="absolute right-4 top-1/2 -translate-y-1/2 text-primary text-sm font-bold">
@@ -138,7 +138,7 @@ const Products = () => {
             )}
           </div>
           <button
-            className={`flex items-center gap-2 px-6 py-4 rounded-2xl font-bold transition-all ${showFilters ? 'bg-primary text-white' : 'bg-surface border border-border text-white hover:border-primary'}`}
+            className={`flex items-center gap-2 px-6 py-4 rounded-2xl font-bold transition-all ${showFilters ? 'bg-primary text-white' : 'bg-white border border-slate-200 text-slate-700 hover:border-primary shadow-sm'}`}
             onClick={() => setShowFilters(!showFilters)}
           >
             <span className="material-symbols-outlined">tune</span>
@@ -151,16 +151,16 @@ const Products = () => {
           <motion.div
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
-            className="mb-10 p-6 bg-surface border border-border rounded-2xl"
+            className="mb-10 p-6 bg-white border border-slate-200 rounded-2xl shadow-sm"
           >
-            <h4 className="text-white font-bold mb-4 uppercase tracking-wider text-sm">Danh mục</h4>
+            <h4 className="text-slate-800 font-bold mb-4 uppercase tracking-wider text-sm">Danh mục</h4>
             <div className="flex flex-wrap gap-3">
               {categories.map((cat) => (
                 <button
                   key={cat}
                   className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${selectedCategory === cat
-                      ? 'bg-primary text-white'
-                      : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white'
+                    ? 'bg-primary text-white'
+                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-800'
                     }`}
                   onClick={() => setSelectedCategory(cat)}
                 >
@@ -182,7 +182,7 @@ const Products = () => {
                 transition={{ delay: index * 0.05 }}
                 viewport={{ once: true }}
                 whileHover={{ y: -5 }}
-                className="group bg-surface border border-border rounded-3xl overflow-hidden hover:border-primary/50 transition-all duration-300"
+                className="group bg-white border border-slate-200 rounded-3xl overflow-hidden hover:border-primary/50 transition-all duration-300 shadow-sm hover:shadow-lg"
               >
                 <div className="aspect-square relative overflow-hidden bg-gray-900">
                   <img
@@ -194,19 +194,19 @@ const Products = () => {
                   <div className="absolute top-4 left-4 bg-primary text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
                     {product.tag}
                   </div>
-                  <div className="absolute inset-0 bg-gradient-to-t from-background to-transparent opacity-60"></div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-white to-transparent opacity-60"></div>
                 </div>
                 <div className="p-6 space-y-4">
                   <div>
-                    <h3 className="text-white font-bold text-lg group-hover:text-primary transition-colors line-clamp-2">
+                    <h3 className="text-slate-800 font-bold text-lg group-hover:text-primary transition-colors line-clamp-2">
                       {product.name}
                     </h3>
-                    <p className="text-gray-500 text-xs mt-2 font-mono">
+                    <p className="text-slate-400 text-xs mt-2 font-mono">
                       Mã: {product.code} | {product.manufacturerCode}
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-[10px] text-gray-400 uppercase tracking-wider px-2 py-1 bg-white/5 rounded-lg">
+                    <span className="text-[10px] text-slate-500 uppercase tracking-wider px-2 py-1 bg-slate-100 rounded-lg">
                       {product.category}
                     </span>
                   </div>
@@ -219,8 +219,8 @@ const Products = () => {
           </div>
         ) : (
           <div className="text-center py-20">
-            <span className="material-symbols-outlined text-6xl text-gray-600 mb-4">search_off</span>
-            <p className="text-gray-400 text-lg">Không tìm thấy sản phẩm nào phù hợp</p>
+            <span className="material-symbols-outlined text-6xl text-slate-300 mb-4">search_off</span>
+            <p className="text-slate-500 text-lg">Không tìm thấy sản phẩm nào phù hợp</p>
           </div>
         )}
       </div>

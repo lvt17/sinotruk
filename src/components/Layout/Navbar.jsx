@@ -86,7 +86,7 @@ const Navbar = ({ isScrolled }) => {
                         <span className="material-symbols-outlined text-4xl font-bold">local_shipping</span>
                     </div>
                     <div className="flex flex-col">
-                        <span className="text-white text-xl font-bold tracking-tight leading-none uppercase">Sinotruk</span>
+                        <span className="text-slate-800 text-xl font-bold tracking-tight leading-none uppercase">Sinotruk</span>
                         <span className="text-primary text-[10px] font-bold tracking-[0.2em] leading-none uppercase">Hà Nội</span>
                     </div>
                 </Link>
@@ -97,7 +97,7 @@ const Navbar = ({ isScrolled }) => {
                         <Link
                             key={item.path}
                             to={item.path}
-                            className={`text-sm font-medium transition-colors relative group ${isActive(item.path) ? 'text-primary' : 'text-white hover:text-primary'}`}
+                            className={`text-sm font-medium transition-colors relative group ${isActive(item.path) ? 'text-primary' : 'text-slate-700 hover:text-primary'}`}
                         >
                             {item.label}
                             <span className={`absolute -bottom-1 left-0 h-[2px] bg-primary transition-all duration-300 ${isActive(item.path) ? 'w-full' : 'w-0 group-hover:w-full'}`}></span>
@@ -109,9 +109,9 @@ const Navbar = ({ isScrolled }) => {
                 {/* CTA Button with glow effect */}
                 <Link
                     to="/contact"
-                    className="hidden sm:flex items-center gap-2 px-6 py-2.5 bg-primary hover:bg-red-600 text-white text-sm font-bold rounded-lg transition-all shadow-lg shadow-primary/20 hover:shadow-primary/40 hover:scale-105 active:scale-95 relative overflow-hidden group"
+                    className="hidden sm:flex items-center gap-2 px-6 py-2.5 bg-primary hover:brightness-110 text-white text-sm font-bold rounded-lg transition-all shadow-lg shadow-primary/20 hover:shadow-primary/40 hover:scale-105 active:scale-95 relative overflow-hidden group"
                 >
-                    <span className="absolute inset-0 bg-gradient-to-r from-red-600 via-primary to-red-600 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-[length:200%] animate-shimmer"></span>
+                    <span className="absolute inset-0 bg-gradient-to-r from-sky-600 via-primary to-sky-600 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-[length:200%] animate-shimmer"></span>
                     <span className="relative flex items-center gap-2">
                         Nhận Báo Giá
                         <span className="material-symbols-outlined text-sm group-hover:translate-x-1 transition-transform">arrow_forward</span>
@@ -120,7 +120,7 @@ const Navbar = ({ isScrolled }) => {
 
                 {/* Mobile Menu Button */}
                 <button
-                    className="lg:hidden text-white p-2 hover:bg-white/10 rounded-xl transition-colors"
+                    className="lg:hidden text-slate-700 p-2 hover:bg-slate-100 rounded-xl transition-colors"
                     onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 >
                     <span className="material-symbols-outlined text-3xl">
@@ -148,7 +148,7 @@ const Navbar = ({ isScrolled }) => {
                                 <Link
                                     to={item.path}
                                     onClick={() => setIsMobileMenuOpen(false)}
-                                    className={`text-lg font-medium py-2 border-b border-border/50 block ${isActive(item.path) ? 'text-primary' : 'text-white'}`}
+                                    className={`text-lg font-medium py-2 border-b border-border/50 block ${isActive(item.path) ? 'text-primary' : 'text-slate-700'}`}
                                 >
                                     {item.label}
                                 </Link>

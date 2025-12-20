@@ -100,7 +100,7 @@ export const GlowButton = ({ children, className = '', ...props }) => {
             className={`relative overflow-hidden group ${className}`}
             {...props}
         >
-            <span className="absolute inset-0 bg-gradient-to-r from-primary via-red-400 to-primary opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-500"></span>
+            <span className="absolute inset-0 bg-gradient-to-r from-primary via-sky-400 to-primary opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-500"></span>
             <span className="relative z-10">{children}</span>
         </button>
     )

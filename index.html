@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="vi" class="dark">
+<html lang="vi">
 
 <head>
     <meta charset="UTF-8">
@@ -28,10 +28,15 @@
             theme: {
                 extend: {
                     colors: {
-                        primary: '#ea2a33',
-                        background: '#1a0d0d',
-                        surface: '#2d1b1c',
-                        border: '#472426',
+                        // Light blue + white theme - sáng sủa, tươi mới
+                        primary: '#0ea5e9',         // Sky blue - xanh da trời
+                        'primary-dark': '#0284c7',  // Darker blue for hover
+                        'primary-light': '#7dd3fc', // Light blue accent
+                        background: '#ffffff',       // Pure white background
+                        surface: '#f8fafc',          // Subtle gray surface
+                        border: '#e2e8f0',           // Light gray border
+                        'text-primary': '#0f172a',   // Dark text for contrast
+                        'text-secondary': '#64748b', // Gray text
                     },
                     fontFamily: {
                         sans: ['Space Grotesk', 'sans-serif'],
@@ -94,11 +99,11 @@
         }
 
         .text-glow {
-            text-shadow: 0 0 20px rgba(234, 42, 51, 0.5);
+            text-shadow: 0 0 20px rgba(14, 165, 233, 0.5);
         }
 
         .glass {
-            background: rgba(45, 27, 28, 0.6);
+            background: rgba(248, 250, 252, 0.8);
             backdrop-filter: blur(12px);
         }
 
@@ -113,16 +118,16 @@
         }
 
         ::-webkit-scrollbar-track {
-            background: #1a0d0d;
+            background: #f8fafc;
         }
 
         ::-webkit-scrollbar-thumb {
-            background: #472426;
+            background: #cbd5e1;
             border-radius: 4px;
         }
 
         ::-webkit-scrollbar-thumb:hover {
-            background: #ea2a33;
+            background: #0ea5e9;
         }
 
         /* Shimmer animation for buttons */
@@ -177,7 +182,7 @@
     </style>
 </head>
 
-<body class="bg-background text-white font-sans antialiased overflow-x-hidden">
+<body class="bg-background text-text-primary font-sans antialiased overflow-x-hidden">
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
 </body>

@@ -140,9 +140,9 @@ const Hero = () => {
         </Canvas>
       </div>
 
-      {/* Dark overlays */}
-      <div className="absolute inset-0 z-[3] pointer-events-none bg-gradient-to-r from-background via-background/80 to-background/40"></div>
-      <div className="absolute inset-0 z-[3] pointer-events-none bg-gradient-to-t from-background via-background/30 to-transparent"></div>
+      {/* Light overlays */}
+      <div className="absolute inset-0 z-[3] pointer-events-none bg-gradient-to-r from-white via-white/90 to-white/60"></div>
+      <div className="absolute inset-0 z-[3] pointer-events-none bg-gradient-to-t from-white via-white/50 to-transparent"></div>
 
       {/* Banner indicators */}
       <div className="absolute bottom-24 right-10 z-20 hidden md:flex gap-2">
@@ -168,10 +168,10 @@ const Hero = () => {
           </motion.div>
 
           <div ref={titleRef} className="overflow-hidden">
-            <h1 className="text-white text-4xl sm:text-5xl md:text-7xl lg:text-9xl font-bold leading-[0.9] tracking-tighter drop-shadow-2xl">
+            <h1 className="text-slate-800 text-4xl sm:text-5xl md:text-7xl lg:text-9xl font-bold leading-[0.9] tracking-tighter drop-shadow-sm">
               {titleChars}
               <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-red-400 text-glow">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-sky-400 text-glow">
                 {subtitleChars}
               </span>
             </h1>
@@ -181,7 +181,7 @@ const Hero = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.8, delay: 0.5 }}
-            className="text-gray-300 text-lg md:text-xl max-w-xl leading-relaxed font-light drop-shadow-lg"
+            className="text-slate-600 text-lg md:text-xl max-w-xl leading-relaxed font-light"
           >
             Định nghĩa lại hiệu suất vận tải với công nghệ 3D hiện đại. SINOTRUK HÀ NỘI mang đến các dòng xe HOWO & SITRAK đột phá về sức mạnh.
           </motion.p>
@@ -195,7 +195,7 @@ const Hero = () => {
             <Link
               ref={btn1Ref}
               to="/products"
-              className="flex items-center justify-center h-12 sm:h-14 px-6 sm:px-10 bg-primary hover:bg-red-600 rounded-xl text-white font-bold text-sm sm:text-base transition-colors shadow-2xl shadow-primary/40 group will-change-transform"
+              className="flex items-center justify-center h-12 sm:h-14 px-6 sm:px-10 bg-primary hover:brightness-110 rounded-xl text-white font-bold text-sm sm:text-base transition-colors shadow-xl shadow-primary/30 group will-change-transform"
             >
               Khám Phá Ngay
               <span className="material-symbols-outlined ml-2 text-lg sm:text-xl group-hover:rotate-180 transition-transform duration-500">view_in_ar</span>
@@ -203,7 +203,7 @@ const Hero = () => {
             <Link
               ref={btn2Ref}
               to="/contact"
-              className="flex items-center justify-center h-12 sm:h-14 px-6 sm:px-10 border border-white/20 hover:border-white hover:bg-white/10 rounded-xl text-white font-bold text-sm sm:text-base transition-all group will-change-transform backdrop-blur-sm"
+              className="flex items-center justify-center h-12 sm:h-14 px-6 sm:px-10 border border-slate-300 hover:border-primary hover:bg-primary/5 rounded-xl text-slate-700 font-bold text-sm sm:text-base transition-all group will-change-transform backdrop-blur-sm"
             >
               Tư Vấn Ngay
               <span className="material-symbols-outlined ml-2 text-lg sm:text-xl group-hover:translate-x-1 transition-transform">chat_bubble</span>
@@ -214,19 +214,19 @@ const Hero = () => {
 
       {/* Floating hint */}
       <div className="absolute right-10 bottom-28 hidden xl:block z-20 animate-float">
-        <div className="w-60 bg-black/40 backdrop-blur-lg border border-white/10 rounded-2xl p-5 shadow-xl">
+        <div className="w-60 bg-white/90 backdrop-blur-lg border border-slate-200 rounded-2xl p-5 shadow-xl">
           <div className="flex items-center gap-2 mb-3">
             <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-            <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Interactive</span>
+            <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Interactive</span>
           </div>
-          <h4 className="text-white font-bold text-sm mb-1">Xoay để khám phá</h4>
-          <p className="text-gray-400 text-[10px]">Dùng chuột để xoay mô hình 3D.</p>
+          <h4 className="text-slate-800 font-bold text-sm mb-1">Xoay để khám phá</h4>
+          <p className="text-slate-500 text-[10px]">Dùng chuột để xoay mô hình 3D.</p>
         </div>
       </div>
 
       {/* Scroll indicator */}
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-2 animate-bounce">
-        <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Cuộn</span>
+        <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Cuộn</span>
         <span className="material-symbols-outlined text-primary">keyboard_arrow_down</span>
       </div>
     </section>

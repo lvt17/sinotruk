@@ -115,7 +115,7 @@ const ProductGrid = () => {
     const productCards = useMemo(() => products.map((p, idx) => (
         <TiltCard
             key={idx}
-            className="product-card group relative bg-surface/50 backdrop-blur-sm border border-white/5 rounded-3xl overflow-hidden hover:border-primary/40 transition-colors duration-300 shadow-xl opacity-0"
+            className="product-card group relative bg-white border border-slate-200 rounded-3xl overflow-hidden hover:border-primary/40 transition-colors duration-300 shadow-sm hover:shadow-lg opacity-0"
         >
             <div className="aspect-[16/10] overflow-hidden relative">
                 <img
@@ -127,18 +127,18 @@ const ProductGrid = () => {
                 <div className={`absolute top-5 left-5 ${p.tagColor} text-white text-[9px] font-black px-3 py-1 rounded-full uppercase tracking-wider shadow-lg`}>
                     {p.tag}
                 </div>
-                <div className="absolute inset-0 bg-gradient-to-t from-background to-transparent opacity-50"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-white to-transparent opacity-50"></div>
             </div>
 
             <div className="p-6 space-y-4">
                 <div>
-                    <h3 className="text-white text-xl font-bold group-hover:text-primary transition-colors">{p.name}</h3>
-                    <p className="text-gray-500 text-sm mt-1">{p.subtitle}</p>
+                    <h3 className="text-slate-800 text-xl font-bold group-hover:text-primary transition-colors">{p.name}</h3>
+                    <p className="text-slate-400 text-sm mt-1">{p.subtitle}</p>
                 </div>
 
                 <div className="space-y-2">
                     {p.features.map((f, i) => (
-                        <div key={i} className="flex items-center gap-2 text-gray-400 text-xs">
+                        <div key={i} className="flex items-center gap-2 text-slate-500 text-xs">
                             <div className="w-1 h-1 bg-primary rounded-full"></div>
                             {f}
                         </div>
@@ -148,11 +148,11 @@ const ProductGrid = () => {
                 <div className="flex gap-2 pt-2">
                     <Link
                         to={`/products/${p.category}`}
-                        className="flex-grow py-3 rounded-xl bg-primary text-white font-bold text-xs uppercase tracking-wide hover:bg-red-600 transition-colors text-center"
+                        className="flex-grow py-3 rounded-xl bg-primary text-white font-bold text-xs uppercase tracking-wide hover:brightness-110 transition-colors text-center"
                     >
                         Xem Chi Tiết
                     </Link>
-                    <button className="w-11 h-11 rounded-xl border border-white/10 flex items-center justify-center text-gray-400 hover:text-primary hover:border-primary/50 transition-colors">
+                    <button className="w-11 h-11 rounded-xl border border-slate-200 flex items-center justify-center text-slate-400 hover:text-primary hover:border-primary/50 transition-colors">
                         <span className="material-symbols-outlined text-lg">favorite</span>
                     </button>
                 </div>
@@ -166,11 +166,11 @@ const ProductGrid = () => {
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-6">
                     <div>
                         <span className="text-primary font-bold tracking-widest text-sm uppercase mb-2 block">Showroom</span>
-                        <h2 className="text-white text-4xl md:text-5xl font-bold tracking-tight">Xe Tải Nặng</h2>
+                        <h2 className="text-slate-800 text-4xl md:text-5xl font-bold tracking-tight">Xe Tải Nặng</h2>
                     </div>
                     <Link
                         to="/products"
-                        className="flex items-center gap-2 px-6 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white font-medium text-sm hover:border-primary/50 transition-colors"
+                        className="flex items-center gap-2 px-6 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-700 font-medium text-sm hover:border-primary/50 transition-colors shadow-sm"
                     >
                         Tất cả
                         <span className="material-symbols-outlined text-primary text-lg">arrow_forward</span>

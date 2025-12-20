@@ -36,10 +36,10 @@ const Contact = () => {
             animate={{ y: 0, opacity: 1 }}
             className="text-center"
           >
-            <h1 className="text-5xl md:text-7xl font-bold text-white tracking-tighter mb-4">
+            <h1 className="text-5xl md:text-7xl font-bold text-slate-800 tracking-tighter mb-4">
               LIÊN <span className="text-primary">HỆ</span>
             </h1>
-            <p className="text-gray-400 text-lg max-w-xl mx-auto">
+            <p className="text-slate-500 text-lg max-w-xl mx-auto">
               Chúng tôi luôn sẵn sàng hỗ trợ bạn 24/7
             </p>
           </motion.div>
@@ -83,21 +83,21 @@ const Contact = () => {
               ].map((item, i) => (
                 <div
                   key={i}
-                  className="flex items-start gap-5 p-6 bg-surface border border-border rounded-2xl hover:border-primary/50 transition-all"
+                  className="flex items-start gap-5 p-6 bg-white border border-slate-200 rounded-2xl hover:border-primary/50 transition-all shadow-sm"
                 >
                   <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center text-primary border border-primary/30 flex-shrink-0">
                     <span className="material-symbols-outlined text-2xl">{item.icon}</span>
                   </div>
                   <div>
-                    <h3 className="text-white font-bold text-lg mb-1">{item.title}</h3>
+                    <h3 className="text-slate-800 font-bold text-lg mb-1">{item.title}</h3>
                     {item.href ? (
-                      <a href={item.href} className="text-gray-400 hover:text-primary transition-colors text-lg">
+                      <a href={item.href} className="text-slate-500 hover:text-primary transition-colors text-lg">
                         {item.content}
                       </a>
                     ) : (
-                      <p className="text-gray-400">{item.content}</p>
+                      <p className="text-slate-500">{item.content}</p>
                     )}
-                    {item.sub && <p className="text-gray-500 text-sm mt-1">{item.sub}</p>}
+                    {item.sub && <p className="text-slate-400 text-sm mt-1">{item.sub}</p>}
                   </div>
                 </div>
               ))}
@@ -109,9 +109,9 @@ const Contact = () => {
             initial={{ x: 30, opacity: 0 }}
             whileInView={{ x: 0, opacity: 1 }}
             viewport={{ once: true }}
-            className="bg-surface border border-border rounded-3xl p-8 md:p-10"
+            className="bg-white border border-slate-200 rounded-3xl p-8 md:p-10 shadow-sm"
           >
-            <h2 className="text-2xl font-bold text-white mb-6">Gửi tin nhắn cho chúng tôi</h2>
+            <h2 className="text-2xl font-bold text-slate-800 mb-6">Gửi tin nhắn cho chúng tôi</h2>
 
             {submitted && (
               <div className="mb-6 p-4 bg-green-500/10 border border-green-500/30 rounded-xl flex items-center gap-3 text-green-400">
@@ -122,48 +122,48 @@ const Contact = () => {
 
             <form className="space-y-6" onSubmit={handleSubmit}>
               <div>
-                <label className="text-gray-400 text-sm font-medium mb-2 block">Họ và tên *</label>
+                <label className="text-slate-500 text-sm font-medium mb-2 block">Họ và tên *</label>
                 <input
                   type="text"
                   required
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full px-5 py-4 bg-white/5 border border-border rounded-xl text-white focus:outline-none focus:border-primary transition-all"
+                  className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:border-primary transition-all"
                   placeholder="Nhập họ và tên"
                 />
               </div>
 
               <div>
-                <label className="text-gray-400 text-sm font-medium mb-2 block">Số điện thoại *</label>
+                <label className="text-slate-500 text-sm font-medium mb-2 block">Số điện thoại *</label>
                 <input
                   type="tel"
                   required
                   value={formData.phone}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  className="w-full px-5 py-4 bg-white/5 border border-border rounded-xl text-white focus:outline-none focus:border-primary transition-all"
+                  className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:border-primary transition-all"
                   placeholder="Nhập số điện thoại"
                 />
               </div>
 
               <div>
-                <label className="text-gray-400 text-sm font-medium mb-2 block">Email</label>
+                <label className="text-slate-500 text-sm font-medium mb-2 block">Email</label>
                 <input
                   type="email"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="w-full px-5 py-4 bg-white/5 border border-border rounded-xl text-white focus:outline-none focus:border-primary transition-all"
+                  className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:border-primary transition-all"
                   placeholder="Nhập email (không bắt buộc)"
                 />
               </div>
 
               <div>
-                <label className="text-gray-400 text-sm font-medium mb-2 block">Tin nhắn *</label>
+                <label className="text-slate-500 text-sm font-medium mb-2 block">Tin nhắn *</label>
                 <textarea
                   rows="4"
                   required
                   value={formData.message}
                   onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                  className="w-full px-5 py-4 bg-white/5 border border-border rounded-xl text-white focus:outline-none focus:border-primary transition-all resize-none"
+                  className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:border-primary transition-all resize-none"
                   placeholder="Nhập nội dung tin nhắn"
                 ></textarea>
               </div>
@@ -171,7 +171,7 @@ const Contact = () => {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full py-4 bg-primary hover:bg-red-600 disabled:opacity-50 text-white font-bold rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-primary/20"
+                className="w-full py-4 bg-primary hover:brightness-110 disabled:opacity-50 text-white font-bold rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-primary/20"
               >
                 {isSubmitting ? (
                   <>
@@ -194,7 +194,7 @@ const Contact = () => {
           initial={{ y: 30, opacity: 0 }}
           whileInView={{ y: 0, opacity: 1 }}
           viewport={{ once: true }}
-          className="mt-12 rounded-3xl overflow-hidden border border-border"
+          className="mt-12 rounded-3xl overflow-hidden border border-slate-200 shadow-sm"
         >
           <iframe
             src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3724.123456789!2d105.7!3d21.05!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjHCsDAzJzAwLjAiTiAxMDXCsDQyJzAwLjAiRQ!5e0!3m2!1svi!2s!4v1234567890123!5m2!1svi!2s"

@@ -27,7 +27,7 @@ const CategorySection = () => {
         <section className="py-24 bg-background">
             <div className="container mx-auto px-4 md:px-10 lg:px-20">
                 <div className="text-center mb-20 space-y-4">
-                    <h2 className="text-4xl md:text-5xl font-bold text-white tracking-tight">Danh Mục Sản Phẩm</h2>
+                    <h2 className="text-4xl md:text-5xl font-bold text-slate-800 tracking-tight">Danh Mục Sản Phẩm</h2>
                     <div className="h-1.5 w-24 bg-primary mx-auto rounded-full shadow-lg shadow-primary/40"></div>
                 </div>
 
@@ -42,7 +42,7 @@ const CategorySection = () => {
                                         loading="lazy"
                                         className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 grayscale-[30%] group-hover:grayscale-0"
                                     />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent opacity-80"></div>
+                                    <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-transparent opacity-80"></div>
                                     <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-500">
                                         <span className="bg-primary text-white px-8 py-3 rounded-xl font-bold shadow-2xl transform scale-90 group-hover:scale-100 transition-transform">
                                             Khám Phá Ngay
@@ -51,8 +51,8 @@ const CategorySection = () => {
                                 </div>
                             </div>
                             <div className="text-center px-4">
-                                <h4 className="text-2xl font-bold text-white mb-2 group-hover:text-primary transition-colors">{cat.title}</h4>
-                                <p className="text-gray-500 text-sm font-medium">{cat.desc}</p>
+                                <h4 className="text-2xl font-bold text-slate-800 mb-2 group-hover:text-primary transition-colors">{cat.title}</h4>
+                                <p className="text-slate-500 text-sm font-medium">{cat.desc}</p>
                             </div>
                         </Link>
                     ))}

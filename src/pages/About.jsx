@@ -19,7 +19,7 @@ const TruckModel = () => {
       {/* Cabin */}
       <mesh position={[0, 0.8, 1.2]}>
         <boxGeometry args={[2, 1.6, 1.5]} />
-        <meshStandardMaterial color="#ea2a33" metalness={0.8} roughness={0.2} />
+        <meshStandardMaterial color="#0ea5e9" metalness={0.8} roughness={0.2} />
       </mesh>
       {/* Cabin window */}
       <mesh position={[0, 1.1, 1.95]}>
@@ -87,8 +87,8 @@ const Scene3D = () => {
     <>
       <ambientLight intensity={0.3} />
       <directionalLight position={[5, 5, 5]} intensity={1} color="#fff" />
-      <pointLight position={[-5, 5, 5]} intensity={0.8} color="#ea2a33" />
-      <pointLight position={[5, -5, -5]} intensity={0.4} color="#ff6b6b" />
+      <pointLight position={[-5, 5, 5]} intensity={0.8} color="#0ea5e9" />
+      <pointLight position={[5, -5, -5]} intensity={0.4} color="#7dd3fc" />
 
       <PresentationControls
         global
@@ -101,10 +101,10 @@ const Scene3D = () => {
         <TruckModel />
       </PresentationControls>
 
-      <FloatingSphere position={[-4, 2, -3]} color="#ea2a33" size={0.6} />
-      <FloatingSphere position={[4, -1, -4]} color="#ea2a33" size={0.4} />
-      <FloatingSphere position={[3, 3, -5]} color="#ff6b6b" size={0.5} />
-      <FloatingSphere position={[-3, -2, -4]} color="#ff4444" size={0.3} />
+      <FloatingSphere position={[-4, 2, -3]} color="#0ea5e9" size={0.6} />
+      <FloatingSphere position={[4, -1, -4]} color="#0ea5e9" size={0.4} />
+      <FloatingSphere position={[3, 3, -5]} color="#7dd3fc" size={0.5} />
+      <FloatingSphere position={[-3, -2, -4]} color="#38bdf8" size={0.3} />
     </>
   )
 }
@@ -124,11 +124,11 @@ const About = () => {
         </div>
 
         {/* Mobile fallback gradient background */}
-        <div className="absolute inset-0 z-0 md:hidden bg-gradient-to-br from-primary/20 via-background to-background" />
+        <div className="absolute inset-0 z-0 md:hidden bg-gradient-to-br from-primary/10 via-white to-white" />
 
         {/* Overlay gradients */}
-        <div className="absolute inset-0 z-[1] bg-gradient-to-b from-background via-transparent to-background pointer-events-none" />
-        <div className="absolute inset-0 z-[1] bg-gradient-to-r from-background/80 via-transparent to-background/80 pointer-events-none" />
+        <div className="absolute inset-0 z-[1] bg-gradient-to-b from-white via-transparent to-white pointer-events-none" />
+        <div className="absolute inset-0 z-[1] bg-gradient-to-r from-white/80 via-transparent to-white/80 pointer-events-none" />
 
         {/* Text content */}
         <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none">
@@ -140,13 +140,13 @@ const About = () => {
             <span className="text-primary font-bold text-sm tracking-[0.3em] uppercase mb-4 block">
               SINOTRUK HÀ NỘI
             </span>
-            <h1 className="text-5xl md:text-8xl font-bold text-white tracking-tighter mb-6">
+            <h1 className="text-5xl md:text-8xl font-bold text-slate-800 tracking-tighter mb-6">
               GIỚI <span className="text-primary">THIỆU</span>
             </h1>
-            <p className="text-gray-400 text-lg max-w-xl mx-auto">
+            <p className="text-slate-500 text-lg max-w-xl mx-auto">
               Đối tác tin cậy trong ngành vận tải hạng nặng
             </p>
-            <div className="mt-8 flex items-center justify-center gap-2 text-gray-500 text-sm">
+            <div className="mt-8 flex items-center justify-center gap-2 text-slate-400 text-sm">
               <span className="material-symbols-outlined text-primary animate-pulse">3d_rotation</span>
               Kéo để xoay mô hình 3D
             </div>
@@ -168,9 +168,9 @@ const About = () => {
             { value: '1000+', label: 'Xe đã bàn giao' },
             { value: '63', label: 'Tỉnh thành' },
           ].map((stat, i) => (
-            <div key={i} className="bg-surface/80 backdrop-blur-xl border border-white/10 rounded-2xl p-6 text-center">
+            <div key={i} className="bg-white/90 backdrop-blur-xl border border-slate-200 rounded-2xl p-6 text-center shadow-sm">
               <div className="text-primary text-4xl md:text-5xl font-bold">{stat.value}</div>
-              <div className="text-gray-400 text-sm mt-2">{stat.label}</div>
+              <div className="text-slate-500 text-sm mt-2">{stat.label}</div>
             </div>
           ))}
         </motion.div>
@@ -180,12 +180,12 @@ const About = () => {
           initial={{ y: 30, opacity: 0 }}
           whileInView={{ y: 0, opacity: 1 }}
           viewport={{ once: true }}
-          className="bg-surface border border-border rounded-3xl p-8 md:p-12"
+          className="bg-white border border-slate-200 rounded-3xl p-8 md:p-12 shadow-sm"
         >
-          <h2 className="text-2xl md:text-3xl font-bold text-white mb-6">
+          <h2 className="text-2xl md:text-3xl font-bold text-slate-800 mb-6">
             CÔNG TY CỔ PHẦN SINOTRUK HÀ NỘI
           </h2>
-          <div className="text-gray-400 space-y-4 leading-relaxed">
+          <div className="text-slate-500 space-y-4 leading-relaxed">
             <p>
               Chúng tôi xin gửi lời cảm ơn chân thành đến Quý khách hàng đã
               tin tưởng và đồng hành cùng chúng tôi trong suốt thời gian qua.
@@ -213,19 +213,19 @@ const About = () => {
           initial={{ y: 30, opacity: 0 }}
           whileInView={{ y: 0, opacity: 1 }}
           viewport={{ once: true }}
-          className="bg-surface border border-border rounded-3xl p-8 md:p-12"
+          className="bg-white border border-slate-200 rounded-3xl p-8 md:p-12 shadow-sm"
         >
           <div className="flex items-center gap-4 mb-6">
             <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center text-primary border border-primary/30">
               <span className="material-symbols-outlined text-3xl">verified_user</span>
             </div>
-            <h2 className="text-2xl md:text-3xl font-bold text-white">
+            <h2 className="text-2xl md:text-3xl font-bold text-slate-800">
               CHÍNH SÁCH BẢO HÀNH
             </h2>
           </div>
-          <div className="text-gray-400 space-y-6 leading-relaxed">
+          <div className="text-slate-500 space-y-6 leading-relaxed">
             <div>
-              <h3 className="text-white font-bold text-lg mb-3">1. Điều kiện bảo hành</h3>
+              <h3 className="text-slate-800 font-bold text-lg mb-3">1. Điều kiện bảo hành</h3>
               <ul className="space-y-2 pl-6">
                 <li className="flex items-start gap-3">
                   <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></span>
@@ -247,7 +247,7 @@ const About = () => {
             </div>
 
             <div>
-              <h3 className="text-white font-bold text-lg mb-3">2. Chính sách đổi trả</h3>
+              <h3 className="text-slate-800 font-bold text-lg mb-3">2. Chính sách đổi trả</h3>
               <p>
                 Chúng tôi nhận đổi trả ngay lập tức nếu phụ tùng xe tải do công
                 ty cung cấp không đúng mã sản phẩm, chất lượng hoặc mô tả so
@@ -268,17 +268,17 @@ const About = () => {
           initial={{ y: 30, opacity: 0 }}
           whileInView={{ y: 0, opacity: 1 }}
           viewport={{ once: true }}
-          className="bg-surface border border-border rounded-3xl p-8 md:p-12"
+          className="bg-white border border-slate-200 rounded-3xl p-8 md:p-12 shadow-sm"
         >
           <div className="flex items-center gap-4 mb-6">
             <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center text-primary border border-primary/30">
               <span className="material-symbols-outlined text-3xl">inventory_2</span>
             </div>
-            <h2 className="text-2xl md:text-3xl font-bold text-white">
+            <h2 className="text-2xl md:text-3xl font-bold text-slate-800">
               CHÍNH SÁCH CUNG CẤP
             </h2>
           </div>
-          <div className="text-gray-400 leading-relaxed">
+          <div className="text-slate-500 leading-relaxed">
             <p>
               Chúng tôi cam kết cung cấp sản phẩm chính hãng với chất lượng
               cao nhất. Tất cả sản phẩm đều được kiểm tra kỹ lưỡng trước khi
@@ -293,17 +293,17 @@ const About = () => {
           initial={{ y: 30, opacity: 0 }}
           whileInView={{ y: 0, opacity: 1 }}
           viewport={{ once: true }}
-          className="bg-surface border border-border rounded-3xl p-8 md:p-12"
+          className="bg-white border border-slate-200 rounded-3xl p-8 md:p-12 shadow-sm"
         >
           <div className="flex items-center gap-4 mb-6">
             <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center text-primary border border-primary/30">
               <span className="material-symbols-outlined text-3xl">payments</span>
             </div>
-            <h2 className="text-2xl md:text-3xl font-bold text-white">
+            <h2 className="text-2xl md:text-3xl font-bold text-slate-800">
               PHƯƠNG THỨC THANH TOÁN
             </h2>
           </div>
-          <div className="text-gray-400 leading-relaxed">
+          <div className="text-slate-500 leading-relaxed">
             <p className="mb-4">Chúng tôi chấp nhận các hình thức thanh toán sau:</p>
             <div className="grid sm:grid-cols-3 gap-4">
               {[
@@ -311,9 +311,9 @@ const About = () => {
                 { icon: 'account_balance', label: 'Chuyển khoản' },
                 { icon: 'wallet', label: 'Ví điện tử' },
               ].map((method, i) => (
-                <div key={i} className="flex items-center gap-3 p-4 bg-white/5 rounded-2xl border border-white/10 hover:border-primary/30 transition-colors">
+                <div key={i} className="flex items-center gap-3 p-4 bg-slate-50 rounded-2xl border border-slate-200 hover:border-primary/30 transition-colors">
                   <span className="material-symbols-outlined text-primary text-2xl">{method.icon}</span>
-                  <span className="text-white font-medium">{method.label}</span>
+                  <span className="text-slate-700 font-medium">{method.label}</span>
                 </div>
               ))}
             </div>

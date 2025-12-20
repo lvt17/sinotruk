@@ -23,10 +23,10 @@ const ImageLibrary = () => {
             animate={{ y: 0, opacity: 1 }}
             className="text-center"
           >
-            <h1 className="text-5xl md:text-7xl font-bold text-white tracking-tighter mb-4">
+            <h1 className="text-5xl md:text-7xl font-bold text-slate-800 tracking-tighter mb-4">
               THƯ VIỆN <span className="text-primary">ẢNH</span>
             </h1>
-            <p className="text-gray-400 text-lg max-w-xl mx-auto">
+            <p className="text-slate-500 text-lg max-w-xl mx-auto">
               Bộ sưu tập hình ảnh xe tải Sinotruk
             </p>
           </motion.div>
@@ -41,8 +41,8 @@ const ImageLibrary = () => {
               key={cat}
               onClick={() => setSelectedCategory(cat)}
               className={`px-6 py-2 rounded-full text-sm font-bold transition-all ${selectedCategory === cat
-                  ? 'bg-primary text-white'
-                  : 'bg-surface border border-border text-gray-400 hover:text-white hover:border-primary'
+                ? 'bg-primary text-white'
+                : 'bg-white border border-slate-200 text-slate-600 hover:text-slate-800 hover:border-primary shadow-sm'
                 }`}
             >
               {cat}
@@ -70,10 +70,10 @@ const ImageLibrary = () => {
                   loading="lazy"
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 grayscale-[30%] group-hover:grayscale-0"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent opacity-70"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-transparent opacity-70"></div>
                 <div className="absolute bottom-0 left-0 right-0 p-6">
                   <span className="text-primary text-xs font-bold uppercase tracking-wider">{image.category}</span>
-                  <h3 className="text-white font-bold text-lg mt-1">{image.title}</h3>
+                  <h3 className="text-slate-800 font-bold text-lg mt-1">{image.title}</h3>
                 </div>
                 <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                   <div className="w-14 h-14 bg-primary rounded-full flex items-center justify-center shadow-2xl">

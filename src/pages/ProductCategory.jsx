@@ -42,14 +42,14 @@ const ProductCategory = () => {
             animate={{ y: 0, opacity: 1 }}
             className="text-center"
           >
-            <Link to="/products" className="inline-flex items-center gap-2 text-gray-400 hover:text-primary mb-6 transition-colors">
+            <Link to="/products" className="inline-flex items-center gap-2 text-slate-500 hover:text-primary mb-6 transition-colors">
               <span className="material-symbols-outlined">arrow_back</span>
               Quay lại sản phẩm
             </Link>
-            <h1 className="text-5xl md:text-7xl font-bold text-white tracking-tighter mb-4">
+            <h1 className="text-5xl md:text-7xl font-bold text-slate-800 tracking-tighter mb-4">
               {data.title.split(' ')[0]} <span className="text-primary">{data.title.split(' ').slice(1).join(' ')}</span>
             </h1>
-            <p className="text-gray-400 text-lg max-w-xl mx-auto">
+            <p className="text-slate-500 text-lg max-w-xl mx-auto">
               {data.description}
             </p>
           </motion.div>
@@ -67,7 +67,7 @@ const ProductCategory = () => {
                 transition={{ delay: index * 0.05 }}
                 viewport={{ once: true }}
                 whileHover={{ y: -5 }}
-                className="group bg-surface border border-border rounded-3xl overflow-hidden hover:border-primary/50 transition-all duration-300"
+                className="group bg-white border border-slate-200 rounded-3xl overflow-hidden hover:border-primary/50 transition-all duration-300 shadow-sm hover:shadow-lg"
               >
                 <div className="aspect-square relative overflow-hidden">
                   <img
@@ -75,14 +75,14 @@ const ProductCategory = () => {
                     alt={product.name}
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 grayscale-[30%] group-hover:grayscale-0"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-background to-transparent opacity-60"></div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-white to-transparent opacity-60"></div>
                 </div>
                 <div className="p-6 space-y-4">
                   <div>
-                    <h3 className="text-white font-bold text-lg group-hover:text-primary transition-colors">
+                    <h3 className="text-slate-800 font-bold text-lg group-hover:text-primary transition-colors">
                       {product.name}
                     </h3>
-                    <p className="text-gray-500 text-xs mt-2 font-mono">Mã: {product.code}</p>
+                    <p className="text-slate-400 text-xs mt-2 font-mono">Mã: {product.code}</p>
                   </div>
                   <button className="w-full py-3 bg-primary/10 text-primary font-bold rounded-xl hover:bg-primary hover:text-white transition-all">
                     Nhận Báo Giá
@@ -93,8 +93,8 @@ const ProductCategory = () => {
           </div>
         ) : (
           <div className="text-center py-20">
-            <span className="material-symbols-outlined text-6xl text-gray-600 mb-4">inventory_2</span>
-            <p className="text-gray-400 text-lg">Đang cập nhật sản phẩm cho danh mục này</p>
+            <span className="material-symbols-outlined text-6xl text-slate-300 mb-4">inventory_2</span>
+            <p className="text-slate-500 text-lg">Đang cập nhật sản phẩm cho danh mục này</p>
             <Link to="/products" className="inline-flex items-center gap-2 mt-6 text-primary font-bold hover:underline">
               <span className="material-symbols-outlined">arrow_back</span>
               Xem tất cả sản phẩm

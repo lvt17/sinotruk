@@ -49,7 +49,7 @@ const TruckIcon3D = () => {
             {/* Cabin */}
             <mesh position={[0, 0.5, 0.8]}>
                 <boxGeometry args={[1.2, 1, 1]} />
-                <meshStandardMaterial color="#ea2a33" metalness={0.7} roughness={0.3} />
+                <meshStandardMaterial color="#0ea5e9" metalness={0.7} roughness={0.3} />
             </mesh>
             {/* Cargo */}
             <mesh position={[0, 0.6, -0.5]}>
@@ -72,14 +72,14 @@ const Scene3D = () => {
     return (
         <>
             <ambientLight intensity={0.4} />
-            <pointLight position={[10, 10, 10]} intensity={1} color="#ea2a33" />
+            <pointLight position={[10, 10, 10]} intensity={1} color="#0ea5e9" />
             <pointLight position={[-10, -10, -10]} intensity={0.5} color="#fff" />
 
             <TruckIcon3D />
 
-            <FloatingSphere position={[-3, 1, -2]} color="#ea2a33" size={0.5} speed={0.8} />
-            <FloatingSphere position={[3, -1, -2]} color="#ea2a33" size={0.3} speed={1.2} />
-            <FloatingSphere position={[2, 2, -3]} color="#ff6b6b" size={0.4} speed={1} />
+            <FloatingSphere position={[-3, 1, -2]} color="#0ea5e9" size={0.5} speed={0.8} />
+            <FloatingSphere position={[3, -1, -2]} color="#0ea5e9" size={0.3} speed={1.2} />
+            <FloatingSphere position={[2, 2, -3]} color="#7dd3fc" size={0.4} speed={1} />
         </>
     )
 }
@@ -126,15 +126,15 @@ const AboutSection = () => {
                             <span className="text-primary font-bold text-sm tracking-[0.3em] uppercase mb-4 block">
                                 Về Chúng Tôi
                             </span>
-                            <h2 className="text-white text-4xl md:text-6xl font-bold leading-tight tracking-tight">
+                            <h2 className="text-slate-800 text-4xl md:text-6xl font-bold leading-tight tracking-tight">
                                 Tiên Phong <br />
-                                <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-red-400">
+                                <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-sky-400">
                                     Công Nghệ
                                 </span>
                             </h2>
                         </div>
 
-                        <p className="text-gray-400 text-lg leading-relaxed">
+                        <p className="text-slate-500 text-lg leading-relaxed">
                             Với hơn <span className="text-primary font-bold">15 năm</span> hình thành và phát triển,
                             SINOTRUK HÀ NỘI tự hào là đơn vị phân phối hàng đầu các dòng xe tải nặng.
                             Chúng tôi cam kết mang đến giải pháp vận tải tối ưu, tiết kiệm chi phí
@@ -142,17 +142,17 @@ const AboutSection = () => {
                         </p>
 
                         <div className="flex flex-wrap gap-4">
-                            <div className="flex items-center gap-3 px-5 py-3 bg-white/5 border border-white/10 rounded-xl">
+                            <div className="flex items-center gap-3 px-5 py-3 bg-white border border-slate-200 rounded-xl shadow-sm">
                                 <span className="text-primary text-3xl font-bold">500+</span>
-                                <span className="text-gray-400 text-sm">Khách hàng<br />tin tưởng</span>
+                                <span className="text-slate-500 text-sm">Khách hàng<br />tin tưởng</span>
                             </div>
-                            <div className="flex items-center gap-3 px-5 py-3 bg-white/5 border border-white/10 rounded-xl">
+                            <div className="flex items-center gap-3 px-5 py-3 bg-white border border-slate-200 rounded-xl shadow-sm">
                                 <span className="text-primary text-3xl font-bold">1000+</span>
-                                <span className="text-gray-400 text-sm">Xe đã<br />bàn giao</span>
+                                <span className="text-slate-500 text-sm">Xe đã<br />bàn giao</span>
                             </div>
-                            <div className="flex items-center gap-3 px-5 py-3 bg-white/5 border border-white/10 rounded-xl">
+                            <div className="flex items-center gap-3 px-5 py-3 bg-white border border-slate-200 rounded-xl shadow-sm">
                                 <span className="text-primary text-3xl font-bold">63</span>
-                                <span className="text-gray-400 text-sm">Tỉnh thành<br />phủ sóng</span>
+                                <span className="text-slate-500 text-sm">Tỉnh thành<br />phủ sóng</span>
                             </div>
                         </div>
                     </motion.div>
@@ -169,16 +169,16 @@ const AboutSection = () => {
                             <motion.div
                                 key={i}
                                 whileHover={{ x: 10, scale: 1.02 }}
-                                className="group flex items-center gap-6 p-6 bg-surface/50 backdrop-blur-sm border border-white/5 rounded-2xl hover:border-primary/30 transition-all cursor-pointer"
+                                className="group flex items-center gap-6 p-6 bg-white border border-slate-200 rounded-2xl hover:border-primary/30 transition-all cursor-pointer shadow-sm"
                             >
                                 <div className="w-16 h-16 flex-shrink-0 rounded-2xl bg-primary/10 flex items-center justify-center border border-primary/30 text-primary group-hover:bg-primary group-hover:text-white transition-all">
                                     <span className="material-symbols-outlined text-3xl">{item.icon}</span>
                                 </div>
                                 <div>
-                                    <h4 className="text-white font-bold text-lg group-hover:text-primary transition-colors">{item.label}</h4>
-                                    <p className="text-gray-500 text-sm mt-1">{item.desc}</p>
+                                    <h4 className="text-slate-800 font-bold text-lg group-hover:text-primary transition-colors">{item.label}</h4>
+                                    <p className="text-slate-400 text-sm mt-1">{item.desc}</p>
                                 </div>
-                                <span className="material-symbols-outlined text-gray-600 group-hover:text-primary ml-auto transition-colors">
+                                <span className="material-symbols-outlined text-slate-400 group-hover:text-primary ml-auto transition-colors">
                                     arrow_forward
                                 </span>
                             </motion.div>
