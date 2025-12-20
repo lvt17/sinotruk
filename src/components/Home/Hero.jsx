@@ -126,8 +126,8 @@ const Hero = () => {
         </AnimatePresence>
       </div>
 
-      {/* 3D Canvas overlay */}
-      <div className="absolute inset-0 z-[2] opacity-60 mix-blend-screen pointer-events-none lg:pointer-events-auto">
+      {/* 3D Canvas overlay - hidden on mobile for performance */}
+      <div className="absolute inset-0 z-[2] opacity-60 mix-blend-screen pointer-events-none lg:pointer-events-auto hidden md:block">
         <Canvas
           shadows={false}
           camera={{ position: [0, 2, 8], fov: 35 }}
@@ -168,7 +168,7 @@ const Hero = () => {
           </motion.div>
 
           <div ref={titleRef} className="overflow-hidden">
-            <h1 className="text-white text-5xl md:text-7xl lg:text-9xl font-bold leading-[0.85] tracking-tighter drop-shadow-2xl">
+            <h1 className="text-white text-4xl sm:text-5xl md:text-7xl lg:text-9xl font-bold leading-[0.9] tracking-tighter drop-shadow-2xl">
               {titleChars}
               <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-red-400 text-glow">
@@ -190,23 +190,23 @@ const Hero = () => {
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ duration: 0.6, delay: 0.6 }}
-            className="flex flex-wrap gap-5 pt-4"
+            className="flex flex-col sm:flex-row gap-3 sm:gap-5 pt-4"
           >
             <Link
               ref={btn1Ref}
               to="/products"
-              className="flex items-center justify-center h-14 px-10 bg-primary hover:bg-red-600 rounded-xl text-white font-bold transition-colors shadow-2xl shadow-primary/40 group will-change-transform"
+              className="flex items-center justify-center h-12 sm:h-14 px-6 sm:px-10 bg-primary hover:bg-red-600 rounded-xl text-white font-bold text-sm sm:text-base transition-colors shadow-2xl shadow-primary/40 group will-change-transform"
             >
               Khám Phá Ngay
-              <span className="material-symbols-outlined ml-2 group-hover:rotate-180 transition-transform duration-500">view_in_ar</span>
+              <span className="material-symbols-outlined ml-2 text-lg sm:text-xl group-hover:rotate-180 transition-transform duration-500">view_in_ar</span>
             </Link>
             <Link
               ref={btn2Ref}
               to="/contact"
-              className="flex items-center justify-center h-14 px-10 border border-white/20 hover:border-white hover:bg-white/10 rounded-xl text-white font-bold transition-all group will-change-transform backdrop-blur-sm"
+              className="flex items-center justify-center h-12 sm:h-14 px-6 sm:px-10 border border-white/20 hover:border-white hover:bg-white/10 rounded-xl text-white font-bold text-sm sm:text-base transition-all group will-change-transform backdrop-blur-sm"
             >
               Tư Vấn Ngay
-              <span className="material-symbols-outlined ml-2 group-hover:translate-x-1 transition-transform">chat_bubble</span>
+              <span className="material-symbols-outlined ml-2 text-lg sm:text-xl group-hover:translate-x-1 transition-transform">chat_bubble</span>
             </Link>
           </motion.div>
         </div>

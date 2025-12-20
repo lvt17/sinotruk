@@ -113,15 +113,18 @@ const About = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Hero with 3D */}
-      <div className="relative h-[70vh] overflow-hidden">
-        {/* 3D Canvas */}
-        <div className="absolute inset-0 z-0">
+      <div className="relative h-[50vh] md:h-[70vh] overflow-hidden">
+        {/* 3D Canvas - hidden on mobile for performance */}
+        <div className="absolute inset-0 z-0 hidden md:block">
           <Canvas camera={{ position: [0, 2, 8], fov: 45 }} dpr={[1, 2]}>
             <Suspense fallback={null}>
               <Scene3D />
             </Suspense>
           </Canvas>
         </div>
+
+        {/* Mobile fallback gradient background */}
+        <div className="absolute inset-0 z-0 md:hidden bg-gradient-to-br from-primary/20 via-background to-background" />
 
         {/* Overlay gradients */}
         <div className="absolute inset-0 z-[1] bg-gradient-to-b from-background via-transparent to-background pointer-events-none" />

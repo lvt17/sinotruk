@@ -13,13 +13,13 @@ const StatsSection = () => {
                     {stats.map((stat, idx) => (
                         <div
                             key={idx}
-                            className={`flex flex-col gap-2 items-center md:items-start p-4 transition-all hover:scale-105 ${idx !== 0 ? 'md:border-l md:border-border md:pl-8' : ''}`}
+                            className={`flex flex-col gap-1 md:gap-2 items-center md:items-start p-2 md:p-4 transition-all hover:scale-105 ${idx !== 0 ? 'md:border-l md:border-border md:pl-8' : ''}`}
                         >
-                            <div className="p-3 bg-primary/10 rounded-2xl text-primary mb-3">
-                                <span className="material-symbols-outlined text-4xl">{stat.icon}</span>
+                            <div className="p-2 md:p-3 bg-primary/10 rounded-xl md:rounded-2xl text-primary mb-2 md:mb-3">
+                                <span className="material-symbols-outlined text-2xl md:text-4xl">{stat.icon}</span>
                             </div>
-                            <p className="text-white text-4xl font-bold tracking-tighter">{stat.value}</p>
-                            <p className="text-gray-400 text-sm font-semibold uppercase tracking-wider">{stat.label}</p>
+                            <p className="text-white text-2xl md:text-4xl font-bold tracking-tighter">{stat.value}</p>
+                            <p className="text-gray-400 text-[10px] md:text-sm font-semibold uppercase tracking-wider text-center md:text-left">{stat.label}</p>
                         </div>
                     ))}
                 </div>
