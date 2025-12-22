@@ -12,9 +12,15 @@ import Login from './pages/Login';
 
 // Protected Route Component
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
+    const checkAuth = () => {
+        try {
+            return localStorage.getItem('isAuthenticated') === 'true';
+        } catch (e) {
+            return false;
+        }
+    };
     
-    if (!isAuthenticated) {
+    if (!checkAuth()) {
         return <Navigate to="/login" replace />;
     }
     
@@ -23,9 +29,15 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
 
 // Public Route Component (redirect if already logged in)
 const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
+    const checkAuth = () => {
+        try {
+            return localStorage.getItem('isAuthenticated') === 'true';
+        } catch (e) {
+            return false;
+        }
+    };
     
-    if (isAuthenticated) {
+    if (checkAuth()) {
         return <Navigate to="/dashboard" replace />;
     }
     
@@ -33,13 +45,22 @@ const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 };
 
 const App: React.FC = () => {
+    // Check auth status safely
+    const checkAuth = () => {
+        try {
+            return localStorage.getItem('isAuthenticated') === 'true';
+        } catch (e) {
+            return false;
+        }
+    };
+
     return (
         <Routes>
             {/* Root path - redirect based on auth status */}
             <Route 
                 path="/" 
                 element={
-                    localStorage.getItem('isAuthenticated') === 'true' 
+                    checkAuth() 
                         ? <Navigate to="/dashboard" replace />
                         : <Navigate to="/login" replace />
                 } 
