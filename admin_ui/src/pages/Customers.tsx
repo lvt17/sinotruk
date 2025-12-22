@@ -131,7 +131,6 @@ const Customers: React.FC = () => {
             {viewingCustomer && <ViewCustomerModal customerId={viewingCustomer} onClose={() => setViewingCustomer(null)} />}
             {payingCustomer && (
                 <PaymentModal 
-                    customerId={payingCustomer.id}
                     customerCode={payingCustomer.code}
                     currentDebt={payingCustomer.debt}
                     onClose={() => setPayingCustomer(null)} 

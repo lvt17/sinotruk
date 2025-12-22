@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 
 interface PaymentModalProps {
-    customerId: number;
     customerCode: string;
     currentDebt: number;
     onClose: () => void;
