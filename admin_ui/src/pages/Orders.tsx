@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import ViewOrderModal from '../components/ViewOrderModal';
 import EditOrderModal from '../components/EditOrderModal';
+import CreateOrderModal from '../components/CreateOrderModal';
 
 const mockOrders = [
     { id: 1, tenphieu: 'Đơn hàng TQ #001', money: 15000000, lock: false, completed: true, created_at: '2024-12-20' },
@@ -16,6 +17,7 @@ const Orders: React.FC = () => {
     const [yearInput, setYearInput] = useState('');
     const [viewingOrder, setViewingOrder] = useState<number | null>(null);
     const [editingOrder, setEditingOrder] = useState<number | null>(null);
+    const [showCreateModal, setShowCreateModal] = useState(false);
 
     const filteredOrders = mockOrders.filter(order => {
         const matchesSearch = order.tenphieu.toLowerCase().includes(search.toLowerCase());
@@ -61,7 +63,10 @@ const Orders: React.FC = () => {
                     <h1 className="text-3xl font-bold text-slate-800 tracking-tight">Đơn hàng</h1>
                     <p className="text-slate-500">Quản lý đơn đặt hàng từ Trung Quốc</p>
                 </div>
-                <button className="flex items-center gap-2 px-6 py-2.5 bg-primary hover:bg-primary-dark text-white text-sm font-bold rounded-xl transition-colors shadow-lg shadow-primary/20">
+                <button 
+                    onClick={() => setShowCreateModal(true)}
+                    className="flex items-center gap-2 px-6 py-2.5 bg-primary hover:bg-primary-dark text-white text-sm font-bold rounded-xl transition-colors shadow-lg shadow-primary/20"
+                >
                     <span className="material-symbols-outlined text-xl">add</span>
                     Tạo đơn hàng
                 </button>
@@ -225,6 +230,11 @@ const Orders: React.FC = () => {
                 <EditOrderModal 
                     orderId={editingOrder} 
                     onClose={() => setEditingOrder(null)} 
+                />
+            )}
+            {showCreateModal && (
+                <CreateOrderModal 
+                    onClose={() => setShowCreateModal(false)} 
                 />
             )}
         </div>

@@ -1,4 +1,13 @@
 import React, { useState } from 'react';
+import ProductSelectionModal from './ProductSelectionModal';
+
+interface ProductItem {
+    id: number;
+    code: string;
+    name: string;
+    quantity: number;
+    price: number;
+}
 
 interface CreateExportModalProps {
     onClose: () => void;
@@ -12,11 +21,32 @@ const CreateExportModal: React.FC<CreateExportModalProps> = ({ onClose, onSave }
         date: new Date().toISOString().split('T')[0],
         note: '',
     });
+    const [products, setProducts] = useState<ProductItem[]>([]);
+    const [showProductModal, setShowProductModal] = useState(false);
+
+    const handleAddProduct = (product: any, quantity: number) => {
+        const newProduct: ProductItem = {
+            id: product.id,
+            code: product.code,
+            name: product.name,
+            quantity: quantity,
+            price: product.price,
+        };
+        setProducts([...products, newProduct]);
+    };
+
+    const handleRemoveProduct = (id: number) => {
+        setProducts(products.filter(p => p.id !== id));
+    };
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+        if (products.length === 0) {
+            alert('Vui lòng thêm ít nhất một sản phẩm');
+            return;
+        }
         if (onSave) {
-            onSave(formData);
+            onSave({ ...formData, products });
         }
         alert('Phiếu xuất kho đã được tạo thành công');
         onClose();
@@ -51,7 +81,12 @@ const CreateExportModal: React.FC<CreateExportModalProps> = ({ onClose, onSave }
                             <label className="block text-sm font-medium text-slate-700 mb-2">
                                 Khách hàng <span className="text-red-500">*</span>
                             </label>
-                            <select required className="input">
+                            <select 
+                                required 
+                                value={formData.customer}
+                                onChange={(e) => setFormData({ ...formData, customer: e.target.value })}
+                                className="input"
+                            >
                                 <option value="">Chọn khách hàng</option>
                                 <option value="1">Công ty ABC</option>
                                 <option value="2">Nguyễn Văn A</option>
@@ -88,10 +123,7 @@ const CreateExportModal: React.FC<CreateExportModalProps> = ({ onClose, onSave }
                             <p className="text-sm font-medium text-slate-700">Danh sách sản phẩm xuất kho</p>
                             <button 
                                 type="button" 
-                                onClick={() => {
-                                    // In production, open product selection modal
-                                    alert('Mở danh sách sản phẩm để chọn');
-                                }}
+                                onClick={() => setShowProductModal(true)}
                                 className="text-sm text-primary hover:text-primary-dark font-medium flex items-center gap-1"
                             >
                                 <span className="material-symbols-outlined text-lg">add</span>
@@ -99,21 +131,28 @@ const CreateExportModal: React.FC<CreateExportModalProps> = ({ onClose, onSave }
                             </button>
                         </div>
                         <div className="space-y-2">
-                            {/* Mock product list - in production, this will be dynamic */}
-                            <div className="p-3 bg-white rounded-lg border border-slate-200 flex items-center justify-between">
-                                <div>
-                                    <p className="font-medium text-slate-800">Xilanh kích cabin VX350</p>
-                                    <p className="text-xs text-slate-500">Mã: XLKVX | Số lượng: 5</p>
-                                </div>
-                                <button 
-                                    type="button"
-                                    onClick={() => alert('Xóa sản phẩm')}
-                                    className="text-red-500 hover:text-red-700"
-                                >
-                                    <span className="material-symbols-outlined text-lg">delete</span>
-                                </button>
-                            </div>
-                            <p className="text-xs text-slate-400 text-center">Chưa có sản phẩm nào. Nhấn "Thêm sản phẩm" để bắt đầu.</p>
+                            {products.length === 0 ? (
+                                <p className="text-xs text-slate-400 text-center py-4">Chưa có sản phẩm nào. Nhấn "Thêm sản phẩm" để bắt đầu.</p>
+                            ) : (
+                                products.map((product) => (
+                                    <div key={product.id} className="p-3 bg-white rounded-lg border border-slate-200 flex items-center justify-between">
+                                        <div className="flex-1">
+                                            <p className="font-medium text-slate-800">{product.name}</p>
+                                            <p className="text-xs text-slate-500">Mã: {product.code} | Số lượng: {product.quantity}</p>
+                                            <p className="text-xs font-bold text-primary mt-1">
+                                                {new Intl.NumberFormat('vi-VN').format(product.price * product.quantity)}đ
+                                            </p>
+                                        </div>
+                                        <button 
+                                            type="button"
+                                            onClick={() => handleRemoveProduct(product.id)}
+                                            className="text-red-500 hover:text-red-700 ml-4"
+                                        >
+                                            <span className="material-symbols-outlined text-lg">delete</span>
+                                        </button>
+                                    </div>
+                                ))
+                            )}
                         </div>
                     </div>
 
@@ -127,6 +166,13 @@ const CreateExportModal: React.FC<CreateExportModalProps> = ({ onClose, onSave }
                     </div>
                 </form>
             </div>
+
+            {showProductModal && (
+                <ProductSelectionModal
+                    onClose={() => setShowProductModal(false)}
+                    onSelect={handleAddProduct}
+                />
+            )}
         </div>
     );
 };
