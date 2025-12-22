@@ -8,12 +8,31 @@
             "destination": "/secret/index.html"
         },
         {
+            "source": "/secret/login",
+            "destination": "/secret/index.html"
+        },
+        {
+            "source": "/secret/dashboard",
+            "destination": "/secret/index.html"
+        },
+        {
             "source": "/secret/(.*)",
             "destination": "/secret/index.html"
         },
         {
             "source": "/(.*)",
             "destination": "/index.html"
+        }
+    ],
+    "headers": [
+        {
+            "source": "/secret/assets/(.*)",
+            "headers": [
+                {
+                    "key": "Cache-Control",
+                    "value": "public, max-age=31536000, immutable"
+                }
+            ]
         }
     ]
 }
