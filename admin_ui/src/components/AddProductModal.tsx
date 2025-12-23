@@ -19,9 +19,9 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ onClose, onAdd }) => 
     });
     const [isUploading, setIsUploading] = useState(false);
 
-    // Cloudinary configuration - Replace with real credentials
-    const CLOUDINARY_UPLOAD_PRESET = 'antigravity_preset'; // Replace with user's preset
-    const CLOUDINARY_CLOUD_NAME = 'dgv7d7n6q'; // Replace with user's cloud name
+    // Cloudinary configuration - Using environment variables from Vercel/Vite
+    const CLOUDINARY_UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
+    const CLOUDINARY_CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
 
     const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
