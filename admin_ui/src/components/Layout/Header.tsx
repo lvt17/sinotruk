@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useNotification } from '../shared/Notification';
 import NotificationDropdown from '../NotificationDropdown';
 import SettingsModal from '../SettingsModal';
@@ -10,53 +11,62 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
     const notification = useNotification();
     const [showSettings, setShowSettings] = useState(false);
+    const location = useLocation();
+
+    const getPageTitle = () => {
+        const path = location.pathname;
+        if (path.includes('/dashboard')) return 'Tổng quan hệ thống';
+        if (path.includes('/products')) return 'Danh mục Phụ tùng';
+        return 'Admin Panel';
+    };
 
     const handleExportReport = () => {
-        // In production, call API to export report
-        notification.info('Tính năng xuất báo cáo đang được phát triển. Báo cáo sẽ được tải xuống dạng Excel.');
-        // Example: window.open('/api/reports/export', '_blank');
+        notification.info('Hệ thống đang trích xuất dữ liệu Catalog...');
     };
 
     return (
         <>
-            <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 md:px-6 shadow-sm">
-                <div className="flex items-center gap-4 flex-1">
+            <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 md:px-6 shadow-sm sticky top-0 z-10">
+                <div className="flex items-center gap-4">
                     {/* Mobile Menu Toggle */}
                     <button
                         onClick={onMenuClick}
-                        className="md:hidden p-2 text-slate-600 hover:text-primary transition-colors"
+                        className="md:hidden p-2 text-slate-600 hover:text-primary transition-colors hover:bg-slate-50 rounded-xl"
                     >
                         <span className="material-symbols-outlined">menu</span>
                     </button>
 
-                    {/* Search - hidden on very small screens or made smaller */}
-                    <div className="hidden sm:block flex-1 max-w-md">
-                        <input
-                            type="text"
-                            placeholder="Tìm kiếm..."
-                            className="input text-sm py-1.5"
-                        />
+                    {/* Section Indicator */}
+                    <div className="flex items-center gap-3">
+                        <div className="hidden md:flex items-center gap-2 px-3 py-1 bg-slate-50 border border-slate-100 rounded-lg">
+                            <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">System Online</span>
+                        </div>
+                        <div className="h-6 w-[1px] bg-slate-200 hidden md:block"></div>
+                        <h2 className="text-slate-800 font-bold text-sm md:text-base tracking-tight">{getPageTitle()}</h2>
                     </div>
                 </div>
 
                 {/* Actions */}
                 <div className="flex items-center gap-2 md:gap-4">
-                    <NotificationDropdown />
-                    <button
-                        onClick={() => setShowSettings(true)}
-                        className="p-2 text-slate-600 hover:text-primary transition-colors"
-                        title="Cài đặt"
-                    >
-                        <span className="material-symbols-outlined text-xl md:text-2xl">settings</span>
-                    </button>
-
-                    {/* CTA Button - replaced with icon on mobile */}
                     <button
                         onClick={handleExportReport}
-                        className="flex items-center justify-center gap-2 px-3 md:px-6 py-2 bg-primary hover:bg-primary-dark text-white text-xs md:text-sm font-bold rounded-lg md:rounded-xl transition-colors shadow-lg shadow-primary/20"
+                        className="hidden sm:flex items-center gap-2 px-4 py-2 text-slate-600 hover:text-primary transition-all text-xs font-bold border border-transparent hover:border-slate-100 hover:bg-slate-50 rounded-xl"
                     >
-                        <span className="hidden md:inline">Xuất báo cáo</span>
                         <span className="material-symbols-outlined text-sm">download</span>
+                        <span>Trích xuất Data</span>
+                    </button>
+
+                    <div className="h-6 w-[1px] bg-slate-200 hidden sm:block mx-1"></div>
+
+                    <NotificationDropdown />
+
+                    <button
+                        onClick={() => setShowSettings(true)}
+                        className="p-2 text-slate-600 hover:text-primary transition-all hover:bg-slate-50 rounded-xl"
+                        title="Cấu hình Catalog"
+                    >
+                        <span className="material-symbols-outlined text-xl md:text-2xl">settings_applications</span>
                     </button>
                 </div>
             </header>
