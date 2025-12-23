@@ -15,7 +15,7 @@ const Products: React.FC = () => {
     const [showAddModal, setShowAddModal] = useState(false);
     const [products, setProducts] = useState<Product[]>([]);
     const [categories, setCategories] = useState<Category[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [_loading, setLoading] = useState(true);
 
     // Get category and cursor from URL params  
     const categoryFilter = searchParams.get('category') || 'ALL';
