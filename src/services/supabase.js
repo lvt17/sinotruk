@@ -31,3 +31,16 @@ export const getCategories = async () => {
     }
     return data || [];
 };
+
+export const getCatalogs = async () => {
+    const { data, error } = await supabase
+        .from('catalogs')
+        .select('*')
+        .order('id');
+
+    if (error) {
+        console.error('Error fetching catalogs:', error);
+        return [];
+    }
+    return data || [];
+};

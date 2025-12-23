@@ -1,102 +1,83 @@
 import { useState, useEffect } from 'react'
-import { useSearchParams, Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { IMAGES } from '../constants/images'
+import { getProducts, getCategories } from '../services/supabase'
 
-// Mock data with properly matched images
-const allProducts = [
+// Fallback products
+const fallbackProducts = [
   {
     id: 1,
-    name: 'Xilanh kích cabin VX350 VX400',
-    code: 'XLKVX',
-    manufacturerCode: 'WG9525820140/2',
-    image: IMAGES.parts.cabinCylinder,
-    category: 'CABIN & THÂN VỎ',
-    tag: 'Original',
+    name: 'Lọc dầu động cơ HOWO A7',
+    code: 'LDDC-A7',
+    description: 'Phụ tùng động cơ',
+    price: 350000,
+    price_bulk: 300000,
+    image: null,
+    category_id: 2,
   },
   {
     id: 2,
-    name: 'Tăm bét trước VGD95 SITRAK T7H',
-    code: 'TBTSI.L',
-    manufacturerCode: 'AZ4095410005',
-    image: IMAGES.parts.bearing,
-    category: 'ĐỘNG CƠ',
-    tag: 'Best Seller',
+    name: 'Má phanh SITRAK G7',
+    code: 'MPH-G7S',
+    description: 'Phụ tùng phanh',
+    price: 850000,
+    price_bulk: 750000,
+    image: null,
+    category_id: 5,
   },
   {
     id: 3,
-    name: 'Lọc dầu động cơ HOWO A7',
-    code: 'LDDC-A7',
-    manufacturerCode: 'VG61000070005',
-    image: IMAGES.parts.oilFilter,
-    category: 'ĐỘNG CƠ',
-    tag: 'Premium',
-  },
-  {
-    id: 4,
-    name: 'Lá côn HOWO 420 chính hãng',
-    code: 'LC420',
-    manufacturerCode: 'WG9114160020',
-    image: IMAGES.parts.clutchDisc,
-    category: 'BỘ PHẬN LY HỢP',
-    tag: 'Original',
-  },
-  {
-    id: 5,
-    name: 'Phanh tang trống sau SITRAK',
-    code: 'PTTS',
-    manufacturerCode: 'AZ9231342006',
-    image: IMAGES.parts.drumBrake,
-    category: 'HỆ THỐNG PHANH',
-    tag: 'Premium',
-  },
-  {
-    id: 6,
-    name: 'Đầu lọc khí nén HOWO',
-    code: 'DLKN',
-    manufacturerCode: 'WG9725190102',
-    image: IMAGES.parts.airFilter,
-    category: 'HỆ THỐNG HÚT XẢ',
-    tag: 'Original',
+    name: 'Bơm thủy lực cabin HOWO',
+    code: 'BTL-HW',
+    description: 'Phụ tùng cabin',
+    price: 2500000,
+    price_bulk: 2200000,
+    image: null,
+    category_id: 1,
   },
 ]
 
-const categories = [
-  'all',
-  'CABIN & THÂN VỎ',
-  'ĐỘNG CƠ',
-  'HỘP SỐ',
-  'HỆ THỐNG HÚT XẢ',
-  'HT LÀM MÁT',
-  'BỘ PHẬN LY HỢP',
-  'HỆ THỐNG PHANH',
-]
+// Format price
+const formatPrice = (price) => {
+  if (!price || price === 0) return 'Liên hệ'
+  return new Intl.NumberFormat('vi-VN').format(price) + 'đ'
+}
 
 const Products = () => {
-  const [searchParams] = useSearchParams()
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('all')
-  const [filteredProducts, setFilteredProducts] = useState(allProducts)
+  const [products, setProducts] = useState([])
+  const [categories, setCategories] = useState([])
+  const [loading, setLoading] = useState(true)
   const [showFilters, setShowFilters] = useState(false)
 
+  // Load products and categories from Supabase
   useEffect(() => {
-    let filtered = allProducts
-
-    if (selectedCategory !== 'all') {
-      filtered = filtered.filter((p) => p.category === selectedCategory)
+    const loadData = async () => {
+      try {
+        const [productsData, categoriesData] = await Promise.all([
+          getProducts(50),
+          getCategories()
+        ])
+        setProducts(productsData.length > 0 ? productsData : fallbackProducts)
+        setCategories(categoriesData)
+      } catch (err) {
+        console.error('Error loading data:', err)
+        setProducts(fallbackProducts)
+      } finally {
+        setLoading(false)
+      }
     }
+    loadData()
+  }, [])
 
-    if (searchTerm) {
-      filtered = filtered.filter(
-        (p) =>
-          p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          p.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          p.manufacturerCode.toLowerCase().includes(searchTerm.toLowerCase())
-      )
-    }
-
-    setFilteredProducts(filtered)
-  }, [searchTerm, selectedCategory])
+  // Filter products
+  const filteredProducts = products.filter((p) => {
+    const matchesCategory = selectedCategory === 'all' || p.category_id === parseInt(selectedCategory)
+    const matchesSearch = !searchTerm ||
+      p.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      p.code?.toLowerCase().includes(searchTerm.toLowerCase())
+    return matchesCategory && matchesSearch
+  })
 
   return (
     <div className="min-h-screen bg-background">
@@ -155,16 +136,25 @@ const Products = () => {
           >
             <h4 className="text-slate-800 font-bold mb-4 uppercase tracking-wider text-sm">Danh mục</h4>
             <div className="flex flex-wrap gap-3">
+              <button
+                className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${selectedCategory === 'all'
+                  ? 'bg-primary text-white'
+                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-800'
+                  }`}
+                onClick={() => setSelectedCategory('all')}
+              >
+                Tất cả
+              </button>
               {categories.map((cat) => (
                 <button
-                  key={cat}
-                  className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${selectedCategory === cat
+                  key={cat.id}
+                  className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${selectedCategory === String(cat.id)
                     ? 'bg-primary text-white'
                     : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-800'
                     }`}
-                  onClick={() => setSelectedCategory(cat)}
+                  onClick={() => setSelectedCategory(String(cat.id))}
                 >
-                  {cat === 'all' ? 'Tất cả' : cat}
+                  {cat.name}
                 </button>
               ))}
             </div>
@@ -172,7 +162,20 @@ const Products = () => {
         )}
 
         {/* Products Grid */}
-        {filteredProducts.length > 0 ? (
+        {loading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <div key={i} className="bg-white border border-slate-200 rounded-3xl overflow-hidden animate-pulse">
+                <div className="aspect-square bg-slate-200"></div>
+                <div className="p-6 space-y-4">
+                  <div className="h-6 bg-slate-200 rounded w-3/4"></div>
+                  <div className="h-4 bg-slate-200 rounded w-1/2"></div>
+                  <div className="h-10 bg-slate-200 rounded"></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : filteredProducts.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {filteredProducts.map((product, index) => (
               <motion.div
@@ -184,15 +187,22 @@ const Products = () => {
                 whileHover={{ y: -5 }}
                 className="group bg-white border border-slate-200 rounded-3xl overflow-hidden hover:border-primary/50 transition-all duration-300 shadow-sm hover:shadow-lg"
               >
-                <div className="aspect-square relative overflow-hidden bg-gray-900">
-                  <img
-                    src={product.image}
-                    alt={product.name}
-                    loading="lazy"
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                  />
+                <div className="aspect-square relative overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200">
+                  {product.image ? (
+                    <img
+                      src={product.image.startsWith('http') ? product.image : `https://irncljhvsjtohiqllnsv.supabase.co/storage/v1/object/public/products/${product.image}`}
+                      alt={product.name}
+                      loading="lazy"
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                      onError={(e) => { e.target.style.display = 'none' }}
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <span className="material-symbols-outlined text-8xl text-gray-300">settings</span>
+                    </div>
+                  )}
                   <div className="absolute top-4 left-4 bg-primary text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
-                    {product.tag}
+                    {product.code || 'Mới'}
                   </div>
                   <div className="absolute inset-0 bg-gradient-to-t from-white to-transparent opacity-60"></div>
                 </div>
@@ -201,18 +211,29 @@ const Products = () => {
                     <h3 className="text-slate-800 font-bold text-lg group-hover:text-primary transition-colors line-clamp-2">
                       {product.name}
                     </h3>
-                    <p className="text-slate-400 text-xs mt-2 font-mono">
-                      Mã: {product.code} | {product.manufacturerCode}
-                    </p>
+                    <p className="text-slate-400 text-sm mt-1">{product.description || 'Phụ tùng chính hãng'}</p>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-[10px] text-slate-500 uppercase tracking-wider px-2 py-1 bg-slate-100 rounded-lg">
-                      {product.category}
-                    </span>
+
+                  <div className="space-y-1">
+                    {product.price > 0 && (
+                      <p className="text-sm text-slate-600">
+                        Giá lẻ: <span className="font-bold text-slate-800">{formatPrice(product.price)}</span>
+                      </p>
+                    )}
+                    {product.price_bulk > 0 && (
+                      <p className="text-sm text-slate-600">
+                        Giá sỉ: <span className="font-bold text-green-600">{formatPrice(product.price_bulk)}</span>
+                      </p>
+                    )}
                   </div>
-                  <button className="w-full py-3 bg-primary/10 text-primary font-bold rounded-xl hover:bg-primary hover:text-white transition-all">
-                    Nhận Báo Giá
-                  </button>
+
+                  <a
+                    href="tel:0382890990"
+                    className="w-full py-3 bg-primary/10 text-primary font-bold rounded-xl hover:bg-primary hover:text-white transition-all flex items-center justify-center gap-2"
+                  >
+                    <span className="material-symbols-outlined text-lg">call</span>
+                    Đặt Hàng
+                  </a>
                 </div>
               </motion.div>
             ))}

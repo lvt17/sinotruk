@@ -54,6 +54,25 @@ INSERT INTO categories (name) VALUES
     ('THỦY LỰC')
 ON CONFLICT (name) DO NOTHING;
 
+-- Catalogs table (PDF catalogs)
+CREATE TABLE IF NOT EXISTS catalogs (
+    id SERIAL PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    file_url TEXT,
+    pages INT DEFAULT 0,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Insert default catalogs
+INSERT INTO catalogs (title, description, pages) VALUES 
+    ('Catalog HOWO A7', 'Phụ tùng đầy đủ cho dòng xe HOWO A7', 156),
+    ('Catalog SITRAK T7H', 'Phụ tùng chính hãng SITRAK T7H', 124),
+    ('Catalog HOWO Ben', 'Phụ tùng cho xe ben HOWO các loại', 98),
+    ('Catalog Sơ Mi Rơ Moóc', 'Phụ tùng sơ mi rơ moóc CIMC', 76)
+ON CONFLICT DO NOTHING;
+
 -- Function to update updated_at timestamp
 CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$
