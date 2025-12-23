@@ -23,6 +23,7 @@ const EditProductModal: React.FC<EditProductModalProps> = ({ product, onClose, o
         image: product.image || '',
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isUploading, setIsUploading] = useState(false);
 
     useEffect(() => {
         const loadCategories = async () => {
@@ -35,6 +36,49 @@ const EditProductModal: React.FC<EditProductModalProps> = ({ product, onClose, o
         };
         loadCategories();
     }, []);
+
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        if (file.size > 5 * 1024 * 1024) {
+            notification.error('Ảnh quá lớn. Vui lòng chọn ảnh dưới 5MB.');
+            return;
+        }
+
+        setIsUploading(true);
+
+        try {
+            const reader = new FileReader();
+            const base64Promise = new Promise((resolve, reject) => {
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+
+            const base64Image = await base64Promise;
+
+            const response = await fetch('/api/upload', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ image: base64Image }),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Upload failed');
+            }
+
+            const result = await response.json();
+            setFormData({ ...formData, image: result.secure_url });
+            notification.success('Tải ảnh lên thành công!');
+        } catch (error: any) {
+            console.error('Error uploading image:', error);
+            notification.error(error.message || 'Không thể tải ảnh lên.');
+        } finally {
+            setIsUploading(false);
+        }
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -98,9 +142,7 @@ const EditProductModal: React.FC<EditProductModalProps> = ({ product, onClose, o
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-2">
-                                Danh mục
-                            </label>
+                            <label className="block text-sm font-medium text-slate-700 mb-2">Danh mục</label>
                             <select
                                 value={formData.category_id}
                                 onChange={(e) => setFormData({ ...formData, category_id: Number(e.target.value) })}
@@ -160,6 +202,50 @@ const EditProductModal: React.FC<EditProductModalProps> = ({ product, onClose, o
                         </div>
                     </div>
 
+                    {/* Image Upload */}
+                    <div>
+                        <label className="block text-sm font-medium text-slate-700 mb-2">Hình ảnh sản phẩm</label>
+                        <div className="flex items-start gap-4 p-4 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200 hover:border-primary transition-colors cursor-pointer relative group">
+                            <input
+                                type="file"
+                                accept="image/*"
+                                onChange={handleImageUpload}
+                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                                disabled={isUploading}
+                            />
+
+                            {formData.image ? (
+                                <div className="relative w-24 h-24 rounded-xl overflow-hidden shadow-md">
+                                    <img src={formData.image} alt="Preview" className="w-full h-full object-cover" />
+                                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                                        <span className="text-white text-xs font-bold">Thay đổi</span>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="w-24 h-24 rounded-xl bg-white border border-slate-200 flex flex-col items-center justify-center text-slate-400">
+                                    {isUploading ? (
+                                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+                                    ) : (
+                                        <>
+                                            <span className="material-symbols-outlined text-3xl">add_photo_alternate</span>
+                                            <span className="text-[10px] mt-1 font-bold">TẢI ẢNH</span>
+                                        </>
+                                    )}
+                                </div>
+                            )}
+
+                            <div className="flex-1 flex flex-col justify-center h-24">
+                                <p className="text-sm font-bold text-slate-700">
+                                    {isUploading ? 'Đang tải lên Cloudinary...' : formData.image ? 'Đã có ảnh' : 'Nhấn để chọn ảnh'}
+                                </p>
+                                <p className="text-xs text-slate-400 mt-1">Định dạng: JPG, PNG, WEBP. Tối đa 5MB.</p>
+                                {formData.image && (
+                                    <p className="text-xs text-green-600 mt-1 truncate">✓ {formData.image.substring(0, 50)}...</p>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+
                     <div>
                         <label className="block text-sm font-medium text-slate-700 mb-2">Mô tả</label>
                         <textarea
@@ -180,7 +266,7 @@ const EditProductModal: React.FC<EditProductModalProps> = ({ product, onClose, o
                         </button>
                         <button
                             type="submit"
-                            disabled={isSubmitting}
+                            disabled={isSubmitting || isUploading}
                             className="px-6 py-2.5 bg-primary text-white rounded-xl hover:bg-primary-dark transition-colors font-medium disabled:opacity-50 flex items-center gap-2"
                         >
                             {isSubmitting ? (
