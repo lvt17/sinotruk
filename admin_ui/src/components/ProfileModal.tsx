@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import ReactDOM from 'react-dom';
+import { updateProfile } from '../lib/supabase';
 
 interface ProfileModalProps {
     onClose: () => void;
@@ -12,6 +13,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ onClose, currentName, curre
     const [name, setName] = useState(currentName);
     const [avatar, setAvatar] = useState(currentAvatar);
     const [isUploading, setIsUploading] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
@@ -23,7 +25,6 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ onClose, currentName, curre
         const file = e.target.files?.[0];
         if (!file) return;
 
-        // Check file size (max 5MB)
         if (file.size > 5 * 1024 * 1024) {
             alert('Ảnh quá lớn. Vui lòng chọn ảnh dưới 5MB.');
             return;
@@ -32,7 +33,6 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ onClose, currentName, curre
         setIsUploading(true);
 
         try {
-            // Convert to base64
             const reader = new FileReader();
             const base64Promise = new Promise<string>((resolve, reject) => {
                 reader.onload = () => resolve(reader.result as string);
@@ -42,35 +42,55 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ onClose, currentName, curre
 
             const base64Image = await base64Promise;
 
-            // Upload to Cloudinary
-            const response = await fetch('/api/upload-avatar', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ image: base64Image }),
-            });
+            // Try Cloudinary upload
+            try {
+                const response = await fetch('/api/upload-avatar', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ image: base64Image }),
+                });
 
-            if (!response.ok) {
-                throw new Error('Upload failed');
+                if (response.ok) {
+                    const result = await response.json();
+                    setAvatar(result.secure_url);
+                } else {
+                    setAvatar(base64Image);
+                }
+            } catch {
+                setAvatar(base64Image);
             }
-
-            const result = await response.json();
-            setAvatar(result.secure_url);
         } catch (error) {
             console.error('Upload error:', error);
-            // Fallback to base64 if Cloudinary fails
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                setAvatar(event.target?.result as string);
-            };
-            reader.readAsDataURL(file);
         } finally {
             setIsUploading(false);
         }
     };
 
-    const handleSave = () => {
-        onSave(name.trim() || 'Admin', avatar);
-        onClose();
+    const handleSave = async () => {
+        setIsSaving(true);
+
+        try {
+            const userId = localStorage.getItem('userId');
+
+            if (userId) {
+                // Save to Supabase
+                await updateProfile(parseInt(userId), {
+                    full_name: name.trim() || 'Admin',
+                    avatar: avatar || null
+                });
+            }
+
+            // Also update localStorage for immediate UI update
+            onSave(name.trim() || 'Admin', avatar);
+            onClose();
+        } catch (error) {
+            console.error('Save error:', error);
+            // Still update localStorage even if Supabase fails
+            onSave(name.trim() || 'Admin', avatar);
+            onClose();
+        } finally {
+            setIsSaving(false);
+        }
     };
 
     return ReactDOM.createPortal(
@@ -133,16 +153,24 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ onClose, currentName, curre
                 <div className="p-5 border-t border-slate-200 flex gap-3">
                     <button
                         onClick={onClose}
-                        className="flex-1 px-4 py-2.5 border border-slate-200 text-slate-700 rounded-xl hover:bg-slate-50 transition-colors font-medium"
+                        disabled={isSaving}
+                        className="flex-1 px-4 py-2.5 border border-slate-200 text-slate-700 rounded-xl hover:bg-slate-50 transition-colors font-medium disabled:opacity-50"
                     >
                         Hủy
                     </button>
                     <button
                         onClick={handleSave}
-                        disabled={isUploading}
-                        className="flex-1 px-4 py-2.5 bg-primary text-white rounded-xl hover:bg-primary-dark transition-colors font-medium disabled:opacity-50"
+                        disabled={isUploading || isSaving}
+                        className="flex-1 px-4 py-2.5 bg-primary text-white rounded-xl hover:bg-primary-dark transition-colors font-medium disabled:opacity-50 flex items-center justify-center gap-2"
                     >
-                        Lưu
+                        {isSaving ? (
+                            <>
+                                <span className="material-symbols-outlined text-sm animate-spin">progress_activity</span>
+                                Đang lưu...
+                            </>
+                        ) : (
+                            'Lưu'
+                        )}
                     </button>
                 </div>
             </div>

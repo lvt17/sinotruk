@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { loginUser } from '../lib/supabase';
 
 interface LoginProps {
     onLogin?: () => void;
@@ -8,40 +9,68 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
 
-        // Simple validation - in production, call API
         if (!username || !password) {
             setError('Vui lòng nhập đầy đủ thông tin');
             return;
         }
 
-        // Mock login - in production, call Laravel API
-        // Default admin account for demo
-        const validCredentials = [
-            { username: 'admin', password: 'admin' },
-            { username: 'admin', password: '123456' },
-        ];
+        setIsLoading(true);
 
-        const isValid = validCredentials.some(
-            cred => cred.username === username && cred.password === password
-        );
+        try {
+            // Try Supabase login first
+            const user = await loginUser(username, password);
 
-        if (!isValid) {
-            setError('Tên đăng nhập hoặc mật khẩu không đúng');
-            return;
-        }
+            if (user) {
+                localStorage.setItem('isAuthenticated', 'true');
+                localStorage.setItem('userId', String(user.id));
+                localStorage.setItem('username', user.username);
+                localStorage.setItem('sinotruk_admin_name', user.full_name);
+                if (user.avatar) {
+                    localStorage.setItem('sinotruk_admin_avatar', user.avatar);
+                }
 
-        localStorage.setItem('isAuthenticated', 'true');
-        localStorage.setItem('username', username);
+                if (onLogin) {
+                    onLogin();
+                } else {
+                    window.location.reload();
+                }
+                return;
+            }
 
-        if (onLogin) {
-            onLogin();
-        } else {
-            window.location.reload();
+            // Fallback to mock credentials for demo
+            const validCredentials = [
+                { username: 'admin', password: 'admin' },
+                { username: 'admin', password: '123456' },
+            ];
+
+            const isValid = validCredentials.some(
+                cred => cred.username === username && cred.password === password
+            );
+
+            if (!isValid) {
+                setError('Tên đăng nhập hoặc mật khẩu không đúng');
+                return;
+            }
+
+            localStorage.setItem('isAuthenticated', 'true');
+            localStorage.setItem('username', username);
+
+            if (onLogin) {
+                onLogin();
+            } else {
+                window.location.reload();
+            }
+        } catch (err) {
+            console.error('Login error:', err);
+            setError('Có lỗi xảy ra, vui lòng thử lại');
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -71,6 +100,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
                             placeholder="Nhập tên đăng nhập"
                             value={username}
                             onChange={(e) => setUsername(e.target.value)}
+                            disabled={isLoading}
                             required
                         />
                     </div>
@@ -83,6 +113,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
                             placeholder="Nhập mật khẩu"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
+                            disabled={isLoading}
                             required
                         />
                     </div>
@@ -92,9 +123,22 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
                             {error}
                         </div>
                     )}
-                    <button type="submit" className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-primary hover:bg-primary-dark text-white font-bold rounded-xl transition-colors shadow-lg shadow-primary/20">
-                        Đăng nhập
-                        <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                    <button
+                        type="submit"
+                        disabled={isLoading}
+                        className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-primary hover:bg-primary-dark text-white font-bold rounded-xl transition-colors shadow-lg shadow-primary/20 disabled:opacity-50"
+                    >
+                        {isLoading ? (
+                            <>
+                                <span className="material-symbols-outlined text-sm animate-spin">progress_activity</span>
+                                Đang đăng nhập...
+                            </>
+                        ) : (
+                            <>
+                                Đăng nhập
+                                <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                            </>
+                        )}
                     </button>
                 </form>
 

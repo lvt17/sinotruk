@@ -36,6 +36,10 @@ Route::get('/categories/{id}/products', 'Api\ApiProductController@byCategory');
 // Contact API
 Route::post('/contact', 'Api\ApiContactController@store');
 
+// Profile API (for admin panel)
+Route::get('/profile', 'Api\ApiProfileController@show');
+Route::put('/profile', 'Api\ApiProfileController@update');
+
 // Health check
 Route::get('/health', function () {
     return response()->json(['status' => 'ok', 'timestamp' => now()]);

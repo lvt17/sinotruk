@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { getCategories } from '../../data/mockDatabase';
+import { getProfile } from '../../lib/supabase';
 import ProfileModal from '../ProfileModal';
 
 interface Category {
@@ -24,12 +25,36 @@ const Sidebar: React.FC<{ isOpen?: boolean; onClose?: () => void }> = ({ isOpen,
         setCategories(getCategories());
     }, [location.pathname]);
 
+    // Load profile from Supabase on mount
+    useEffect(() => {
+        const loadProfile = async () => {
+            const userId = localStorage.getItem('userId');
+            if (userId) {
+                try {
+                    const profile = await getProfile(parseInt(userId));
+                    if (profile) {
+                        setAdminName(profile.full_name);
+                        localStorage.setItem(ADMIN_NAME_KEY, profile.full_name);
+                        if (profile.avatar) {
+                            setAdminAvatar(profile.avatar);
+                            localStorage.setItem(ADMIN_AVATAR_KEY, profile.avatar);
+                        }
+                        // Notify Header
+                        window.dispatchEvent(new Event('profileUpdate'));
+                    }
+                } catch (error) {
+                    console.error('Error loading profile:', error);
+                }
+            }
+        };
+        loadProfile();
+    }, []);
+
     const handleSaveProfile = (name: string, avatar: string) => {
         setAdminName(name);
         setAdminAvatar(avatar);
         localStorage.setItem(ADMIN_NAME_KEY, name);
         localStorage.setItem(ADMIN_AVATAR_KEY, avatar);
-        // Dispatch event to notify Header
         window.dispatchEvent(new Event('profileUpdate'));
     };
 
@@ -143,6 +168,7 @@ const Sidebar: React.FC<{ isOpen?: boolean; onClose?: () => void }> = ({ isOpen,
                             onClick={() => {
                                 localStorage.removeItem('isAuthenticated');
                                 localStorage.removeItem('username');
+                                localStorage.removeItem('userId');
                                 window.location.href = '/';
                             }}
                             className="text-slate-400 hover:text-primary transition-colors flex-shrink-0"
