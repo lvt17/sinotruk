@@ -42,7 +42,6 @@ const Dashboard: React.FC = () => {
             {/* Page Header */}
             <div className="mb-2 md:mb-0">
                 <h1 className="text-2xl md:text-3xl font-bold text-slate-800 tracking-tight">Dashboard</h1>
-                <p className="text-slate-500 text-sm md:text-base">Tổng quan kho sản phẩm Sinotruk</p>
             </div>
 
             {/* Stats Grid */}

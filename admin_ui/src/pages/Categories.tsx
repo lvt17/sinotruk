@@ -92,7 +92,7 @@ const Categories: React.FC = () => {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-2xl md:text-3xl font-bold text-slate-800 tracking-tight uppercase">Quản lý danh mục</h1>
-                    <p className="text-slate-500 text-sm md:text-base italic">Tạo và quản lý các danh mục sản phẩm</p>
+
                 </div>
                 <button
                     onClick={() => setIsAdding(true)}

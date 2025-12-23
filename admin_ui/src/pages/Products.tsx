@@ -152,7 +152,7 @@ const Products: React.FC = () => {
                             <span className="text-primary ml-2">- {categoryFilter}</span>
                         )}
                     </h1>
-                    <p className="text-slate-500 text-sm md:text-base italic">Kho lưu trữ khoa học & Catalog thông số kỹ thuật</p>
+
                 </div>
                 <div className="flex gap-2 w-full sm:w-auto">
                     <button
