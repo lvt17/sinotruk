@@ -5,11 +5,11 @@ import * as XLSX from 'xlsx';
 
 // Mock products data - will be replaced with API
 const mockProducts = [
-    { id: 1, code: 'XLKVX', name: 'Xilanh kích cabin VX350', price: 850000, total: 15, category: 'CABIN', image: 'https://res.cloudinary.com/dgv7d7n6q/image/upload/v1734944400/product_placeholder.png' },
-    { id: 2, code: 'TBTSI', name: 'Tăm bét trước SITRAK', price: 1200000, total: 8, category: 'ĐỘNG CƠ', image: 'https://res.cloudinary.com/dgv7d7n6q/image/upload/v1734944400/product_placeholder.png' },
-    { id: 3, code: 'LDDC-A7', name: 'Lọc dầu động cơ HOWO A7', price: 350000, total: 25, category: 'ĐỘNG CƠ', image: 'https://res.cloudinary.com/dgv7d7n6q/image/upload/v1734944400/product_placeholder.png' },
-    { id: 4, code: 'LC420', name: 'Lá côn HOWO 420', price: 2500000, total: 4, category: 'LY HỢP', image: 'https://res.cloudinary.com/dgv7d7n6q/image/upload/v1734944400/product_placeholder.png' },
-    { id: 5, code: 'PTTS', name: 'Phanh tang trống sau', price: 1800000, total: 12, category: 'PHANH', image: 'https://res.cloudinary.com/dgv7d7n6q/image/upload/v1734944400/product_placeholder.png' },
+    { id: 1, code: 'XLKVX', name: 'Xilanh kích cabin VX350', price: 850000, total: 15, category: 'CABIN', image: '/images/xilanh.jpg' },
+    { id: 2, code: 'TBTSI', name: 'Tăm bét trước SITRAK', price: 1200000, total: 8, category: 'ĐỘNG CƠ', image: '/images/sitrakg7s.webp' },
+    { id: 3, code: 'LDDC-A7', name: 'Lọc dầu động cơ HOWO A7', price: 350000, total: 25, category: 'ĐỘNG CƠ', image: '/images/locdau.webp' },
+    { id: 4, code: 'LC420', name: 'Lá côn HOWO 420', price: 2500000, total: 4, category: 'LY HỢP', image: '/images/daulockhi.webp' },
+    { id: 5, code: 'PTTS', name: 'Phanh tang trống sau', price: 1800000, total: 12, category: 'PHANH', image: '/images/phanhchongtang.jpg' },
 ];
 
 const Products: React.FC = () => {
