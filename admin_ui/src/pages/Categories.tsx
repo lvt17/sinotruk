@@ -125,7 +125,7 @@ const Categories: React.FC = () => {
                                 className="w-5 h-5 rounded border-slate-300 text-primary focus:ring-primary"
                             />
                             <div>
-                                <span className="font-medium text-slate-700">Đây là tên xe</span>
+                                <span className="font-medium text-slate-700">HÃNG XE</span>
                                 <p className="text-xs text-slate-400">Ví dụ: HOWO, SITRAK, SINOTRUK</p>
                             </div>
                         </label>
