@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 // Stats card data
 const stats = [
@@ -23,15 +23,6 @@ const categoryDistribution = [
     { name: 'PHANH', value: 280, color: '#f59e0b' },
     { name: 'LY HỢP', value: 220, color: '#8b5cf6' },
     { name: 'KHÁC', value: 150, color: '#94a3b8' },
-];
-
-const catalogCompletionData = [
-    { month: 'T1', rate: 65 },
-    { month: 'T2', rate: 72 },
-    { month: 'T3', rate: 78 },
-    { month: 'T4', rate: 82 },
-    { month: 'T5', rate: 88 },
-    { month: 'T6', rate: 94 },
 ];
 
 const Dashboard: React.FC = () => {
@@ -61,33 +52,7 @@ const Dashboard: React.FC = () => {
             </div>
 
             {/* Charts Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Catalog Completion Chart */}
-                <div className="card">
-                    <h2 className="text-xl font-bold text-slate-800 tracking-tight mb-2">Độ hoàn thiện Catalog</h2>
-                    <p className="text-slate-500 text-sm mb-6">Tỷ lệ SP đầy đủ thông số kỹ thuật & hình ảnh</p>
-                    <ResponsiveContainer width="100%" height={300}>
-                        <LineChart data={catalogCompletionData}>
-                            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
-                            <XAxis dataKey="month" stroke="#64748b" />
-                            <YAxis stroke="#64748b" tickFormatter={(v) => `${v}%`} />
-                            <Tooltip
-                                contentStyle={{ backgroundColor: '#fff', border: '1px solid #e2e8f0', borderRadius: '12px', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
-                                formatter={(v) => [`${v}%`, 'Độ hoàn thiện']}
-                            />
-                            <Line
-                                type="monotone"
-                                dataKey="rate"
-                                stroke="#14b8a6"
-                                strokeWidth={4}
-                                dot={{ fill: '#14b8a6', r: 4, strokeWidth: 2, stroke: '#fff' }}
-                                activeDot={{ r: 6, strokeWidth: 0 }}
-                                name="Độ hoàn thiện"
-                            />
-                        </LineChart>
-                    </ResponsiveContainer>
-                </div>
-
+            <div className="grid grid-cols-1 gap-6">
                 {/* Category Distribution Chart */}
                 <div className="card">
                     <h2 className="text-xl font-bold text-slate-800 tracking-tight mb-6">Phân bổ theo danh mục</h2>
