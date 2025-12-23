@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import SettingsModal from '../SettingsModal';
 
 interface HeaderProps {
@@ -9,7 +8,6 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
     const [showSettings, setShowSettings] = useState(false);
     const [currentTime, setCurrentTime] = useState(new Date());
-    const navigate = useNavigate();
 
     // Update time every minute
     useEffect(() => {
