@@ -90,28 +90,28 @@ const Catalog = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Header - same style as About */}
-      <div className="relative h-[40vh] md:h-[50vh] overflow-hidden">
+      <div className="relative h-[30vh] md:h-[40vh] lg:h-[50vh] overflow-hidden">
         <div className="absolute inset-0 z-0 bg-gradient-to-br from-primary/10 via-white to-sky-50" />
-        <div className="absolute inset-0 z-10 flex items-center justify-center">
+        <div className="absolute inset-0 z-10 flex items-center justify-center px-4">
           <motion.div
             initial={{ y: 30, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             className="text-center"
           >
-            <span className="text-primary font-bold text-sm tracking-[0.3em] uppercase mb-4 block">
+            <span className="text-primary font-bold text-xs md:text-sm tracking-[0.2em] md:tracking-[0.3em] uppercase mb-2 md:mb-4 block">
               SINOTRUK HÀ NỘI
             </span>
-            <h1 className="text-5xl md:text-8xl font-bold text-slate-800 tracking-tighter mb-6">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-8xl font-bold text-slate-800 tracking-tighter mb-3 md:mb-6">
               CATA<span className="text-primary">LOG</span>
             </h1>
-            <p className="text-slate-600 text-lg max-w-xl mx-auto">
+            <p className="text-slate-600 text-sm md:text-lg max-w-xl mx-auto">
               Sơ đồ kỹ thuật và danh sách mã phụ tùng chính hãng
             </p>
           </motion.div>
         </div>
       </div>
 
-      <div className="container mx-auto px-4 md:px-10 lg:px-20 py-16">
+      <div className="container mx-auto px-4 md:px-10 lg:px-20 py-8 md:py-16">
         {/* PDF Catalogs Download Section */}
         {catalogs.length > 0 && (
           <div className="mb-16">
