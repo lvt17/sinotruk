@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useNotification } from '../components/shared/Notification';
 import AddProductModal from '../components/AddProductModal';
+import EditProductModal from '../components/EditProductModal';
 import * as XLSX from 'xlsx';
 
 import { productService, categoryService, Product, Category } from '../services/supabase';
@@ -13,6 +14,7 @@ const Products: React.FC = () => {
     const [searchParams, setSearchParams] = useSearchParams();
     const [search, setSearch] = useState('');
     const [showAddModal, setShowAddModal] = useState(false);
+    const [editingProduct, setEditingProduct] = useState<Product | null>(null);
     const [products, setProducts] = useState<Product[]>([]);
     const [categories, setCategories] = useState<Category[]>([]);
     const [_loading, setLoading] = useState(true);
@@ -131,8 +133,8 @@ const Products: React.FC = () => {
         notification.success('Đã xuất danh mục sản phẩm (Excel) thành công');
     };
 
-    const handleEdit = (id: number) => {
-        notification.info(`Sửa thông tin kỹ thuật #${id}`);
+    const handleEdit = (product: Product) => {
+        setEditingProduct(product);
     };
 
     const handleDelete = (id: number) => {
@@ -251,7 +253,7 @@ const Products: React.FC = () => {
                                         <td className="text-right px-6">
                                             <div className="flex items-center justify-end gap-2">
                                                 <button
-                                                    onClick={() => handleEdit(product.id)}
+                                                    onClick={() => handleEdit(product)}
                                                     className="p-2 text-slate-400 hover:text-blue-600 transition-colors bg-white rounded-xl border border-slate-100 shadow-sm hover:border-blue-200"
                                                     title="Sửa thông số"
                                                 >
@@ -340,9 +342,19 @@ const Products: React.FC = () => {
                 <AddProductModal
                     onClose={() => setShowAddModal(false)}
                     onAdd={() => {
-                        // Reload products after adding
                         loadData();
                         setShowAddModal(false);
+                    }}
+                />
+            )}
+
+            {editingProduct && (
+                <EditProductModal
+                    product={editingProduct}
+                    onClose={() => setEditingProduct(null)}
+                    onSave={() => {
+                        loadData();
+                        setEditingProduct(null);
                     }}
                 />
             )}
