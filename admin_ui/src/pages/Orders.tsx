@@ -60,14 +60,14 @@ const Orders: React.FC = () => {
     return (
         <div className="space-y-6">
             {/* Page Header */}
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold text-slate-800 tracking-tight">Đơn hàng</h1>
-                    <p className="text-slate-500">Quản lý đơn đặt hàng từ Trung Quốc</p>
+                    <h1 className="text-2xl md:text-3xl font-bold text-slate-800 tracking-tight">Đơn hàng</h1>
+                    <p className="text-slate-500 text-sm md:text-base">Quản lý đơn đặt hàng từ Trung Quốc</p>
                 </div>
                 <button
                     onClick={() => setShowCreateModal(true)}
-                    className="flex items-center gap-2 px-6 py-2.5 bg-primary hover:bg-primary-dark text-white text-sm font-bold rounded-xl transition-colors shadow-lg shadow-primary/20"
+                    className="flex items-center justify-center gap-2 px-4 md:px-6 py-2 md:py-2.5 bg-primary hover:bg-primary-dark text-white text-sm font-bold rounded-xl transition-colors shadow-lg shadow-primary/20 w-full sm:w-auto"
                 >
                     <span className="material-symbols-outlined text-xl">add</span>
                     Tạo đơn hàng
@@ -76,7 +76,7 @@ const Orders: React.FC = () => {
 
             {/* Filters */}
             <div className="card">
-                <div className="flex flex-col md:flex-row gap-4">
+                <div className="flex flex-col lg:flex-row gap-4">
                     <input
                         type="text"
                         placeholder="Tìm kiếm đơn hàng..."
@@ -84,142 +84,130 @@ const Orders: React.FC = () => {
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                     />
-                    <select
-                        className="input max-w-xs"
-                        value={statusFilter}
-                        onChange={(e) => setStatusFilter(e.target.value)}
-                    >
-                        <option value="">Tất cả trạng thái</option>
-                        <option value="pending">Chờ xử lý</option>
-                        <option value="completed">Hoàn thành</option>
-                        <option value="locked">Đã khóa</option>
-                    </select>
+                    <div className="flex flex-col sm:flex-row gap-4 items-center">
+                        <select
+                            className="input w-full sm:w-48"
+                            value={statusFilter}
+                            onChange={(e) => setStatusFilter(e.target.value)}
+                        >
+                            <option value="">Tất cả trạng thái</option>
+                            <option value="pending">Chờ xử lý</option>
+                            <option value="completed">Hoàn thành</option>
+                            <option value="locked">Đã khóa</option>
+                        </select>
 
-                    {/* Date filter - 3 separate inputs like date picker */}
-                    <div className="flex items-center gap-1 max-w-xs">
-                        <input
-                            type="text"
-                            className="input w-16 text-center"
-                            placeholder="DD"
-                            maxLength={2}
-                            value={dayInput}
-                            onChange={(e) => {
-                                const val = e.target.value.replace(/\D/g, '').slice(0, 2);
-                                setDayInput(val);
-                            }}
-                            onKeyDown={(e) => {
-                                // Allow backspace, delete, arrow keys
-                                if (!/[0-9]/.test(e.key) && !['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab'].includes(e.key)) {
-                                    e.preventDefault();
-                                }
-                            }}
-                        />
-                        <span className="text-slate-400">/</span>
-                        <input
-                            type="text"
-                            className="input w-16 text-center"
-                            placeholder="MM"
-                            maxLength={2}
-                            value={monthInput}
-                            onChange={(e) => {
-                                const val = e.target.value.replace(/\D/g, '').slice(0, 2);
-                                setMonthInput(val);
-                            }}
-                            onKeyDown={(e) => {
-                                if (!/[0-9]/.test(e.key) && !['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab'].includes(e.key)) {
-                                    e.preventDefault();
-                                }
-                            }}
-                        />
-                        <span className="text-slate-400">/</span>
-                        <input
-                            type="text"
-                            className="input w-20 text-center"
-                            placeholder="YYYY"
-                            maxLength={4}
-                            value={yearInput}
-                            onChange={(e) => {
-                                const val = e.target.value.replace(/\D/g, '').slice(0, 4);
-                                setYearInput(val);
-                            }}
-                            onKeyDown={(e) => {
-                                if (!/[0-9]/.test(e.key) && !['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab'].includes(e.key)) {
-                                    e.preventDefault();
-                                }
-                            }}
-                        />
+                        {/* Date filter - 3 separate inputs like date picker */}
+                        <div className="flex items-center justify-center gap-1 w-full sm:w-auto">
+                            <input
+                                type="text"
+                                className="input w-12 md:w-16 text-center px-1"
+                                placeholder="DD"
+                                maxLength={2}
+                                value={dayInput}
+                                onChange={(e) => {
+                                    const val = e.target.value.replace(/\D/g, '').slice(0, 2);
+                                    setDayInput(val);
+                                }}
+                            />
+                            <span className="text-slate-400">/</span>
+                            <input
+                                type="text"
+                                className="input w-12 md:w-16 text-center px-1"
+                                placeholder="MM"
+                                maxLength={2}
+                                value={monthInput}
+                                onChange={(e) => {
+                                    const val = e.target.value.replace(/\D/g, '').slice(0, 2);
+                                    setMonthInput(val);
+                                }}
+                            />
+                            <span className="text-slate-400">/</span>
+                            <input
+                                type="text"
+                                className="input w-16 md:w-20 text-center px-1"
+                                placeholder="YYYY"
+                                maxLength={4}
+                                value={yearInput}
+                                onChange={(e) => {
+                                    const val = e.target.value.replace(/\D/g, '').slice(0, 4);
+                                    setYearInput(val);
+                                }}
+                            />
+                        </div>
                     </div>
                 </div>
             </div>
 
             {/* Orders Table */}
             <div className="card p-0 overflow-hidden">
-                <table className="admin-table">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Tên phiếu</th>
-                            <th>Tổng tiền</th>
-                            <th>Trạng thái</th>
-                            <th>Ngày tạo</th>
-                            <th>Thao tác</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {filteredOrders.map((order) => (
-                            <tr key={order.id}>
-                                <td className="font-mono text-slate-800">#{order.id}</td>
-                                <td className="font-medium text-slate-800">{order.tenphieu}</td>
-                                <td className="text-slate-600">{new Intl.NumberFormat('vi-VN').format(order.money)}đ</td>
-                                <td>
-                                    <div className="flex items-center gap-2">
-                                        {order.completed ? (
-                                            <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs">Hoàn thành</span>
-                                        ) : (
-                                            <span className="px-2 py-1 bg-yellow-100 text-yellow-700 rounded text-xs">Đang xử lý</span>
-                                        )}
-                                        {order.lock && (
-                                            <span className="material-symbols-outlined text-sm text-slate-500">lock</span>
-                                        )}
-                                    </div>
-                                </td>
-                                <td className="text-slate-600">{order.created_at}</td>
-                                <td>
-                                    <div className="flex items-center gap-2">
-                                        <button
-                                            onClick={() => handleView(order.id)}
-                                            className="p-1 text-slate-400 hover:text-blue-600 transition-colors"
-                                            title="Chi tiết"
-                                        >
-                                            <span className="material-symbols-outlined text-lg">visibility</span>
-                                        </button>
-                                        <button
-                                            onClick={() => handleExportPDF(order.id)}
-                                            className="p-1 text-slate-400 hover:text-green-600 transition-colors"
-                                            title="Xuất PDF"
-                                        >
-                                            <span className="material-symbols-outlined text-lg">picture_as_pdf</span>
-                                        </button>
-                                        <button
-                                            onClick={() => handleExportExcel(order.id)}
-                                            className="p-1 text-slate-400 hover:text-yellow-600 transition-colors"
-                                            title="Xuất Excel"
-                                        >
-                                            <span className="material-symbols-outlined text-lg">table_view</span>
-                                        </button>
-                                        <button
-                                            onClick={() => handleEdit(order.id)}
-                                            className="p-1 text-slate-400 hover:text-primary transition-colors"
-                                            title="Sửa"
-                                        >
-                                            <span className="material-symbols-outlined text-lg">edit</span>
-                                        </button>
-                                    </div>
-                                </td>
+                <div className="overflow-x-auto">
+                    <table className="admin-table w-full min-w-[700px]">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Tên phiếu</th>
+                                <th>Tổng tiền</th>
+                                <th>Trạng thái</th>
+                                <th>Ngày tạo</th>
+                                <th className="text-right px-4">Thao tác</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            {filteredOrders.map((order) => (
+                                <tr key={order.id}>
+                                    <td className="font-mono text-slate-800">#{order.id}</td>
+                                    <td className="font-medium text-slate-800">{order.tenphieu}</td>
+                                    <td className="text-slate-600">{new Intl.NumberFormat('vi-VN').format(order.money)}đ</td>
+                                    <td>
+                                        <div className="flex items-center gap-2">
+                                            {order.completed ? (
+                                                <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs">Hoàn thành</span>
+                                            ) : (
+                                                <span className="px-2 py-1 bg-yellow-100 text-yellow-700 rounded text-xs">Đang xử lý</span>
+                                            )}
+                                            {order.lock && (
+                                                <span className="material-symbols-outlined text-sm text-slate-500">lock</span>
+                                            )}
+                                        </div>
+                                    </td>
+                                    <td className="text-slate-600">{order.created_at}</td>
+                                    <td className="text-right px-4">
+                                        <div className="flex items-center justify-end gap-1">
+                                            <button
+                                                onClick={() => handleView(order.id)}
+                                                className="p-1.5 text-slate-400 hover:text-blue-600 transition-colors bg-slate-50 rounded-lg border border-slate-100"
+                                                title="Chi tiết"
+                                            >
+                                                <span className="material-symbols-outlined text-lg">visibility</span>
+                                            </button>
+                                            <button
+                                                onClick={() => handleExportPDF(order.id)}
+                                                className="p-1.5 text-slate-400 hover:text-green-600 transition-colors bg-slate-50 rounded-lg border border-slate-100"
+                                                title="Xuất PDF"
+                                            >
+                                                <span className="material-symbols-outlined text-lg">picture_as_pdf</span>
+                                            </button>
+                                            <button
+                                                onClick={() => handleExportExcel(order.id)}
+                                                className="p-1.5 text-slate-400 hover:text-yellow-600 transition-colors bg-slate-50 rounded-lg border border-slate-100"
+                                                title="Xuất Excel"
+                                            >
+                                                <span className="material-symbols-outlined text-lg">table_view</span>
+                                            </button>
+                                            <button
+                                                onClick={() => handleEdit(order.id)}
+                                                className="p-1.5 text-slate-400 hover:text-primary transition-colors bg-slate-50 rounded-lg border border-slate-100"
+                                                title="Sửa"
+                                            >
+                                                <span className="material-symbols-outlined text-lg">edit</span>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
             {viewingOrder && (

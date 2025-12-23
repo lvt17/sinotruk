@@ -19,14 +19,14 @@ const Customers: React.FC = () => {
     return (
         <div className="space-y-6">
             {/* Page Header */}
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold text-slate-800 tracking-tight">Khách hàng</h1>
-                    <p className="text-slate-500">Quản lý thông tin khách hàng & công nợ</p>
+                    <h1 className="text-2xl md:text-3xl font-bold text-slate-800 tracking-tight">Khách hàng</h1>
+                    <p className="text-slate-500 text-sm md:text-base">Quản lý thông tin khách hàng & công nợ</p>
                 </div>
-                <button 
+                <button
                     onClick={() => setShowAddModal(true)}
-                    className="flex items-center gap-2 px-6 py-2.5 bg-primary hover:bg-primary-dark text-white text-sm font-bold rounded-xl transition-colors shadow-lg shadow-primary/20"
+                    className="flex items-center justify-center gap-2 px-4 md:px-6 py-2 md:py-2.5 bg-primary hover:bg-primary-dark text-white text-sm font-bold rounded-xl transition-colors shadow-lg shadow-primary/20 w-full sm:w-auto"
                 >
                     <span className="material-symbols-outlined text-xl">add</span>
                     Thêm khách hàng
@@ -36,104 +36,106 @@ const Customers: React.FC = () => {
             {showAddModal && <AddCustomerModal onClose={() => setShowAddModal(false)} />}
 
             {/* Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="card flex items-center gap-4">
-                    <div className="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center">
-                        <span className="material-symbols-outlined text-white text-2xl">people</span>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+                <div className="card flex items-center gap-4 p-4">
+                    <div className="w-10 h-10 md:w-12 md:h-12 bg-blue-500 rounded-xl flex items-center justify-center flex-shrink-0">
+                        <span className="material-symbols-outlined text-white text-xl md:text-2xl">people</span>
                     </div>
                     <div>
-                        <p className="text-slate-500 text-sm">Tổng khách hàng</p>
-                        <p className="text-slate-800 text-2xl font-bold tracking-tight">240</p>
+                        <p className="text-slate-500 text-xs md:text-sm">Tổng khách hàng</p>
+                        <p className="text-slate-800 text-xl md:text-2xl font-bold tracking-tight">240</p>
                     </div>
                 </div>
-                <div className="card flex items-center gap-4">
-                    <div className="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center shadow-lg">
-                        <span className="material-symbols-outlined text-white text-2xl">storefront</span>
+                <div className="card flex items-center gap-4 p-4">
+                    <div className="w-10 h-10 md:w-12 md:h-12 bg-green-500 rounded-xl flex items-center justify-center shadow-lg flex-shrink-0">
+                        <span className="material-symbols-outlined text-white text-xl md:text-2xl">storefront</span>
                     </div>
                     <div>
-                        <p className="text-slate-500 text-sm">Khách sỉ</p>
-                        <p className="text-slate-800 text-2xl font-bold tracking-tight">85</p>
+                        <p className="text-slate-500 text-xs md:text-sm">Khách sỉ</p>
+                        <p className="text-slate-800 text-xl md:text-2xl font-bold tracking-tight">85</p>
                     </div>
                 </div>
-                <div className="card flex items-center gap-4">
-                    <div className="w-12 h-12 bg-red-500 rounded-xl flex items-center justify-center shadow-lg">
-                        <span className="material-symbols-outlined text-white text-2xl">account_balance</span>
+                <div className="card flex items-center gap-4 p-4 sm:col-span-2 lg:col-span-1">
+                    <div className="w-10 h-10 md:w-12 md:h-12 bg-red-500 rounded-xl flex items-center justify-center shadow-lg flex-shrink-0">
+                        <span className="material-symbols-outlined text-white text-xl md:text-2xl">account_balance</span>
                     </div>
                     <div>
-                        <p className="text-slate-500 text-sm">Tổng công nợ</p>
-                        <p className="text-slate-800 text-2xl font-bold tracking-tight">₫125M</p>
+                        <p className="text-slate-500 text-xs md:text-sm">Tổng công nợ</p>
+                        <p className="text-slate-800 text-xl md:text-2xl font-bold tracking-tight">₫125M</p>
                     </div>
                 </div>
             </div>
 
             {/* Customers Table */}
             <div className="card p-0 overflow-hidden">
-                <table className="admin-table">
-                    <thead>
-                        <tr>
-                            <th>Mã KH</th>
-                            <th>Tên khách hàng</th>
-                            <th>Điện thoại</th>
-                            <th>Loại</th>
-                            <th>Công nợ</th>
-                            <th>Thao tác</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {mockCustomers.map((customer) => (
-                            <tr key={customer.id}>
-                                <td className="font-mono text-slate-800">{customer.code}</td>
-                                <td className="font-medium text-slate-800">{customer.name}</td>
-                                <td className="text-slate-600">{customer.phone}</td>
-                                <td>
-                                    <span className={`px-2 py-1 rounded text-xs ${customer.bulk ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-600'
-                                        }`}>
-                                        {customer.bulk ? 'Sỉ' : 'Lẻ'}
-                                    </span>
-                                </td>
-                                <td>
-                                    <span className={customer.money > 0 ? 'text-green-600' : customer.money < 0 ? 'text-red-600' : 'text-slate-500'}>
-                                        {new Intl.NumberFormat('vi-VN').format(customer.money)}đ
-                                    </span>
-                                </td>
-                                <td>
-                                    <div className="flex items-center gap-2">
-                                        <button 
-                                            onClick={() => setViewingCustomer(customer.id)}
-                                            className="p-1 text-slate-400 hover:text-blue-600 transition-colors" 
-                                            title="Xem chi tiết"
-                                        >
-                                            <span className="material-symbols-outlined text-lg">visibility</span>
-                                        </button>
-                                        <button 
-                                            onClick={() => setPayingCustomer({ id: customer.id, code: customer.code, debt: customer.money })}
-                                            className="p-1 text-slate-400 hover:text-green-600 transition-colors" 
-                                            title="Thanh toán"
-                                        >
-                                            <span className="material-symbols-outlined text-lg">payments</span>
-                                        </button>
-                                        <button 
-                                            onClick={() => setEditingCustomer(customer.id)}
-                                            className="p-1 text-slate-400 hover:text-yellow-600 transition-colors" 
-                                            title="Sửa"
-                                        >
-                                            <span className="material-symbols-outlined text-lg">edit</span>
-                                        </button>
-                                    </div>
-                                </td>
+                <div className="overflow-x-auto">
+                    <table className="admin-table w-full min-w-[700px]">
+                        <thead>
+                            <tr>
+                                <th>Mã KH</th>
+                                <th>Tên khách hàng</th>
+                                <th>Điện thoại</th>
+                                <th>Loại</th>
+                                <th>Công nợ</th>
+                                <th className="text-right px-4">Thao tác</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            {mockCustomers.map((customer) => (
+                                <tr key={customer.id}>
+                                    <td className="font-mono text-slate-800">{customer.code}</td>
+                                    <td className="font-medium text-slate-800">{customer.name}</td>
+                                    <td className="text-slate-600">{customer.phone}</td>
+                                    <td>
+                                        <span className={`px-2 py-1 rounded text-xs ${customer.bulk ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-600'
+                                            }`}>
+                                            {customer.bulk ? 'Sỉ' : 'Lẻ'}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span className={customer.money > 0 ? 'text-green-600' : customer.money < 0 ? 'text-red-600' : 'text-slate-500'}>
+                                            {new Intl.NumberFormat('vi-VN').format(customer.money)}đ
+                                        </span>
+                                    </td>
+                                    <td className="text-right px-4">
+                                        <div className="flex items-center justify-end gap-2">
+                                            <button
+                                                onClick={() => setViewingCustomer(customer.id)}
+                                                className="p-1.5 text-slate-400 hover:text-blue-600 transition-colors bg-slate-50 rounded-lg border border-slate-100"
+                                                title="Xem chi tiết"
+                                            >
+                                                <span className="material-symbols-outlined text-lg">visibility</span>
+                                            </button>
+                                            <button
+                                                onClick={() => setPayingCustomer({ id: customer.id, code: customer.code, debt: customer.money })}
+                                                className="p-1.5 text-slate-400 hover:text-green-600 transition-colors bg-slate-50 rounded-lg border border-slate-100"
+                                                title="Thanh toán"
+                                            >
+                                                <span className="material-symbols-outlined text-lg">payments</span>
+                                            </button>
+                                            <button
+                                                onClick={() => setEditingCustomer(customer.id)}
+                                                className="p-1.5 text-slate-400 hover:text-yellow-600 transition-colors bg-slate-50 rounded-lg border border-slate-100"
+                                                title="Sửa"
+                                            >
+                                                <span className="material-symbols-outlined text-lg">edit</span>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
             {showAddModal && <AddCustomerModal onClose={() => setShowAddModal(false)} />}
             {viewingCustomer && <ViewCustomerModal customerId={viewingCustomer} onClose={() => setViewingCustomer(null)} />}
             {payingCustomer && (
-                <PaymentModal 
+                <PaymentModal
                     customerCode={payingCustomer.code}
                     currentDebt={payingCustomer.debt}
-                    onClose={() => setPayingCustomer(null)} 
+                    onClose={() => setPayingCustomer(null)}
                 />
             )}
             {editingCustomer && <EditCustomerModal customerId={editingCustomer} onClose={() => setEditingCustomer(null)} />}

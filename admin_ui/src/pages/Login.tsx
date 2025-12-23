@@ -59,7 +59,6 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
                         <span className="text-slate-800 text-3xl font-bold tracking-tight leading-none uppercase">Sinotruk</span>
                         <span className="text-primary text-sm font-bold tracking-[0.3em] leading-none uppercase">Admin Panel</span>
                     </div>
-                    <p className="text-slate-500 mt-4">Đăng nhập để tiếp tục</p>
                 </div>
 
                 {/* Login Form */}

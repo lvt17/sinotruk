@@ -46,21 +46,21 @@ const Dashboard: React.FC = () => {
     return (
         <div className="space-y-6">
             {/* Page Header */}
-            <div>
-                <h1 className="text-3xl font-bold text-slate-800 tracking-tight">Dashboard</h1>
-                <p className="text-slate-500">Tổng quan hệ thống quản lý</p>
+            <div className="mb-2 md:mb-0">
+                <h1 className="text-2xl md:text-3xl font-bold text-slate-800 tracking-tight">Dashboard</h1>
+                <p className="text-slate-500 text-sm md:text-base">Tổng quan hệ thống quản lý</p>
             </div>
 
             {/* Stats Grid - matching frontend current theme */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
                 {stats.map((stat, i) => (
-                    <div key={i} className="card flex items-center gap-4">
-                        <div className={`w-12 h-12 ${stat.color} rounded-xl flex items-center justify-center shadow-lg`}>
-                            <span className="material-symbols-outlined text-white text-2xl">{stat.icon}</span>
+                    <div key={i} className="card flex items-center gap-4 p-4 md:p-6">
+                        <div className={`w-10 h-10 md:w-12 md:h-12 ${stat.color} rounded-xl flex items-center justify-center shadow-lg flex-shrink-0`}>
+                            <span className="material-symbols-outlined text-white text-xl md:text-2xl">{stat.icon}</span>
                         </div>
-                        <div>
-                            <p className="text-slate-500 text-sm">{stat.label}</p>
-                            <p className="text-slate-800 text-2xl font-bold tracking-tight">{stat.value}</p>
+                        <div className="min-w-0">
+                            <p className="text-slate-500 text-xs md:text-sm truncate">{stat.label}</p>
+                            <p className="text-slate-800 text-xl md:text-2xl font-bold tracking-tight">{stat.value}</p>
                         </div>
                     </div>
                 ))}
@@ -75,11 +75,11 @@ const Dashboard: React.FC = () => {
                         <LineChart data={revenueData}>
                             <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                             <XAxis dataKey="month" stroke="#64748b" />
-                            <YAxis 
+                            <YAxis
                                 stroke="#64748b"
                                 tickFormatter={(value) => `₫${(value / 1000000).toFixed(0)}M`}
                             />
-                            <Tooltip 
+                            <Tooltip
                                 formatter={(value: number | undefined) => {
                                     if (value === undefined) return ['', ''];
                                     return [`₫${new Intl.NumberFormat('vi-VN').format(value)}`, 'Doanh thu'];
@@ -87,10 +87,10 @@ const Dashboard: React.FC = () => {
                                 contentStyle={{ backgroundColor: '#fff', border: '1px solid #e2e8f0', borderRadius: '8px' }}
                             />
                             <Legend />
-                            <Line 
-                                type="monotone" 
-                                dataKey="revenue" 
-                                stroke="#0ea5e9" 
+                            <Line
+                                type="monotone"
+                                dataKey="revenue"
+                                stroke="#0ea5e9"
                                 strokeWidth={3}
                                 dot={{ fill: '#0ea5e9', r: 4 }}
                                 name="Doanh thu"
@@ -136,7 +136,7 @@ const Dashboard: React.FC = () => {
                         <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                         <XAxis dataKey="name" stroke="#64748b" />
                         <YAxis stroke="#64748b" />
-                        <Tooltip 
+                        <Tooltip
                             contentStyle={{ backgroundColor: '#fff', border: '1px solid #e2e8f0', borderRadius: '8px' }}
                         />
                         <Legend />
@@ -149,46 +149,48 @@ const Dashboard: React.FC = () => {
             <div className="card">
                 <div className="flex items-center justify-between mb-6">
                     <h2 className="text-xl font-bold text-slate-800 tracking-tight">Đơn hàng gần đây</h2>
-                    <button 
+                    <button
                         onClick={() => navigate('/orders')}
-                        className="btn btn-outline text-sm"
+                        className="btn btn-outline text-xs md:text-sm px-4"
                     >
                         Xem tất cả
                     </button>
                 </div>
-                <table className="admin-table">
-                    <thead>
-                        <tr>
-                            <th>Mã đơn</th>
-                            <th>Khách hàng</th>
-                            <th>Giá trị</th>
-                            <th>Trạng thái</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {recentOrders.map((order) => (
-                            <tr key={order.id}>
-                                <td className="font-medium text-slate-800">{order.id}</td>
-                                <td className="text-slate-600">{order.customer}</td>
-                                <td className="text-slate-600">{order.amount}</td>
-                                <td>
-                                    <span className={`px-3 py-1 rounded-full text-xs font-bold ${order.status === 'Hoàn thành' ? 'bg-green-100 text-green-700' :
+                <div className="overflow-x-auto">
+                    <table className="admin-table w-full min-w-[600px]">
+                        <thead>
+                            <tr>
+                                <th>Mã đơn</th>
+                                <th>Khách hàng</th>
+                                <th>Giá trị</th>
+                                <th>Trạng thái</th>
+                                <th className="w-10"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {recentOrders.map((order) => (
+                                <tr key={order.id}>
+                                    <td className="font-medium text-slate-800">{order.id}</td>
+                                    <td className="text-slate-600 truncate max-w-[150px]">{order.customer}</td>
+                                    <td className="text-slate-600">{order.amount}</td>
+                                    <td>
+                                        <span className={`px-2 md:px-3 py-1 rounded-full text-[10px] md:text-xs font-bold ${order.status === 'Hoàn thành' ? 'bg-green-100 text-green-700' :
                                             order.status === 'Đang xử lý' ? 'bg-yellow-100 text-yellow-700' :
                                                 'bg-slate-100 text-slate-600'
-                                        }`}>
-                                        {order.status}
-                                    </span>
-                                </td>
-                                <td>
-                                    <button className="text-slate-400 hover:text-primary transition-colors">
-                                        <span className="material-symbols-outlined">more_vert</span>
-                                    </button>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
+                                            }`}>
+                                            {order.status}
+                                        </span>
+                                    </td>
+                                    <td className="text-right">
+                                        <button className="text-slate-400 hover:text-primary transition-colors p-1">
+                                            <span className="material-symbols-outlined">more_vert</span>
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     );

@@ -3,7 +3,11 @@ import { useNotification } from '../shared/Notification';
 import NotificationDropdown from '../NotificationDropdown';
 import SettingsModal from '../SettingsModal';
 
-const Header: React.FC = () => {
+interface HeaderProps {
+    onMenuClick?: () => void;
+}
+
+const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
     const notification = useNotification();
     const [showSettings, setShowSettings] = useState(false);
 
@@ -15,33 +19,43 @@ const Header: React.FC = () => {
 
     return (
         <>
-            <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6 shadow-sm">
-                {/* Search */}
-                <div className="flex-1 max-w-md">
-                    <input
-                        type="text"
-                        placeholder="Tìm kiếm sản phẩm, khách hàng..."
-                        className="input"
-                    />
+            <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 md:px-6 shadow-sm">
+                <div className="flex items-center gap-4 flex-1">
+                    {/* Mobile Menu Toggle */}
+                    <button
+                        onClick={onMenuClick}
+                        className="md:hidden p-2 text-slate-600 hover:text-primary transition-colors"
+                    >
+                        <span className="material-symbols-outlined">menu</span>
+                    </button>
+
+                    {/* Search - hidden on very small screens or made smaller */}
+                    <div className="hidden sm:block flex-1 max-w-md">
+                        <input
+                            type="text"
+                            placeholder="Tìm kiếm..."
+                            className="input text-sm py-1.5"
+                        />
+                    </div>
                 </div>
 
                 {/* Actions */}
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2 md:gap-4">
                     <NotificationDropdown />
                     <button
                         onClick={() => setShowSettings(true)}
                         className="p-2 text-slate-600 hover:text-primary transition-colors"
                         title="Cài đặt"
                     >
-                        <span className="material-symbols-outlined">settings</span>
+                        <span className="material-symbols-outlined text-xl md:text-2xl">settings</span>
                     </button>
 
-                    {/* CTA Button matching frontend exactly */}
+                    {/* CTA Button - replaced with icon on mobile */}
                     <button
                         onClick={handleExportReport}
-                        className="hidden sm:flex items-center gap-2 px-6 py-2.5 bg-primary hover:bg-primary-dark text-white text-sm font-bold rounded-xl transition-colors shadow-lg shadow-primary/20"
+                        className="flex items-center justify-center gap-2 px-3 md:px-6 py-2 bg-primary hover:bg-primary-dark text-white text-xs md:text-sm font-bold rounded-lg md:rounded-xl transition-colors shadow-lg shadow-primary/20"
                     >
-                        Xuất báo cáo
+                        <span className="hidden md:inline">Xuất báo cáo</span>
                         <span className="material-symbols-outlined text-sm">download</span>
                     </button>
                 </div>

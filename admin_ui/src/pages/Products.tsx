@@ -50,14 +50,14 @@ const Products: React.FC = () => {
     return (
         <div className="space-y-6">
             {/* Page Header */}
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold text-slate-800 tracking-tight">Sản phẩm</h1>
-                    <p className="text-slate-500">Quản lý danh sách sản phẩm</p>
+                    <h1 className="text-2xl md:text-3xl font-bold text-slate-800 tracking-tight">Sản phẩm</h1>
+                    <p className="text-slate-500 text-sm md:text-base">Quản lý danh sách sản phẩm</p>
                 </div>
                 <button
                     onClick={() => setShowAddModal(true)}
-                    className="flex items-center gap-2 px-6 py-2.5 bg-primary hover:bg-primary-dark text-white text-sm font-bold rounded-xl transition-colors shadow-lg shadow-primary/20"
+                    className="flex items-center justify-center gap-2 px-4 md:px-6 py-2 md:py-2.5 bg-primary hover:bg-primary-dark text-white text-sm font-bold rounded-xl transition-colors shadow-lg shadow-primary/20 w-full sm:w-auto"
                 >
                     <span className="material-symbols-outlined text-xl">add</span>
                     Thêm sản phẩm
@@ -66,96 +66,100 @@ const Products: React.FC = () => {
 
             {/* Filters */}
             <div className="card">
-                <div className="flex flex-col md:flex-row gap-4">
+                <div className="flex flex-col lg:flex-row gap-4">
                     <div className="flex-1">
                         <input
                             type="text"
                             placeholder="Tìm kiếm theo tên, mã sản phẩm..."
-                            className="input"
+                            className="input w-full"
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                         />
                     </div>
-                    <select
-                        className="input max-w-xs"
-                        value={categoryFilter}
-                        onChange={(e) => setCategoryFilter(e.target.value)}
-                    >
-                        <option value="">Tất cả danh mục</option>
-                        <option value="cabin">CABIN</option>
-                        <option value="dong-co">ĐỘNG CƠ</option>
-                        <option value="ly-hop">LY HỢP</option>
-                        <option value="phanh">PHANH</option>
-                    </select>
-                    <button
-                        onClick={handleExportExcel}
-                        className="btn btn-secondary flex items-center gap-2"
-                    >
-                        <span className="material-symbols-outlined">download</span>
-                        Xuất Excel
-                    </button>
+                    <div className="flex flex-col sm:flex-row gap-4">
+                        <select
+                            className="input w-full sm:w-48"
+                            value={categoryFilter}
+                            onChange={(e) => setCategoryFilter(e.target.value)}
+                        >
+                            <option value="">Tất cả danh mục</option>
+                            <option value="cabin">CABIN</option>
+                            <option value="dong-co">ĐỘNG CƠ</option>
+                            <option value="ly-hop">LY HỢP</option>
+                            <option value="phanh">PHANH</option>
+                        </select>
+                        <button
+                            onClick={handleExportExcel}
+                            className="btn btn-secondary flex items-center justify-center gap-2 w-full sm:w-auto"
+                        >
+                            <span className="material-symbols-outlined">download</span>
+                            Xuất Excel
+                        </button>
+                    </div>
                 </div>
             </div>
 
             {/* Products Table */}
             <div className="card p-0 overflow-hidden">
-                <table className="admin-table">
-                    <thead>
-                        <tr>
-                            <th className="w-20">Ảnh</th>
-                            <th>Mã SP</th>
-                            <th>Tên sản phẩm</th>
-                            <th>Giá lẻ</th>
-                            <th>Tồn kho</th>
-                            <th>Danh mục</th>
-                            <th>Thao tác</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {filteredProducts.map((product) => (
-                            <tr key={product.id}>
-                                <td>
-                                    <div className="w-12 h-12 rounded-lg bg-slate-50 border border-slate-100 overflow-hidden shadow-sm">
-                                        <img
-                                            src={product.image || 'https://res.cloudinary.com/dgv7d7n6q/image/upload/v1734944400/product_placeholder.png'}
-                                            alt={product.name}
-                                            className="w-full h-full object-cover"
-                                        />
-                                    </div>
-                                </td>
-                                <td className="font-mono text-slate-800">{product.code}</td>
-                                <td className="font-medium text-slate-800">{product.name}</td>
-                                <td className="text-slate-600">{new Intl.NumberFormat('vi-VN').format(product.price)}đ</td>
-                                <td>
-                                    <span className={`font-medium ${product.total < 10 ? 'text-yellow-600' : 'text-green-600'}`}>
-                                        {product.total}
-                                    </span>
-                                </td>
-                                <td>
-                                    <span className="px-2 py-1 bg-slate-100 rounded-lg text-xs text-slate-600 border border-slate-200">{product.category}</span>
-                                </td>
-                                <td>
-                                    <div className="flex items-center gap-2">
-                                        <button
-                                            onClick={() => handleEdit(product.id)}
-                                            className="p-1 text-slate-400 hover:text-blue-600 transition-colors"
-                                            title="Sửa"
-                                        >
-                                            <span className="material-symbols-outlined text-lg">edit</span>
-                                        </button>
-                                        <button
-                                            onClick={() => handleDelete(product.id)}
-                                            className="p-1 text-slate-400 hover:text-primary transition-colors"
-                                            title="Xóa"
-                                        >
-                                            <span className="material-symbols-outlined text-lg">delete</span>
-                                        </button>
-                                    </div>
-                                </td>
+                <div className="overflow-x-auto">
+                    <table className="admin-table w-full min-w-[800px]">
+                        <thead>
+                            <tr>
+                                <th className="w-20">Ảnh</th>
+                                <th>Mã SP</th>
+                                <th>Tên sản phẩm</th>
+                                <th>Giá lẻ</th>
+                                <th>Tồn kho</th>
+                                <th>Danh mục</th>
+                                <th className="text-right">Thao tác</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            {filteredProducts.map((product) => (
+                                <tr key={product.id}>
+                                    <td>
+                                        <div className="w-12 h-12 rounded-lg bg-slate-50 border border-slate-100 overflow-hidden shadow-sm">
+                                            <img
+                                                src={product.image || 'https://res.cloudinary.com/dgv7d7n6q/image/upload/v1734944400/product_placeholder.png'}
+                                                alt={product.name}
+                                                className="w-full h-full object-cover"
+                                            />
+                                        </div>
+                                    </td>
+                                    <td className="font-mono text-slate-800">{product.code}</td>
+                                    <td className="font-medium text-slate-800">{product.name}</td>
+                                    <td className="text-slate-600">{new Intl.NumberFormat('vi-VN').format(product.price)}đ</td>
+                                    <td>
+                                        <span className={`font-medium ${product.total < 10 ? 'text-yellow-600' : 'text-green-600'}`}>
+                                            {product.total}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span className="px-2 py-1 bg-slate-100 rounded-lg text-xs text-slate-600 border border-slate-200">{product.category}</span>
+                                    </td>
+                                    <td className="text-right">
+                                        <div className="flex items-center justify-end gap-2">
+                                            <button
+                                                onClick={() => handleEdit(product.id)}
+                                                className="p-1.5 text-slate-400 hover:text-blue-600 transition-colors bg-slate-50 rounded-lg border border-slate-100"
+                                                title="Sửa"
+                                            >
+                                                <span className="material-symbols-outlined text-lg">edit</span>
+                                            </button>
+                                            <button
+                                                onClick={() => handleDelete(product.id)}
+                                                className="p-1.5 text-slate-400 hover:text-primary transition-colors bg-slate-50 rounded-lg border border-slate-100"
+                                                title="Xóa"
+                                            >
+                                                <span className="material-symbols-outlined text-lg">delete</span>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
             {/* Info - Ẩn pagination, chỉ hiển thị thông tin */}
