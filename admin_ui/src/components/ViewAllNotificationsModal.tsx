@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
 interface Notification {
     id: number;
-    type: 'order' | 'system';
+    type: 'system';
     title: string;
     message: string;
     time: string;
@@ -16,6 +16,11 @@ interface ViewAllNotificationsModalProps {
 }
 
 const ViewAllNotificationsModal: React.FC<ViewAllNotificationsModalProps> = ({ onClose, notifications, onMarkAsRead }) => {
+    useEffect(() => {
+        document.body.classList.add('modal-open');
+        return () => document.body.classList.remove('modal-open');
+    }, []);
+
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm" onClick={onClose}>
             <div className="bg-white rounded-3xl shadow-2xl max-w-2xl w-full mx-4 max-h-[80vh] flex flex-col overflow-hidden" onClick={(e) => e.stopPropagation()}>
@@ -48,17 +53,14 @@ const ViewAllNotificationsModal: React.FC<ViewAllNotificationsModalProps> = ({ o
                                 key={notification.id}
                                 onClick={() => onMarkAsRead(notification.id)}
                                 className={`p-5 rounded-2xl border transition-all cursor-pointer ${!notification.read
-                                        ? 'bg-primary/5 border-primary/20 shadow-sm'
-                                        : 'bg-white border-slate-100 hover:border-primary/30'
+                                    ? 'bg-primary/5 border-primary/20 shadow-sm'
+                                    : 'bg-white border-slate-100 hover:border-primary/30'
                                     }`}
                             >
                                 <div className="flex items-start gap-4">
-                                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center shadow-sm ${notification.type === 'order'
-                                            ? 'bg-primary text-white'
-                                            : 'bg-slate-800 text-white'
-                                        }`}>
+                                    <div className="w-12 h-12 rounded-xl flex items-center justify-center shadow-sm bg-slate-800 text-white">
                                         <span className="material-symbols-outlined text-2xl">
-                                            {notification.type === 'order' ? 'shopping_cart' : 'info'}
+                                            info
                                         </span>
                                     </div>
                                     <div className="flex-1">

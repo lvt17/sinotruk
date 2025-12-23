@@ -3,14 +3,7 @@ import { useNotification } from '../components/shared/Notification';
 import AddProductModal from '../components/AddProductModal';
 import * as XLSX from 'xlsx';
 
-// Mock products data - will be replaced with API
-const mockProducts = [
-    { id: 1, code: 'XLKVX', name: 'Xilanh kích cabin VX350', price: 850000, total: 15, category: 'CABIN', image: '/images/xilanh.jpg' },
-    { id: 2, code: 'TBTSI', name: 'Tăm bét trước SITRAK', price: 1200000, total: 8, category: 'ĐỘNG CƠ', image: '/images/sitrakg7s.webp' },
-    { id: 3, code: 'LDDC-A7', name: 'Lọc dầu động cơ HOWO A7', price: 350000, total: 25, category: 'ĐỘNG CƠ', image: '/images/locdau.webp' },
-    { id: 4, code: 'LC420', name: 'Lá côn HOWO 420', price: 2500000, total: 4, category: 'LY HỢP', image: '/images/daulockhi.webp' },
-    { id: 5, code: 'PTTS', name: 'Phanh tang trống sau', price: 1800000, total: 12, category: 'PHANH', image: '/images/phanhchongtang.jpg' },
-];
+import { mockProducts, productCategories } from '../data/mockDatabase';
 
 const Products: React.FC = () => {
     const notification = useNotification();
@@ -18,13 +11,7 @@ const Products: React.FC = () => {
     const [activeTab, setActiveTab] = useState('ALL');
     const [showAddModal, setShowAddModal] = useState(false);
 
-    const categories = [
-        { id: 'ALL', label: 'Tất cả' },
-        { id: 'CABIN', label: 'CABIN' },
-        { id: 'ĐỘNG CƠ', label: 'ĐỘNG CƠ' },
-        { id: 'LY HỢP', label: 'LY HỢP' },
-        { id: 'PHANH', label: 'PHANH' },
-    ];
+    const categories = productCategories;
 
     const filteredProducts = mockProducts.filter(p => {
         const matchesSearch = p.name.toLowerCase().includes(search.toLowerCase()) ||

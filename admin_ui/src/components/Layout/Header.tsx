@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useNotification } from '../shared/Notification';
 import NotificationDropdown from '../NotificationDropdown';
@@ -12,6 +12,14 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
     const notification = useNotification();
     const [showSettings, setShowSettings] = useState(false);
     const location = useLocation();
+
+    useEffect(() => {
+        if (showSettings) {
+            document.body.classList.add('modal-open');
+        } else {
+            document.body.classList.remove('modal-open');
+        }
+    }, [showSettings]);
 
     const getPageTitle = () => {
         const path = location.pathname;

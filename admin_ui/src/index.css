@@ -177,3 +177,18 @@ body {
 .badge-primary {
   @apply bg-primary/10 text-primary border border-primary/20;
 }
+
+/* Sidebar blur effect on modal open */
+body.modal-open .admin-sidebar {
+  filter: blur(8px);
+  pointer-events: none;
+}
+
+.admin-sidebar {
+  transition: filter 0.3s ease;
+}
+
+/* Optional: prevent body scroll when modal is open */
+body.modal-open {
+  overflow: hidden;
+}

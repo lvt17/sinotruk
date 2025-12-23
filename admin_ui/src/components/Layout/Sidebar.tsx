@@ -16,7 +16,7 @@ const Sidebar: React.FC<{ isOpen?: boolean; onClose?: () => void }> = ({ isOpen,
                 onClick={onClose}
             ></div>
 
-            <aside className={`fixed md:static inset-y-0 left-0 w-64 bg-white border-r border-slate-200 flex flex-col shadow-sm z-50 transform transition-transform duration-300 md:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'
+            <aside className={`fixed md:static inset-y-0 left-0 w-64 bg-white border-r border-slate-200 flex flex-col shadow-sm z-50 transform transition-transform duration-300 md:translate-x-0 admin-sidebar ${isOpen ? 'translate-x-0' : '-translate-x-full'
                 }`}>
                 {/* Logo - matching frontend Navbar exactly */}
                 <div className="h-16 flex items-center justify-between px-6 border-b border-slate-200">

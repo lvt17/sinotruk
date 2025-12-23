@@ -3,7 +3,7 @@ import ViewAllNotificationsModal from './ViewAllNotificationsModal';
 
 interface Notification {
     id: number;
-    type: 'order' | 'system';
+    type: 'system';
     title: string;
     message: string;
     time: string;
@@ -13,9 +13,9 @@ interface Notification {
 const NotificationDropdown: React.FC = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [notifications, setNotifications] = useState<Notification[]>([
-        { id: 1, type: 'order', title: 'Đơn hàng mới', message: 'Đơn hàng TQ #001 vừa được tạo', time: '5 phút trước', read: false },
-        { id: 2, type: 'order', title: 'Đơn hàng mới', message: 'Đơn hàng TQ #002 vừa được tạo', time: '15 phút trước', read: false },
-        { id: 3, type: 'system', title: 'Thông báo hệ thống', message: 'Cập nhật phiên bản mới', time: '1 giờ trước', read: true },
+        { id: 1, type: 'system', title: 'Bảo trì định kỳ', message: 'Hệ thống sẽ bảo trì vào 23:00 tối nay', time: '10 phút trước', read: false },
+        { id: 2, type: 'system', title: 'Cập nhật Catalog', message: 'Đã cập nhật 20 sản phẩm mới vào danh mục CABIN', time: '1 giờ trước', read: false },
+        { id: 3, type: 'system', title: 'Thông báo hệ thống', message: 'Chào mừng bạn đến với Sinotruk Admin Panel', time: '5 giờ trước', read: true },
     ]);
     const [showAllModal, setShowAllModal] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
@@ -37,24 +37,9 @@ const NotificationDropdown: React.FC = () => {
         };
     }, [isOpen]);
 
-    // Simulate new order notifications (in production, use WebSocket or polling)
+    // Simulate system notifications (optional, removed order simulation)
     useEffect(() => {
-        const interval = setInterval(() => {
-            // Randomly add new order notification for demo
-            if (Math.random() > 0.7) {
-                const newNotification: Notification = {
-                    id: Date.now(),
-                    type: 'order',
-                    title: 'Đơn hàng mới',
-                    message: `Đơn hàng TQ #${Math.floor(Math.random() * 1000)} vừa được tạo`,
-                    time: 'Vừa xong',
-                    read: false,
-                };
-                setNotifications(prev => [newNotification, ...prev]);
-            }
-        }, 30000); // Check every 30 seconds
-
-        return () => clearInterval(interval);
+        // ... simplified or removed as per request
     }, []);
 
     const unreadCount = notifications.filter(n => !n.read).length;
@@ -112,10 +97,9 @@ const NotificationDropdown: React.FC = () => {
                                         }`}
                                 >
                                     <div className="flex items-start gap-3">
-                                        <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${notification.type === 'order' ? 'bg-primary/10 text-primary' : 'bg-slate-100 text-slate-600'
-                                            }`}>
+                                        <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-slate-100 text-slate-600">
                                             <span className="material-symbols-outlined text-xl">
-                                                {notification.type === 'order' ? 'shopping_cart' : 'info'}
+                                                info
                                             </span>
                                         </div>
                                         <div className="flex-1">

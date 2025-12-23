@@ -2,31 +2,48 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
-// Stats card data
-const stats = [
-    { label: 'Tổng sản phẩm', value: '2,298', icon: 'inventory_2', color: 'bg-blue-500' },
-    { label: 'Sắp hết hàng', value: '45', icon: 'warning', color: 'bg-yellow-500' },
-    { label: 'Hết hàng', value: '12', icon: 'error', color: 'bg-red-500' },
-    { label: 'Danh mục', value: '8', icon: 'category', color: 'bg-primary' },
-];
+import { mockProducts } from '../data/mockDatabase';
 
-const lowStockProducts = [
-    { code: 'XLKVX', name: 'Xilanh kích cabin VX350', total: 5, category: 'CABIN' },
-    { code: 'LDDC-A7', name: 'Lọc dầu động cơ HOWO A7', total: 2, category: 'ĐỘNG CƠ' },
-    { code: 'LC420', name: 'Lá côn HOWO 420', total: 0, category: 'LY HỢP' },
-];
-
-// Chart data
-const categoryDistribution = [
-    { name: 'CABIN', value: 450, color: '#0ea5e9' },
-    { name: 'ĐỘNG CƠ', value: 380, color: '#10b981' },
-    { name: 'PHANH', value: 280, color: '#f59e0b' },
-    { name: 'LY HỢP', value: 220, color: '#8b5cf6' },
-    { name: 'KHÁC', value: 150, color: '#94a3b8' },
+const statsConfig = [
+    { label: 'Tổng sản phẩm', icon: 'inventory_2', color: 'bg-blue-500' },
+    { label: 'Sắp hết hàng', icon: 'warning', color: 'bg-yellow-500' },
+    { label: 'Hết hàng', icon: 'error', color: 'bg-red-500' },
+    { label: 'Danh mục', icon: 'category', color: 'bg-primary' },
 ];
 
 const Dashboard: React.FC = () => {
     const navigate = useNavigate();
+
+    // Dynamically calculate stats from mockDatabase
+    const totalProducts = mockProducts.length;
+    const lowStockCount = mockProducts.filter(p => p.total > 0 && p.total <= 10).length;
+    const outOfStockCount = mockProducts.filter(p => p.total === 0).length;
+    const categoriesCount = new Set(mockProducts.map(p => p.category)).size;
+
+    const stats = [
+        { ...statsConfig[0], value: totalProducts.toLocaleString() },
+        { ...statsConfig[1], value: lowStockCount.toLocaleString() },
+        { ...statsConfig[2], value: outOfStockCount.toLocaleString() },
+        { ...statsConfig[3], value: categoriesCount.toLocaleString() },
+    ];
+
+    const lowStockExposures = mockProducts
+        .filter(p => p.total <= 10)
+        .sort((a, b) => a.total - b.total)
+        .slice(0, 5);
+
+    // Calculate category distribution for pie chart
+    const catsMap = mockProducts.reduce((acc: any, p) => {
+        acc[p.category] = (acc[p.category] || 0) + 1;
+        return acc;
+    }, {});
+
+    const colors = ['#0ea5e9', '#10b981', '#f59e0b', '#8b5cf6', '#94a3b8', '#ec4899'];
+    const categoryDistribution = Object.keys(catsMap).map((cat, i) => ({
+        name: cat,
+        value: catsMap[cat],
+        color: colors[i % colors.length]
+    }));
 
     return (
         <div className="space-y-6">
@@ -106,7 +123,7 @@ const Dashboard: React.FC = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {lowStockProducts.map((product) => (
+                            {lowStockExposures.map((product: any) => (
                                 <tr key={product.code}>
                                     <td className="font-mono text-slate-800">{product.code}</td>
                                     <td className="font-medium text-slate-800">{product.name}</td>
