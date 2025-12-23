@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { useNotification } from '../shared/Notification';
 import SettingsModal from '../SettingsModal';
 
 interface HeaderProps {
@@ -8,9 +7,15 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
-    const notification = useNotification();
     const [showSettings, setShowSettings] = useState(false);
+    const [currentTime, setCurrentTime] = useState(new Date());
     const location = useLocation();
+
+    // Update time every minute
+    useEffect(() => {
+        const timer = setInterval(() => setCurrentTime(new Date()), 60000);
+        return () => clearInterval(timer);
+    }, []);
 
     useEffect(() => {
         if (showSettings) {
@@ -20,58 +25,67 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
         }
     }, [showSettings]);
 
-    const getPageTitle = () => {
+    const getPageInfo = () => {
         const path = location.pathname;
-        if (path.includes('/dashboard')) return 'Tổng quan hệ thống';
-        if (path.includes('/products')) return 'Danh mục Phụ tùng';
-        return 'Admin Panel';
+        if (path.includes('/dashboard')) return { title: 'Dashboard', icon: 'dashboard' };
+        if (path.includes('/products')) return { title: 'Sản phẩm', icon: 'inventory_2' };
+        if (path.includes('/categories')) return { title: 'Danh mục', icon: 'category' };
+        return { title: 'Admin', icon: 'admin_panel_settings' };
     };
 
-    const handleExportReport = () => {
-        notification.info('Hệ thống đang trích xuất dữ liệu Catalog...');
-    };
+    const pageInfo = getPageInfo();
+    const formattedDate = currentTime.toLocaleDateString('vi-VN', {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long'
+    });
 
     return (
         <>
-            <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 md:px-6 shadow-sm sticky top-0 z-10">
-                <div className="flex items-center gap-4">
+            <header className="h-14 bg-white/80 backdrop-blur-md border-b border-slate-100 flex items-center justify-between px-4 md:px-6 sticky top-0 z-30">
+                {/* Left Section */}
+                <div className="flex items-center gap-3">
                     {/* Mobile Menu Toggle */}
                     <button
                         onClick={onMenuClick}
-                        className="md:hidden p-2 text-slate-600 hover:text-primary transition-colors hover:bg-slate-50 rounded-xl"
+                        className="md:hidden p-2 text-slate-500 hover:text-primary transition-colors rounded-lg hover:bg-slate-50"
                     >
-                        <span className="material-symbols-outlined">menu</span>
+                        <span className="material-symbols-outlined text-xl">menu</span>
                     </button>
 
-                    {/* Section Indicator */}
-                    <div className="flex items-center gap-3">
-                        <div className="hidden md:flex items-center gap-2 px-3 py-1 bg-slate-50 border border-slate-100 rounded-lg">
-                            <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">System Online</span>
+                    {/* Breadcrumb Style Page Title */}
+                    <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                            <span className="material-symbols-outlined text-primary text-lg">{pageInfo.icon}</span>
                         </div>
-                        <div className="h-6 w-[1px] bg-slate-200 hidden md:block"></div>
-                        <h2 className="text-slate-800 font-bold text-sm md:text-base tracking-tight">{getPageTitle()}</h2>
+                        <div className="flex flex-col">
+                            <span className="text-xs text-slate-400 font-medium hidden sm:block">Sinotruk Admin</span>
+                            <h1 className="text-sm md:text-base font-bold text-slate-800 leading-tight">{pageInfo.title}</h1>
+                        </div>
                     </div>
                 </div>
 
-                {/* Actions */}
-                <div className="flex items-center gap-2 md:gap-4">
-                    <button
-                        onClick={handleExportReport}
-                        className="hidden sm:flex items-center gap-2 px-4 py-2 text-slate-600 hover:text-primary transition-all text-xs font-bold border border-transparent hover:border-slate-100 hover:bg-slate-50 rounded-xl"
-                    >
-                        <span className="material-symbols-outlined text-sm">download</span>
-                        <span>Trích xuất Data</span>
-                    </button>
+                {/* Right Section */}
+                <div className="flex items-center gap-3">
+                    {/* Date & Time */}
+                    <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-slate-50 rounded-lg border border-slate-100">
+                        <span className="material-symbols-outlined text-slate-400 text-sm">calendar_today</span>
+                        <span className="text-xs font-medium text-slate-600">{formattedDate}</span>
+                    </div>
 
-                    <div className="h-6 w-[1px] bg-slate-200 hidden sm:block mx-1"></div>
+                    {/* Status Indicator */}
+                    <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 bg-green-50 rounded-lg border border-green-100">
+                        <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
+                        <span className="text-[10px] font-bold text-green-600 uppercase tracking-wide">Online</span>
+                    </div>
 
+                    {/* Settings Button */}
                     <button
                         onClick={() => setShowSettings(true)}
-                        className="p-2 text-slate-600 hover:text-primary transition-all hover:bg-slate-50 rounded-xl"
-                        title="Cấu hình Catalog"
+                        className="p-2 text-slate-500 hover:text-primary transition-all hover:bg-slate-50 rounded-lg"
+                        title="Cài đặt"
                     >
-                        <span className="material-symbols-outlined text-xl md:text-2xl">settings_applications</span>
+                        <span className="material-symbols-outlined text-xl">settings</span>
                     </button>
                 </div>
             </header>

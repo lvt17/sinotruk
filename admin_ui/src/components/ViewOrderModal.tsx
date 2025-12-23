@@ -24,7 +24,7 @@ const ViewOrderModal: React.FC<ViewOrderModalProps> = ({ orderId, onClose }) => 
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" onClick={onClose}>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm" onClick={onClose}>
             <div className="bg-white rounded-3xl shadow-2xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
                 <div className="p-6 border-b border-slate-200 flex items-center justify-between">
                     <h2 className="text-2xl font-bold text-slate-800">Chi tiết đơn hàng</h2>
