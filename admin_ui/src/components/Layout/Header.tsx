@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import SettingsModal from '../SettingsModal';
 
 interface HeaderProps {
@@ -9,7 +9,7 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
     const [showSettings, setShowSettings] = useState(false);
     const [currentTime, setCurrentTime] = useState(new Date());
-    const location = useLocation();
+    const navigate = useNavigate();
 
     // Update time every minute
     useEffect(() => {
@@ -25,24 +25,21 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
         }
     }, [showSettings]);
 
-    const getPageInfo = () => {
-        const path = location.pathname;
-        if (path.includes('/dashboard')) return { title: 'Dashboard', icon: 'dashboard' };
-        if (path.includes('/products')) return { title: 'Sản phẩm', icon: 'inventory_2' };
-        if (path.includes('/categories')) return { title: 'Danh mục', icon: 'category' };
-        return { title: 'Admin', icon: 'admin_panel_settings' };
-    };
-
-    const pageInfo = getPageInfo();
     const formattedDate = currentTime.toLocaleDateString('vi-VN', {
-        weekday: 'long',
+        weekday: 'short',
         day: 'numeric',
-        month: 'long'
+        month: 'short',
+        year: 'numeric'
+    });
+
+    const formattedTime = currentTime.toLocaleTimeString('vi-VN', {
+        hour: '2-digit',
+        minute: '2-digit'
     });
 
     return (
         <>
-            <header className="h-14 bg-white/80 backdrop-blur-md border-b border-slate-100 flex items-center justify-between px-4 md:px-6 sticky top-0 z-30">
+            <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 md:px-6 sticky top-0 z-30">
                 {/* Left Section */}
                 <div className="flex items-center gap-3">
                     {/* Mobile Menu Toggle */}
@@ -53,36 +50,45 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
                         <span className="material-symbols-outlined text-xl">menu</span>
                     </button>
 
-                    {/* Breadcrumb Style Page Title */}
-                    <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                            <span className="material-symbols-outlined text-primary text-lg">{pageInfo.icon}</span>
-                        </div>
-                        <div className="flex flex-col">
-                            <span className="text-xs text-slate-400 font-medium hidden sm:block">Sinotruk Admin</span>
-                            <h1 className="text-sm md:text-base font-bold text-slate-800 leading-tight">{pageInfo.title}</h1>
+                    {/* Welcome Message */}
+                    <div className="flex items-center gap-3">
+                        <div className="hidden sm:flex items-center gap-2">
+                            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center shadow-lg shadow-primary/20">
+                                <span className="material-symbols-outlined text-white text-lg">person</span>
+                            </div>
+                            <div className="flex flex-col">
+                                <span className="text-xs text-slate-400">Xin chào,</span>
+                                <span className="text-sm font-bold text-slate-800 leading-tight">Admin</span>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 {/* Right Section */}
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 md:gap-3">
                     {/* Date & Time */}
-                    <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-slate-50 rounded-lg border border-slate-100">
-                        <span className="material-symbols-outlined text-slate-400 text-sm">calendar_today</span>
-                        <span className="text-xs font-medium text-slate-600">{formattedDate}</span>
+                    <div className="hidden md:flex items-center gap-3 px-4 py-2 bg-slate-50 rounded-xl border border-slate-100">
+                        <div className="flex items-center gap-2">
+                            <span className="material-symbols-outlined text-slate-400 text-sm">calendar_today</span>
+                            <span className="text-xs font-medium text-slate-600">{formattedDate}</span>
+                        </div>
+                        <div className="h-4 w-px bg-slate-200"></div>
+                        <div className="flex items-center gap-1">
+                            <span className="material-symbols-outlined text-slate-400 text-sm">schedule</span>
+                            <span className="text-xs font-bold text-slate-700">{formattedTime}</span>
+                        </div>
                     </div>
 
                     {/* Status Indicator */}
-                    <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 bg-green-50 rounded-lg border border-green-100">
-                        <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
-                        <span className="text-[10px] font-bold text-green-600 uppercase tracking-wide">Online</span>
+                    <div className="flex items-center gap-1.5 px-3 py-2 bg-green-50 rounded-xl border border-green-100">
+                        <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                        <span className="text-xs font-bold text-green-600 uppercase tracking-wide hidden sm:inline">Online</span>
                     </div>
 
                     {/* Settings Button */}
                     <button
                         onClick={() => setShowSettings(true)}
-                        className="p-2 text-slate-500 hover:text-primary transition-all hover:bg-slate-50 rounded-lg"
+                        className="p-2.5 text-slate-500 hover:text-primary transition-all hover:bg-slate-50 rounded-xl border border-transparent hover:border-slate-100"
                         title="Cài đặt"
                     >
                         <span className="material-symbols-outlined text-xl">settings</span>

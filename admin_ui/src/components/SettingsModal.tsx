@@ -9,7 +9,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
     const notification = useNotification();
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm" onClick={onClose}>
-            <div className="bg-white rounded-3xl shadow-2xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            <div className="bg-white rounded-3xl shadow-2xl max-w-lg w-full mx-4 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
                 {/* Header */}
                 <div className="p-6 border-b border-slate-200 flex items-center justify-between">
                     <h2 className="text-2xl font-bold text-slate-800">Cài đặt</h2>
@@ -25,7 +25,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
                 <div className="p-6 space-y-6">
                     {/* General Settings */}
                     <div>
-                        <h3 className="text-lg font-semibold text-slate-800 mb-4">Cài đặt chung</h3>
+                        <h3 className="text-lg font-semibold text-slate-800 mb-4">Thông tin công ty</h3>
                         <div className="space-y-4">
                             <div>
                                 <label className="block text-sm font-medium text-slate-700 mb-2">
@@ -60,33 +60,6 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
                         </div>
                     </div>
 
-                    {/* System Settings */}
-                    <div>
-                        <h3 className="text-lg font-semibold text-slate-800 mb-4">Cài đặt hệ thống</h3>
-                        <div className="space-y-4">
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <p className="font-medium text-slate-800">Thông báo email</p>
-                                    <p className="text-sm text-slate-500">Nhận thông báo qua email</p>
-                                </div>
-                                <label className="relative inline-flex items-center cursor-pointer">
-                                    <input type="checkbox" className="sr-only peer" defaultChecked />
-                                    <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
-                                </label>
-                            </div>
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <p className="font-medium text-slate-800">Thông báo đơn hàng mới</p>
-                                    <p className="text-sm text-slate-500">Thông báo khi có đơn hàng mới</p>
-                                </div>
-                                <label className="relative inline-flex items-center cursor-pointer">
-                                    <input type="checkbox" className="sr-only peer" defaultChecked />
-                                    <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-
                     {/* Actions */}
                     <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-200">
                         <button
@@ -112,7 +85,3 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
 };
 
 export default SettingsModal;
-
-
-
-

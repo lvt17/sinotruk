@@ -1,5 +1,4 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 import { mockProducts } from '../data/mockDatabase';
@@ -12,8 +11,6 @@ const statsConfig = [
 ];
 
 const Dashboard: React.FC = () => {
-    const navigate = useNavigate();
-
     // Dynamically calculate stats from mockDatabase
     const totalProducts = mockProducts.length;
     const lowStockCount = mockProducts.filter(p => p.total > 0 && p.total <= 10).length;
@@ -26,11 +23,6 @@ const Dashboard: React.FC = () => {
         { ...statsConfig[2], value: outOfStockCount.toLocaleString() },
         { ...statsConfig[3], value: categoriesCount.toLocaleString() },
     ];
-
-    const lowStockExposures = mockProducts
-        .filter(p => p.total <= 10)
-        .sort((a, b) => a.total - b.total)
-        .slice(0, 5);
 
     // Calculate category distribution for pie chart
     const catsMap = mockProducts.reduce((acc: any, p) => {
@@ -94,58 +86,6 @@ const Dashboard: React.FC = () => {
                             <Legend verticalAlign="bottom" height={36} />
                         </PieChart>
                     </ResponsiveContainer>
-                </div>
-            </div>
-
-            {/* Low Stock Alerts */}
-            <div className="card border-red-100">
-                <div className="flex items-center justify-between mb-6">
-                    <div className="flex items-center gap-2">
-                        <span className="material-symbols-outlined text-red-500">warning</span>
-                        <h2 className="text-xl font-bold text-slate-800 tracking-tight">Cảnh báo tồn kho thấp</h2>
-                    </div>
-                    <button
-                        onClick={() => navigate('/products')}
-                        className="btn btn-outline text-xs md:text-sm px-4"
-                    >
-                        Xem tất cả
-                    </button>
-                </div>
-                <div className="overflow-x-auto">
-                    <table className="admin-table w-full min-w-[600px]">
-                        <thead>
-                            <tr>
-                                <th>Mã sản phẩm</th>
-                                <th>Tên sản phẩm</th>
-                                <th>Danh mục</th>
-                                <th>Tồn kho</th>
-                                <th className="w-10"></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {lowStockExposures.map((product: any) => (
-                                <tr key={product.code}>
-                                    <td className="font-mono text-slate-800">{product.code}</td>
-                                    <td className="font-medium text-slate-800">{product.name}</td>
-                                    <td>
-                                        <span className="px-2 py-1 bg-slate-100 rounded-lg text-[10px] font-bold text-slate-600">
-                                            {product.category}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <span className={`font-bold ${product.total === 0 ? 'text-red-600' : 'text-yellow-600'}`}>
-                                            {product.total}
-                                        </span>
-                                    </td>
-                                    <td className="text-right">
-                                        <button className="text-slate-400 hover:text-primary transition-colors p-1">
-                                            <span className="material-symbols-outlined">more_vert</span>
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
                 </div>
             </div>
         </div>
