@@ -126,7 +126,6 @@ const Categories: React.FC = () => {
                             />
                             <div>
                                 <span className="font-medium text-slate-700">HÃNG XE</span>
-                                <p className="text-xs text-slate-400">Ví dụ: HOWO, SITRAK, SINOTRUK</p>
                             </div>
                         </label>
                         <div className="flex gap-2">
