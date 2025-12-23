@@ -4,6 +4,7 @@ import { NotificationProvider } from './components/shared/Notification';
 import Layout from './components/Layout/Layout';
 import Dashboard from './pages/Dashboard';
 import Products from './pages/Products';
+import Categories from './pages/Categories';
 import Login from './pages/Login';
 
 // Protected Route Component
@@ -90,6 +91,16 @@ const App: React.FC = () => {
                         <ProtectedRoute>
                             <Layout>
                                 <Products />
+                            </Layout>
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/categories"
+                    element={
+                        <ProtectedRoute>
+                            <Layout>
+                                <Categories />
                             </Layout>
                         </ProtectedRoute>
                     }

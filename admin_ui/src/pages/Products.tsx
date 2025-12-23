@@ -1,24 +1,89 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useNotification } from '../components/shared/Notification';
 import AddProductModal from '../components/AddProductModal';
 import * as XLSX from 'xlsx';
 
-import { mockProducts, productCategories } from '../data/mockDatabase';
+import { mockProducts } from '../data/mockDatabase';
+
+const PAGE_SIZE = 5;
 
 const Products: React.FC = () => {
     const notification = useNotification();
+    const [searchParams, setSearchParams] = useSearchParams();
     const [search, setSearch] = useState('');
-    const [activeTab, setActiveTab] = useState('ALL');
     const [showAddModal, setShowAddModal] = useState(false);
 
-    const categories = productCategories;
+    // Get category and cursor from URL params  
+    const categoryFilter = searchParams.get('category') || 'ALL';
+    const cursorParam = searchParams.get('cursor');
+    const currentCursor = cursorParam ? parseInt(cursorParam, 10) : null;
 
-    const filteredProducts = mockProducts.filter(p => {
-        const matchesSearch = p.name.toLowerCase().includes(search.toLowerCase()) ||
-            p.code.toLowerCase().includes(search.toLowerCase());
-        const matchesCategory = activeTab === 'ALL' || p.category === activeTab;
-        return matchesSearch && matchesCategory;
-    });
+    // Filter products by category and search
+    const filteredProducts = useMemo(() => {
+        return mockProducts.filter(p => {
+            const matchesSearch = p.name.toLowerCase().includes(search.toLowerCase()) ||
+                p.code.toLowerCase().includes(search.toLowerCase());
+            const matchesCategory = categoryFilter === 'ALL' || p.category === categoryFilter;
+            return matchesSearch && matchesCategory;
+        }).sort((a, b) => a.id - b.id); // Ensure sorted by ID for cursor pagination
+    }, [categoryFilter, search]);
+
+    // Cursor-based pagination logic
+    const paginatedData = useMemo(() => {
+        let startIndex = 0;
+
+        if (currentCursor !== null) {
+            // Find the index of the product with ID equal to cursor
+            const cursorIndex = filteredProducts.findIndex(p => p.id === currentCursor);
+            if (cursorIndex !== -1) {
+                startIndex = cursorIndex + 1; // Start after the cursor
+            }
+        }
+
+        const pageProducts = filteredProducts.slice(startIndex, startIndex + PAGE_SIZE);
+        const hasNextPage = startIndex + PAGE_SIZE < filteredProducts.length;
+        const hasPrevPage = currentCursor !== null && startIndex > 0;
+
+        // Get the cursors for navigation
+        const nextCursor = pageProducts.length > 0 ? pageProducts[pageProducts.length - 1].id : null;
+        const prevCursor = startIndex > 0 ? filteredProducts[Math.max(0, startIndex - PAGE_SIZE)]?.id || null : null;
+
+        return {
+            products: pageProducts,
+            hasNextPage,
+            hasPrevPage,
+            nextCursor,
+            prevCursor,
+            startIndex,
+            totalCount: filteredProducts.length,
+        };
+    }, [filteredProducts, currentCursor]);
+
+    const handleNextPage = () => {
+        if (paginatedData.hasNextPage && paginatedData.nextCursor) {
+            const newParams = new URLSearchParams(searchParams);
+            newParams.set('cursor', paginatedData.nextCursor.toString());
+            setSearchParams(newParams);
+        }
+    };
+
+    const handlePrevPage = () => {
+        const newParams = new URLSearchParams(searchParams);
+        if (paginatedData.prevCursor !== null && paginatedData.startIndex > PAGE_SIZE) {
+            newParams.set('cursor', paginatedData.prevCursor.toString());
+        } else {
+            // Go to first page
+            newParams.delete('cursor');
+        }
+        setSearchParams(newParams);
+    };
+
+    const handleFirstPage = () => {
+        const newParams = new URLSearchParams(searchParams);
+        newParams.delete('cursor');
+        setSearchParams(newParams);
+    };
 
     const handleExportExcel = () => {
         const ws = XLSX.utils.json_to_sheet(filteredProducts);
@@ -41,7 +106,12 @@ const Products: React.FC = () => {
             {/* Page Header */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl md:text-3xl font-bold text-slate-800 tracking-tight uppercase">Danh mục phụ tùng</h1>
+                    <h1 className="text-2xl md:text-3xl font-bold text-slate-800 tracking-tight uppercase">
+                        Danh mục phụ tùng
+                        {categoryFilter !== 'ALL' && (
+                            <span className="text-primary ml-2">- {categoryFilter}</span>
+                        )}
+                    </h1>
                     <p className="text-slate-500 text-sm md:text-base italic">Kho lưu trữ khoa học & Catalog thông số kỹ thuật</p>
                 </div>
                 <div className="flex gap-2 w-full sm:w-auto">
@@ -63,22 +133,6 @@ const Products: React.FC = () => {
                 </div>
             </div>
 
-            {/* Scientific Navigation Tabs */}
-            <div className="flex items-center gap-2 overflow-x-auto pb-2 no-scrollbar">
-                {categories.map((cat) => (
-                    <button
-                        key={cat.id}
-                        onClick={() => setActiveTab(cat.id)}
-                        className={`px-6 py-2.5 rounded-full text-sm font-bold whitespace-nowrap transition-all duration-200 border-2 ${activeTab === cat.id
-                            ? 'bg-primary border-primary text-white shadow-md'
-                            : 'bg-white border-slate-100 text-slate-500 hover:border-primary/30'
-                            }`}
-                    >
-                        {cat.label}
-                    </button>
-                ))}
-            </div>
-
             {/* Advanced Filters */}
             <div className="card">
                 <div className="flex items-center gap-4">
@@ -88,7 +142,13 @@ const Products: React.FC = () => {
                             placeholder="Tra cứu nhanh theo tên, mã sản phẩm, thông số..."
                             className="input w-full"
                             value={search}
-                            onChange={(e) => setSearch(e.target.value)}
+                            onChange={(e) => {
+                                setSearch(e.target.value);
+                                // Reset cursor when searching
+                                const newParams = new URLSearchParams(searchParams);
+                                newParams.delete('cursor');
+                                setSearchParams(newParams);
+                            }}
                         />
                     </div>
                 </div>
@@ -110,8 +170,8 @@ const Products: React.FC = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {filteredProducts.length > 0 ? (
-                                filteredProducts.map((product) => (
+                            {paginatedData.products.length > 0 ? (
+                                paginatedData.products.map((product) => (
                                     <tr key={product.id} className="hover:bg-slate-50/80 transition-colors">
                                         <td className="py-4">
                                             <div className="w-16 h-16 mx-auto rounded-xl bg-slate-50 border border-slate-100 overflow-hidden shadow-sm group relative cursor-zoom-in">
@@ -185,11 +245,57 @@ const Products: React.FC = () => {
                 </div>
             </div>
 
-            {/* Catalog Info Footer */}
+            {/* Cursor Pagination Controls */}
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-2">
                 <p className="text-slate-500 text-sm">
-                    Đang hiển thị <span className="font-bold text-slate-800">{filteredProducts.length}</span> trên tổng số <span className="font-bold text-slate-800">{mockProducts.length}</span> mặt hàng trong danh mục
+                    Đang hiển thị <span className="font-bold text-slate-800">{paginatedData.startIndex + 1}</span>-<span className="font-bold text-slate-800">{Math.min(paginatedData.startIndex + paginatedData.products.length, paginatedData.totalCount)}</span> trên tổng số <span className="font-bold text-slate-800">{paginatedData.totalCount}</span> mặt hàng
                 </p>
+
+                <div className="flex items-center gap-2">
+                    {/* First Page Button */}
+                    <button
+                        onClick={handleFirstPage}
+                        disabled={!paginatedData.hasPrevPage && currentCursor === null}
+                        className={`flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-semibold transition-colors ${paginatedData.hasPrevPage || currentCursor !== null
+                                ? 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                                : 'bg-slate-50 text-slate-300 cursor-not-allowed'
+                            }`}
+                        title="Trang đầu"
+                    >
+                        <span className="material-symbols-outlined text-lg">first_page</span>
+                    </button>
+
+                    {/* Previous Page Button */}
+                    <button
+                        onClick={handlePrevPage}
+                        disabled={!paginatedData.hasPrevPage && currentCursor === null}
+                        className={`flex items-center gap-1 px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${paginatedData.hasPrevPage || currentCursor !== null
+                                ? 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                                : 'bg-slate-50 text-slate-300 cursor-not-allowed'
+                            }`}
+                    >
+                        <span className="material-symbols-outlined text-lg">chevron_left</span>
+                        <span className="hidden sm:inline">Trước</span>
+                    </button>
+
+                    {/* Page Indicator */}
+                    <div className="px-4 py-2 bg-primary/10 text-primary font-bold rounded-lg text-sm">
+                        Trang {Math.floor(paginatedData.startIndex / PAGE_SIZE) + 1} / {Math.ceil(paginatedData.totalCount / PAGE_SIZE)}
+                    </div>
+
+                    {/* Next Page Button */}
+                    <button
+                        onClick={handleNextPage}
+                        disabled={!paginatedData.hasNextPage}
+                        className={`flex items-center gap-1 px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${paginatedData.hasNextPage
+                                ? 'bg-primary text-white hover:bg-primary-dark'
+                                : 'bg-slate-50 text-slate-300 cursor-not-allowed'
+                            }`}
+                    >
+                        <span className="hidden sm:inline">Tiếp</span>
+                        <span className="material-symbols-outlined text-lg">chevron_right</span>
+                    </button>
+                </div>
             </div>
 
             {showAddModal && (

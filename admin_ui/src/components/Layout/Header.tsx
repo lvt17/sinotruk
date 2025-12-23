@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useNotification } from '../shared/Notification';
-import NotificationDropdown from '../NotificationDropdown';
 import SettingsModal from '../SettingsModal';
 
 interface HeaderProps {
@@ -66,8 +65,6 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
                     </button>
 
                     <div className="h-6 w-[1px] bg-slate-200 hidden sm:block mx-1"></div>
-
-                    <NotificationDropdown />
 
                     <button
                         onClick={() => setShowSettings(true)}

@@ -1,12 +1,35 @@
-import React from 'react';
-import { NavLink } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
+import { getCategories } from '../../data/mockDatabase';
 
-const menuItems = [
-    { path: '/dashboard', icon: 'dashboard', label: 'Dashboard' },
-    { path: '/products', icon: 'inventory_2', label: 'Sản phẩm' },
-];
+interface Category {
+    id: string;
+    label: string;
+}
 
 const Sidebar: React.FC<{ isOpen?: boolean; onClose?: () => void }> = ({ isOpen, onClose }) => {
+    const [isProductsExpanded, setIsProductsExpanded] = useState(false);
+    const [categories, setCategories] = useState<Category[]>([]);
+    const location = useLocation();
+    const navigate = useNavigate();
+
+    // Load categories on mount and when location changes (to refresh after adding new category)
+    useEffect(() => {
+        setCategories(getCategories());
+    }, [location.pathname]);
+
+    // Check if current path is products related
+    const isProductsActive = location.pathname.includes('/products');
+
+    const handleCategoryClick = (categoryId: string) => {
+        if (categoryId === 'ALL') {
+            navigate('/products');
+        } else {
+            navigate(`/products?category=${categoryId}`);
+        }
+        onClose?.();
+    };
+
     return (
         <>
             {/* Mobile Overlay */}
@@ -38,22 +61,86 @@ const Sidebar: React.FC<{ isOpen?: boolean; onClose?: () => void }> = ({ isOpen,
 
                 {/* Navigation */}
                 <nav className="flex-1 py-6 px-4 space-y-1 overflow-y-auto">
-                    {menuItems.map((item) => (
-                        <NavLink
-                            key={item.path}
-                            to={item.path}
-                            onClick={onClose}
-                            className={({ isActive }) =>
-                                `flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${isActive
-                                    ? 'bg-primary text-white shadow-lg shadow-primary/20'
-                                    : 'text-slate-700 hover:bg-slate-100 hover:text-slate-800'
-                                }`
-                            }
+                    {/* Dashboard */}
+                    <NavLink
+                        to="/dashboard"
+                        onClick={onClose}
+                        className={({ isActive }) =>
+                            `flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${isActive
+                                ? 'bg-primary text-white shadow-lg shadow-primary/20'
+                                : 'text-slate-700 hover:bg-slate-100 hover:text-slate-800'
+                            }`
+                        }
+                    >
+                        <span className="material-symbols-outlined text-xl">dashboard</span>
+                        <span className="font-medium">Dashboard</span>
+                    </NavLink>
+
+                    {/* Products with Dropdown */}
+                    <div className="space-y-1">
+                        <button
+                            onClick={() => setIsProductsExpanded(!isProductsExpanded)}
+                            className={`w-full flex items-center justify-between gap-3 px-4 py-3 rounded-xl transition-colors ${isProductsActive
+                                ? 'bg-primary text-white shadow-lg shadow-primary/20'
+                                : 'text-slate-700 hover:bg-slate-100 hover:text-slate-800'
+                                }`}
                         >
-                            <span className="material-symbols-outlined text-xl">{item.icon}</span>
-                            <span className="font-medium">{item.label}</span>
-                        </NavLink>
-                    ))}
+                            <div className="flex items-center gap-3">
+                                <span className="material-symbols-outlined text-xl">inventory_2</span>
+                                <span className="font-medium">Sản phẩm</span>
+                            </div>
+                            <span className={`material-symbols-outlined text-lg transition-transform duration-200 ${isProductsExpanded ? 'rotate-180' : ''}`}>
+                                expand_more
+                            </span>
+                        </button>
+
+                        {/* Dropdown Menu */}
+                        <div className={`overflow-hidden transition-all duration-300 ${isProductsExpanded ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}>
+                            <div className="pl-4 space-y-1 pt-1">
+                                {/* All Products */}
+                                <button
+                                    onClick={() => handleCategoryClick('ALL')}
+                                    className={`w-full flex items-center gap-2 px-4 py-2 rounded-lg text-sm transition-colors ${location.pathname === '/products' && !location.search
+                                        ? 'bg-primary/10 text-primary font-semibold'
+                                        : 'text-slate-600 hover:bg-slate-100 hover:text-slate-800'
+                                        }`}
+                                >
+                                    <span className="material-symbols-outlined text-sm">apps</span>
+                                    <span>Tất cả</span>
+                                </button>
+
+                                {/* Category Items */}
+                                {categories.filter(cat => cat.id !== 'ALL').map((category) => (
+                                    <button
+                                        key={category.id}
+                                        onClick={() => handleCategoryClick(category.id)}
+                                        className={`w-full flex items-center gap-2 px-4 py-2 rounded-lg text-sm transition-colors ${location.search.includes(`category=${category.id}`)
+                                            ? 'bg-primary/10 text-primary font-semibold'
+                                            : 'text-slate-600 hover:bg-slate-100 hover:text-slate-800'
+                                            }`}
+                                    >
+                                        <span className="material-symbols-outlined text-sm">label</span>
+                                        <span>{category.label}</span>
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Categories Management */}
+                    <NavLink
+                        to="/categories"
+                        onClick={onClose}
+                        className={({ isActive }) =>
+                            `flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${isActive
+                                ? 'bg-primary text-white shadow-lg shadow-primary/20'
+                                : 'text-slate-700 hover:bg-slate-100 hover:text-slate-800'
+                            }`
+                        }
+                    >
+                        <span className="material-symbols-outlined text-xl">category</span>
+                        <span className="font-medium">Danh mục</span>
+                    </NavLink>
                 </nav>
 
                 {/* User */}
