@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import { useNotification } from './shared/Notification';
+import { productService, categoryService, Category } from '../services/supabase';
 
 interface AddProductModalProps {
     onClose: () => void;
@@ -9,22 +10,37 @@ interface AddProductModalProps {
 
 const AddProductModal: React.FC<AddProductModalProps> = ({ onClose, onAdd }) => {
     const notification = useNotification();
+    const [categories, setCategories] = useState<Category[]>([]);
     const [formData, setFormData] = useState({
         code: '',
         name: '',
         price: 0,
+        price_bulk: 0,
         total: 0,
-        category: '',
+        category_id: 0,
         description: '',
-        image: '', // URL of the uploaded image
+        image: '',
     });
     const [isUploading, setIsUploading] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    // Load categories from Supabase
+    useEffect(() => {
+        const loadCategories = async () => {
+            try {
+                const data = await categoryService.getAll();
+                setCategories(data);
+            } catch (err) {
+                console.error('Error loading categories:', err);
+            }
+        };
+        loadCategories();
+    }, []);
 
     const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
 
-        // Check file size (max 5MB)
         if (file.size > 5 * 1024 * 1024) {
             notification.error('Ảnh quá lớn. Vui lòng chọn ảnh dưới 5MB.');
             return;
@@ -33,7 +49,6 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ onClose, onAdd }) => 
         setIsUploading(true);
 
         try {
-            // Convert file to base64 for the serverless function
             const reader = new FileReader();
             const base64Promise = new Promise((resolve, reject) => {
                 reader.onload = () => resolve(reader.result);
@@ -45,9 +60,7 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ onClose, onAdd }) => 
 
             const response = await fetch('/api/upload', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ image: base64Image }),
             });
 
@@ -61,19 +74,48 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ onClose, onAdd }) => 
             notification.success('Tải ảnh lên thành công');
         } catch (error: any) {
             console.error('Error uploading image:', error);
-            notification.error(error.message || 'Không thể tải ảnh lên. Vui lòng kiểm tra lại cấu hình.');
+            notification.error(error.message || 'Không thể tải ảnh lên.');
         } finally {
             setIsUploading(false);
         }
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (onAdd) {
-            onAdd(formData);
+
+        if (!formData.name || !formData.code) {
+            notification.error('Vui lòng điền đầy đủ thông tin');
+            return;
         }
-        notification.success('Sản phẩm đã được thêm thành công');
-        onClose();
+
+        setIsSubmitting(true);
+
+        try {
+            // Save to Supabase
+            const newProduct = await productService.create({
+                code: formData.code,
+                name: formData.name,
+                price: formData.price,
+                price_bulk: formData.price_bulk,
+                total: formData.total,
+                category_id: formData.category_id || null,
+                description: formData.description,
+                image: formData.image || null,
+            });
+
+            notification.success('Sản phẩm đã được thêm thành công!');
+
+            if (onAdd) {
+                onAdd(newProduct);
+            }
+
+            onClose();
+        } catch (error: any) {
+            console.error('Error adding product:', error);
+            notification.error('Không thể thêm sản phẩm: ' + (error.message || 'Lỗi không xác định'));
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     return ReactDOM.createPortal(
@@ -82,10 +124,7 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ onClose, onAdd }) => 
                 {/* Header */}
                 <div className="p-6 border-b border-slate-200 flex items-center justify-between bg-slate-50">
                     <h2 className="text-2xl font-bold text-slate-800">Thêm sản phẩm mới</h2>
-                    <button
-                        onClick={onClose}
-                        className="p-2 text-slate-400 hover:text-slate-600 transition-colors"
-                    >
+                    <button onClick={onClose} className="p-2 text-slate-400 hover:text-slate-600 transition-colors">
                         <span className="material-symbols-outlined">close</span>
                     </button>
                 </div>
@@ -112,17 +151,14 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ onClose, onAdd }) => 
                             </label>
                             <select
                                 required
-                                value={formData.category}
-                                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                                value={formData.category_id}
+                                onChange={(e) => setFormData({ ...formData, category_id: Number(e.target.value) })}
                                 className="input"
                             >
-                                <option value="">Chọn danh mục</option>
-                                <option value="CABIN">CABIN</option>
-                                <option value="ĐỘNG CƠ">ĐỘNG CƠ</option>
-                                <option value="LY HỢP">LY HỢP</option>
-                                <option value="PHANH">PHANH</option>
-                                <option value="ĐIỆN">ĐIỆN</option>
-                                <option value="THÂN XE">THÂN XE</option>
+                                <option value={0}>Chọn danh mục</option>
+                                {categories.map((cat) => (
+                                    <option key={cat.id} value={cat.id}>{cat.name}</option>
+                                ))}
                             </select>
                         </div>
                     </div>
@@ -141,14 +177,13 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ onClose, onAdd }) => 
                         />
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-3 gap-4">
                         <div>
                             <label className="block text-sm font-medium text-slate-700 mb-2">
-                                Giá lẻ (VNĐ) <span className="text-red-500">*</span>
+                                Giá lẻ (VNĐ)
                             </label>
                             <input
                                 type="number"
-                                required
                                 min="0"
                                 value={formData.price}
                                 onChange={(e) => setFormData({ ...formData, price: Number(e.target.value) })}
@@ -158,11 +193,23 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ onClose, onAdd }) => 
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-slate-700 mb-2">
-                                Số lượng tồn kho <span className="text-red-500">*</span>
+                                Giá sỉ (VNĐ)
                             </label>
                             <input
                                 type="number"
-                                required
+                                min="0"
+                                value={formData.price_bulk}
+                                onChange={(e) => setFormData({ ...formData, price_bulk: Number(e.target.value) })}
+                                className="input"
+                                placeholder="750000"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-slate-700 mb-2">
+                                Tồn kho
+                            </label>
+                            <input
+                                type="number"
                                 min="0"
                                 value={formData.total}
                                 onChange={(e) => setFormData({ ...formData, total: Number(e.target.value) })}
@@ -229,7 +276,7 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ onClose, onAdd }) => 
                             <div className="flex items-center justify-between">
                                 <div>
                                     <p className="font-bold text-slate-800">{formData.name}</p>
-                                    <p className="text-xs text-slate-500">Mã: {formData.code || '---'} | Danh mục: {formData.category || '---'}</p>
+                                    <p className="text-xs text-slate-500">Mã: {formData.code || '---'}</p>
                                 </div>
                                 <p className="font-bold text-primary text-lg">
                                     {new Intl.NumberFormat('vi-VN').format(formData.price)}đ
@@ -244,14 +291,23 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ onClose, onAdd }) => 
                             type="button"
                             onClick={onClose}
                             className="px-6 py-2.5 border border-slate-200 text-slate-700 rounded-xl hover:bg-slate-50 transition-colors font-medium"
+                            disabled={isSubmitting}
                         >
                             Hủy
                         </button>
                         <button
                             type="submit"
-                            className="px-6 py-2.5 bg-primary text-white rounded-xl hover:bg-primary-dark transition-colors font-medium"
+                            disabled={isSubmitting}
+                            className="px-6 py-2.5 bg-primary text-white rounded-xl hover:bg-primary-dark transition-colors font-medium disabled:opacity-50 flex items-center gap-2"
                         >
-                            Thêm sản phẩm
+                            {isSubmitting ? (
+                                <>
+                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                                    Đang lưu...
+                                </>
+                            ) : (
+                                'Thêm sản phẩm'
+                            )}
                         </button>
                     </div>
                 </form>

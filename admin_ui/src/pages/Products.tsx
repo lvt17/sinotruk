@@ -23,23 +23,24 @@ const Products: React.FC = () => {
     const currentCursor = cursorParam ? parseInt(cursorParam, 10) : null;
 
     // Load products and categories from Supabase
+    const loadData = async () => {
+        setLoading(true);
+        try {
+            const [productsData, categoriesData] = await Promise.all([
+                productService.getAll({ limit: 100 }),
+                categoryService.getAll()
+            ]);
+            setProducts(productsData);
+            setCategories(categoriesData);
+        } catch (err) {
+            console.error('Error loading data:', err);
+            notification.error('Không thể tải dữ liệu từ database');
+        } finally {
+            setLoading(false);
+        }
+    };
+
     useEffect(() => {
-        const loadData = async () => {
-            setLoading(true);
-            try {
-                const [productsData, categoriesData] = await Promise.all([
-                    productService.getAll({ limit: 100 }),
-                    categoryService.getAll()
-                ]);
-                setProducts(productsData);
-                setCategories(categoriesData);
-            } catch (err) {
-                console.error('Error loading data:', err);
-                notification.error('Không thể tải dữ liệu từ database');
-            } finally {
-                setLoading(false);
-            }
-        };
         loadData();
     }, []);
 
@@ -325,9 +326,9 @@ const Products: React.FC = () => {
             {showAddModal && (
                 <AddProductModal
                     onClose={() => setShowAddModal(false)}
-                    onAdd={(product) => {
-                        // In production, call API to add product
-                        console.log('Adding product:', product);
+                    onAdd={() => {
+                        // Reload products after adding
+                        loadData();
                         setShowAddModal(false);
                     }}
                 />
