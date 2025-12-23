@@ -134,6 +134,31 @@ body {
   animation: slide-in-right 0.3s ease-out forwards;
 }
 
+@keyframes truck-drive {
+  0% {
+    transform: translateX(-3rem);
+    opacity: 0;
+  }
+
+  15% {
+    opacity: 1;
+  }
+
+  85% {
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateX(3rem);
+    opacity: 0;
+  }
+}
+
+.animate-truck-drive {
+  display: inline-block;
+  animation: truck-drive 3s linear infinite;
+}
+
 /* Hover effects with gray */
 .hover-gray:hover {
   @apply bg-slate-50;

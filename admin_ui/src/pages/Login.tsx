@@ -37,7 +37,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
 
         localStorage.setItem('isAuthenticated', 'true');
         localStorage.setItem('username', username);
-        
+
         if (onLogin) {
             onLogin();
         } else {
@@ -50,8 +50,8 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
             <div className="w-full max-w-md">
                 {/* Logo - matching frontend Navbar exactly */}
                 <div className="text-center mb-8">
-                    <div className="flex items-center justify-center gap-3 mb-4">
-                        <div className="w-12 h-12 text-primary">
+                    <div className="flex items-center justify-center gap-3 mb-4 overflow-hidden py-2">
+                        <div className="w-12 h-12 text-primary animate-truck-drive">
                             <span className="material-symbols-outlined text-5xl font-bold">local_shipping</span>
                         </div>
                     </div>
@@ -60,9 +60,6 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
                         <span className="text-primary text-sm font-bold tracking-[0.3em] leading-none uppercase">Admin Panel</span>
                     </div>
                     <p className="text-slate-500 mt-4">Đăng nhập để tiếp tục</p>
-                    <p className="text-xs text-slate-400 mt-2">
-                        Demo: <span className="font-mono">admin</span> / <span className="font-mono">admin</span>
-                    </p>
                 </div>
 
                 {/* Login Form */}
