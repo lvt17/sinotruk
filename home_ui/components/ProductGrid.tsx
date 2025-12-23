@@ -1,40 +1,70 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useFeaturedProducts } from '../hooks/useApi';
 import { Product } from '../services/api';
 
-// Fallback products for when API is not available
+// Fallback products for spare parts
 const fallbackProducts = [
   {
     id: 1,
-    name: 'HOWO MAX 2024',
-    code: 'HOWO-MAX',
-    type: 'Động cơ 460HP - Cabin MAX',
-    image: 'https://images.unsplash.com/photo-1586864387917-f579ae0eadd3?auto=format&fit=crop&q=80&w=600',
-    price: 0,
-    price_bulk: 0,
-    total: 0,
+    name: 'Lọc dầu động cơ HOWO A7',
+    code: 'LDDC-A7',
+    type: 'Phụ tùng động cơ',
+    image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&q=80&w=600',
+    price: 350000,
+    price_bulk: 300000,
+    total: 50,
   },
   {
     id: 2,
-    name: 'SITRAK G7S',
-    code: 'SITRAK-G7S',
-    type: 'Chuẩn Châu Âu - Bền bỉ',
-    image: 'https://images.unsplash.com/photo-1591768793355-74d7af23f116?auto=format&fit=crop&q=80&w=600',
-    price: 0,
-    price_bulk: 0,
-    total: 0,
+    name: 'Má phanh SITRAK G7',
+    code: 'MPH-G7S',
+    type: 'Phụ tùng phanh',
+    image: 'https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?auto=format&fit=crop&q=80&w=600',
+    price: 850000,
+    price_bulk: 750000,
+    total: 30,
   },
   {
     id: 3,
-    name: 'HOWO TX Mixer',
-    code: 'HOWO-TX',
-    type: 'Bồn trộn chuyên dụng 12m3',
-    image: 'https://images.unsplash.com/photo-1517524285303-d6fc683dddf8?auto=format&fit=crop&q=80&w=600',
-    price: 0,
-    price_bulk: 0,
-    total: 0,
+    name: 'Bơm thủy lực cabin HOWO',
+    code: 'BTL-HW',
+    type: 'Phụ tùng cabin',
+    image: 'https://images.unsplash.com/photo-1565043589221-1a6fd9ae45c7?auto=format&fit=crop&q=80&w=600',
+    price: 2500000,
+    price_bulk: 2200000,
+    total: 15,
+  },
+  {
+    id: 4,
+    name: 'Đĩa ly hợp SITRAK C7H',
+    code: 'DLH-C7H',
+    type: 'Phụ tùng ly hợp',
+    image: 'https://images.unsplash.com/photo-1635784440093-7b2f0c4a6b69?auto=format&fit=crop&q=80&w=600',
+    price: 1800000,
+    price_bulk: 1600000,
+    total: 25,
+  },
+  {
+    id: 5,
+    name: 'Gương chiếu hậu HOWO TX',
+    code: 'GCH-TX',
+    type: 'Phụ tùng cabin',
+    image: 'https://images.unsplash.com/photo-1544636331-e26879cd4d9b?auto=format&fit=crop&q=80&w=600',
+    price: 650000,
+    price_bulk: 550000,
+    total: 40,
+  },
+  {
+    id: 6,
+    name: 'Bộ lọc gió động cơ',
+    code: 'BLG-DC',
+    type: 'Phụ tùng động cơ',
+    image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&q=80&w=600',
+    price: 280000,
+    price_bulk: 240000,
+    total: 80,
   }
 ];
 
@@ -59,7 +89,7 @@ const ProductSkeleton: React.FC = () => (
 // Get image URL - handles both local and remote images
 const getImageUrl = (product: Product | typeof fallbackProducts[0]): string => {
   if (!product.image) {
-    return 'https://images.unsplash.com/photo-1586864387917-f579ae0eadd3?auto=format&fit=crop&q=80&w=600';
+    return 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&q=80&w=600';
   }
   // If it's already a full URL, use it
   if (product.image.startsWith('http')) {
@@ -72,7 +102,7 @@ const getImageUrl = (product: Product | typeof fallbackProducts[0]): string => {
 // Format price to Vietnamese currency
 const formatPrice = (price: number): string => {
   if (!price || price === 0) return 'Liên hệ';
-  return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
+  return new Intl.NumberFormat('vi-VN').format(price) + 'đ';
 };
 
 export const ProductGrid: React.FC = () => {
@@ -85,7 +115,7 @@ export const ProductGrid: React.FC = () => {
     <section className="py-24 bg-background relative overflow-hidden">
       {/* Decorative background text */}
       <div className="absolute -left-20 top-1/2 -translate-y-1/2 text-[20vw] font-bold text-white/[0.02] select-none pointer-events-none whitespace-nowrap uppercase italic">
-        Heavy Duty • Truck
+        Spare Parts • Phụ Tùng
       </div>
 
       <div className="container mx-auto px-4 md:px-10 lg:px-20 relative z-10">
@@ -95,15 +125,15 @@ export const ProductGrid: React.FC = () => {
             whileInView={{ x: 0, opacity: 1 }}
             viewport={{ once: true }}
           >
-            <span className="text-primary font-bold tracking-[0.3em] text-sm uppercase mb-3 block">Showroom Trực Tuyến</span>
-            <h2 className="text-white text-4xl md:text-6xl font-bold tracking-tighter">Sản Phẩm <span className="text-primary italic">Nổi Bật</span></h2>
+            <span className="text-primary font-bold tracking-[0.3em] text-sm uppercase mb-3 block">Danh Mục Phụ Tùng</span>
+            <h2 className="text-white text-4xl md:text-6xl font-bold tracking-tighter">Sản Phẩm <span className="text-primary italic">Bán Chạy</span></h2>
           </motion.div>
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             className="flex items-center gap-3 px-8 py-3 bg-white/5 border border-white/10 rounded-2xl text-white font-bold text-sm hover:border-primary transition-all"
           >
-            Tất cả sản phẩm
+            Tất cả phụ tùng
             <span className="material-symbols-outlined text-primary">grid_view</span>
           </motion.button>
         </div>
@@ -136,9 +166,9 @@ export const ProductGrid: React.FC = () => {
                   <img
                     src={getImageUrl(product)}
                     alt={product.name}
-                    className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 grayscale-[40%] group-hover:grayscale-0"
+                    className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
                     onError={(e) => {
-                      (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1586864387917-f579ae0eadd3?auto=format&fit=crop&q=80&w=600';
+                      (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&q=80&w=600';
                     }}
                   />
                   <div className="absolute top-6 left-6 bg-primary text-white text-[9px] font-black px-4 py-1.5 rounded-full uppercase tracking-widest shadow-xl flex items-center gap-2">
@@ -146,18 +176,11 @@ export const ProductGrid: React.FC = () => {
                     {product.code || 'Mới'}
                   </div>
                   <div className="absolute inset-0 bg-gradient-to-t from-background to-transparent opacity-60"></div>
-
-                  {/* 3D Visualizer Overlay Trigger */}
-                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <div className="p-4 bg-primary rounded-full shadow-2xl scale-75 group-hover:scale-100 transition-transform">
-                      <span className="material-symbols-outlined text-white text-3xl">view_in_ar</span>
-                    </div>
-                  </div>
                 </div>
 
                 <div className="p-8 space-y-6">
                   <div>
-                    <h3 className="text-white text-2xl font-bold group-hover:text-primary transition-colors tracking-tight">{product.name}</h3>
+                    <h3 className="text-white text-xl font-bold group-hover:text-primary transition-colors tracking-tight">{product.name}</h3>
                     <p className="text-gray-500 text-sm font-medium mt-1">{product.type}</p>
                   </div>
 
@@ -165,29 +188,29 @@ export const ProductGrid: React.FC = () => {
                     {'price' in product && product.price > 0 && (
                       <div className="flex items-center gap-3 text-gray-400 text-xs font-medium uppercase tracking-wider">
                         <div className="w-1 h-1 bg-primary rounded-full"></div>
-                        Giá lẻ: {formatPrice(product.price)}
+                        Giá lẻ: <span className="text-white font-bold">{formatPrice(product.price)}</span>
                       </div>
                     )}
                     {'price_bulk' in product && product.price_bulk > 0 && (
                       <div className="flex items-center gap-3 text-gray-400 text-xs font-medium uppercase tracking-wider">
                         <div className="w-1 h-1 bg-green-500 rounded-full"></div>
-                        Giá sỉ: {formatPrice(product.price_bulk)}
+                        Giá sỉ: <span className="text-green-400 font-bold">{formatPrice(product.price_bulk)}</span>
                       </div>
                     )}
                     {'total' in product && product.total > 0 && (
                       <div className="flex items-center gap-3 text-gray-400 text-xs font-medium uppercase tracking-wider">
                         <div className="w-1 h-1 bg-blue-500 rounded-full"></div>
-                        Tồn kho: {product.total} sản phẩm
+                        Còn: {product.total} sản phẩm
                       </div>
                     )}
                   </div>
 
                   <div className="flex gap-3">
                     <button className="flex-grow py-4 rounded-2xl bg-primary text-white font-bold text-xs uppercase tracking-widest hover:bg-red-600 transition-all shadow-lg shadow-primary/20">
-                      Báo Giá
+                      Đặt Hàng
                     </button>
                     <button className="size-12 rounded-2xl border border-white/10 flex items-center justify-center text-white hover:bg-white/5 transition-all">
-                      <span className="material-symbols-outlined text-xl">favorite</span>
+                      <span className="material-symbols-outlined text-xl">call</span>
                     </button>
                   </div>
                 </div>
