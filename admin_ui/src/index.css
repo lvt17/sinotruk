@@ -136,7 +136,7 @@ body {
 
 @keyframes truck-drive {
   0% {
-    transform: translateX(-3rem);
+    transform: translateX(-5rem);
     opacity: 0;
   }
 
@@ -149,7 +149,7 @@ body {
   }
 
   100% {
-    transform: translateX(4rem);
+    transform: translateX(5rem);
     opacity: 0;
   }
 }

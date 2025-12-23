@@ -49,15 +49,15 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
         <div className="min-h-screen bg-background flex items-center justify-center p-4">
             <div className="w-full max-w-md">
                 {/* Logo - matching frontend Navbar exactly */}
-                <div className="text-center mb-8">
-                    <div className="flex items-center justify-center gap-3 mb-4 overflow-hidden py-2">
-                        <div className="w-12 h-12 text-primary animate-truck-drive">
-                            <span className="material-symbols-outlined text-5xl font-bold">local_shipping</span>
+                <div className="text-center mb-10">
+                    <div className="flex items-center justify-center gap-3 mb-6 overflow-hidden py-2">
+                        <div className="w-20 h-20 text-primary animate-truck-drive">
+                            <span className="material-symbols-outlined text-7xl font-bold">local_shipping</span>
                         </div>
                     </div>
                     <div className="flex flex-col items-center">
-                        <span className="text-slate-800 text-3xl font-bold tracking-tight leading-none uppercase">Sinotruk</span>
-                        <span className="text-primary text-sm font-bold tracking-[0.3em] leading-none uppercase">Admin Panel</span>
+                        <span className="text-slate-800 text-5xl font-bold tracking-tight leading-none uppercase mb-2">Sinotruk</span>
+                        <span className="text-primary text-base font-bold tracking-[0.4em] leading-none uppercase">Admin Panel</span>
                     </div>
                 </div>
 
