@@ -19,36 +19,48 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ onClose, onAdd }) => 
     });
     const [isUploading, setIsUploading] = useState(false);
 
-    // Cloudinary configuration - Using environment variables from Vercel/Vite
-    const CLOUDINARY_UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
-    const CLOUDINARY_CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
-
     const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
 
+        // Check file size (max 5MB)
+        if (file.size > 5 * 1024 * 1024) {
+            notification.error('Ảnh quá lớn. Vui lòng chọn ảnh dưới 5MB.');
+            return;
+        }
+
         setIsUploading(true);
-        const data = new FormData();
-        data.append('file', file);
-        data.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
 
         try {
-            const response = await fetch(
-                `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
-                {
-                    method: 'POST',
-                    body: data,
-                }
-            );
+            // Convert file to base64 for the serverless function
+            const reader = new FileReader();
+            const base64Promise = new Promise((resolve, reject) => {
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
 
-            if (!response.ok) throw new Error('Upload failed');
+            const base64Image = await base64Promise;
+
+            const response = await fetch('/api/upload', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ image: base64Image }),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Upload failed');
+            }
 
             const result = await response.json();
             setFormData({ ...formData, image: result.secure_url });
             notification.success('Tải ảnh lên thành công');
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error uploading image:', error);
-            notification.error('Không thể tải ảnh lên. Vui lòng kiểm tra cấu hình Cloudinary.');
+            notification.error(error.message || 'Không thể tải ảnh lên. Vui lòng kiểm tra lại cấu hình.');
         } finally {
             setIsUploading(false);
         }
