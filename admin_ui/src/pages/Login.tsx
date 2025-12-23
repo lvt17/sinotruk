@@ -50,7 +50,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
             <div className="w-full max-w-md">
                 {/* Logo - matching frontend Navbar exactly */}
                 <div className="text-center mb-10">
-                    <div className="flex items-center justify-center gap-3 mb-6 overflow-hidden py-2">
+                    <div className="flex items-center justify-center gap-3 mb-1 overflow-hidden py-1">
                         <div className="w-20 h-20 text-primary animate-truck-drive">
                             <span className="material-symbols-outlined text-7xl font-bold">local_shipping</span>
                         </div>
