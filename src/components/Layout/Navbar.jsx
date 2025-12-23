@@ -14,7 +14,6 @@ const Navbar = ({ isScrolled }) => {
         { path: '/products', label: 'Sản phẩm' },
         { path: '/about', label: 'Giới thiệu' },
         { path: '/catalog', label: 'Catalog' },
-        { path: '/image-library', label: 'Thư viện ảnh' },
         { path: '/contact', label: 'Liên hệ' },
     ]
 

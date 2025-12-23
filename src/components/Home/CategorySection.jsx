@@ -1,24 +1,41 @@
 import { Link } from 'react-router-dom'
-import { IMAGES } from '../../constants/images'
 
 const categories = [
     {
-        title: 'Xe Ben (Dump Trucks)',
-        desc: 'Đa dạng tải trọng, bền bỉ mọi địa hình',
-        img: IMAGES.categories.dumpTruck,
-        path: '/products/howo-ben'
+        title: 'Phụ Tùng Động Cơ',
+        desc: 'Lọc dầu, lọc gió, piston, kim phun...',
+        icon: 'manufacturing',
+        path: '/products'
     },
     {
-        title: 'Xe Đầu Kéo (Tractor Units)',
-        desc: 'Động cơ mạnh mẽ, tiết kiệm nhiên liệu',
-        img: IMAGES.categories.tractorUnit,
-        path: '/products/howo-a7'
+        title: 'Phụ Tùng Phanh',
+        desc: 'Má phanh, đĩa phanh, bầu phanh...',
+        icon: 'car_crash',
+        path: '/products'
     },
     {
-        title: 'Xe Tải Thùng (Cargo Trucks)',
-        desc: 'Vận chuyển linh hoạt, hiệu quả cao',
-        img: IMAGES.categories.cargoTruck,
-        path: '/products/sitrak'
+        title: 'Phụ Tùng Cabin',
+        desc: 'Gương, kính, bơm cabin, ghế...',
+        icon: 'airline_seat_recline_extra',
+        path: '/products'
+    },
+    {
+        title: 'Phụ Tùng Ly Hợp',
+        desc: 'Đĩa ly hợp, bàn ép, bi ly hợp...',
+        icon: 'settings',
+        path: '/products'
+    },
+    {
+        title: 'Phụ Tùng Hộp Số',
+        desc: 'Bánh răng, đồng tốc, vòng bi...',
+        icon: 'precision_manufacturing',
+        path: '/products'
+    },
+    {
+        title: 'Phụ Tùng Điện',
+        desc: 'Máy phát, củ đề, cảm biến...',
+        icon: 'electric_bolt',
+        path: '/products'
     }
 ]
 
@@ -26,33 +43,21 @@ const CategorySection = () => {
     return (
         <section className="py-24 bg-gray-100">
             <div className="container mx-auto px-4 md:px-10 lg:px-20">
-                <div className="text-center mb-20 space-y-4">
-                    <h2 className="text-4xl md:text-5xl font-bold text-gray-800 tracking-tight">Danh Mục Sản Phẩm</h2>
+                <div className="text-center mb-16 space-y-4">
+                    <h2 className="text-4xl md:text-5xl font-bold text-gray-800 tracking-tight">Danh Mục Phụ Tùng</h2>
                     <div className="h-1.5 w-24 bg-gradient-to-r from-gray-400 to-primary mx-auto rounded-full shadow-lg shadow-primary/30"></div>
+                    <p className="text-slate-500 max-w-2xl mx-auto">Đầy đủ phụ tùng chính hãng cho xe tải HOWO, SITRAK, SINOTRUK</p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
                     {categories.map((cat, i) => (
                         <Link to={cat.path} key={i} className="group cursor-pointer">
-                            <div className="relative overflow-hidden rounded-[2rem] mb-6 shadow-2xl">
-                                <div className="aspect-[4/5] relative">
-                                    <img
-                                        src={cat.img}
-                                        alt={cat.title}
-                                        loading="lazy"
-                                        className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
-                                    />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-white/40 via-transparent to-transparent"></div>
-                                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                                        <span className="bg-primary text-white px-8 py-3 rounded-xl font-bold shadow-2xl transform scale-90 group-hover:scale-100 transition-transform">
-                                            Khám Phá Ngay
-                                        </span>
-                                    </div>
+                            <div className="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm hover:shadow-xl hover:border-primary/30 transition-all duration-300 h-full">
+                                <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center text-primary mb-4 group-hover:bg-primary group-hover:text-white transition-all">
+                                    <span className="material-symbols-outlined text-3xl">{cat.icon}</span>
                                 </div>
-                            </div>
-                            <div className="text-center px-4">
-                                <h4 className="text-2xl font-bold text-slate-800 mb-2 group-hover:text-primary transition-colors">{cat.title}</h4>
-                                <p className="text-slate-500 text-sm font-medium">{cat.desc}</p>
+                                <h4 className="text-lg font-bold text-slate-800 mb-2 group-hover:text-primary transition-colors">{cat.title}</h4>
+                                <p className="text-slate-500 text-sm">{cat.desc}</p>
                             </div>
                         </Link>
                     ))}

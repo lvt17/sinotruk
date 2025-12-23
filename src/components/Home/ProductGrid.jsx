@@ -3,7 +3,6 @@ import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { gsap } from 'gsap'
 import { getProducts } from '../../services/supabase'
-import { IMAGES } from '../../constants/images'
 
 // Fallback products for spare parts
 const fallbackProducts = [
@@ -14,7 +13,7 @@ const fallbackProducts = [
         description: 'Phụ tùng động cơ',
         price: 350000,
         price_bulk: 300000,
-        image: IMAGES.trucks.howoMax,
+        image: null,
     },
     {
         id: 2,
@@ -23,7 +22,7 @@ const fallbackProducts = [
         description: 'Phụ tùng phanh',
         price: 850000,
         price_bulk: 750000,
-        image: IMAGES.trucks.sitrakG7S,
+        image: null,
     },
     {
         id: 3,
@@ -32,7 +31,7 @@ const fallbackProducts = [
         description: 'Phụ tùng cabin',
         price: 2500000,
         price_bulk: 2200000,
-        image: IMAGES.trucks.howoMixer,
+        image: null,
     }
 ]
 
@@ -145,14 +144,20 @@ const ProductGrid = () => {
             key={p.id || idx}
             className="product-card group relative bg-white border border-slate-200 rounded-3xl overflow-hidden hover:border-primary/40 transition-colors duration-300 shadow-sm hover:shadow-lg opacity-0"
         >
-            <div className="aspect-[16/10] overflow-hidden relative">
-                <img
-                    src={p.image || IMAGES.trucks.howoMax}
-                    alt={p.name}
-                    loading="lazy"
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    onError={(e) => { e.target.src = IMAGES.trucks.howoMax }}
-                />
+            <div className="aspect-[16/10] overflow-hidden relative bg-gradient-to-br from-gray-100 to-gray-200">
+                {p.image ? (
+                    <img
+                        src={p.image.startsWith('http') ? p.image : `https://irncljhvsjtohiqllnsv.supabase.co/storage/v1/object/public/products/${p.image}`}
+                        alt={p.name}
+                        loading="lazy"
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        onError={(e) => { e.target.style.display = 'none' }}
+                    />
+                ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                        <span className="material-symbols-outlined text-7xl text-gray-300">settings</span>
+                    </div>
+                )}
                 <div className="absolute top-5 left-5 bg-primary text-white text-[9px] font-black px-3 py-1 rounded-full uppercase tracking-wider shadow-lg">
                     {p.code || 'Mới'}
                 </div>
