@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNotification } from '../components/shared/Notification';
 import * as XLSX from 'xlsx';
 
 // Mock products data - will be replaced with API
@@ -11,13 +12,14 @@ const mockProducts = [
 ];
 
 const Products: React.FC = () => {
+    const notification = useNotification();
     const [search, setSearch] = useState('');
     const [categoryFilter, setCategoryFilter] = useState('');
 
     const filteredProducts = mockProducts.filter(p => {
         const matchesSearch = p.name.toLowerCase().includes(search.toLowerCase()) ||
             p.code.toLowerCase().includes(search.toLowerCase());
-        const matchesCategory = !categoryFilter || 
+        const matchesCategory = !categoryFilter ||
             (categoryFilter === 'cabin' && p.category === 'CABIN') ||
             (categoryFilter === 'dong-co' && p.category === 'ĐỘNG CƠ') ||
             (categoryFilter === 'ly-hop' && p.category === 'LY HỢP') ||
@@ -30,16 +32,17 @@ const Products: React.FC = () => {
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, 'Sản phẩm');
         XLSX.writeFile(wb, `san-pham-${new Date().toISOString().split('T')[0]}.xlsx`);
+        notification.success('Đã xuất file Excel thành công');
     };
 
     const handleEdit = (id: number) => {
-        alert(`Sửa sản phẩm #${id}`);
+        notification.info(`Sửa sản phẩm #${id}`);
     };
 
     const handleDelete = (id: number) => {
-        if (confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')) {
-            alert(`Đã xóa sản phẩm #${id}`);
-        }
+        notification.warning(`Xác nhận xóa sản phẩm #${id}?`);
+        // In production, show confirmation modal before delete
+        // For now, just show notification
     };
 
     return (
@@ -68,7 +71,7 @@ const Products: React.FC = () => {
                             onChange={(e) => setSearch(e.target.value)}
                         />
                     </div>
-                    <select 
+                    <select
                         className="input max-w-xs"
                         value={categoryFilter}
                         onChange={(e) => setCategoryFilter(e.target.value)}
@@ -79,7 +82,7 @@ const Products: React.FC = () => {
                         <option value="ly-hop">LY HỢP</option>
                         <option value="phanh">PHANH</option>
                     </select>
-                    <button 
+                    <button
                         onClick={handleExportExcel}
                         className="btn btn-secondary flex items-center gap-2"
                     >
@@ -118,16 +121,16 @@ const Products: React.FC = () => {
                                 </td>
                                 <td>
                                     <div className="flex items-center gap-2">
-                                        <button 
+                                        <button
                                             onClick={() => handleEdit(product.id)}
-                                            className="p-1 text-slate-400 hover:text-blue-600 transition-colors" 
+                                            className="p-1 text-slate-400 hover:text-blue-600 transition-colors"
                                             title="Sửa"
                                         >
                                             <span className="material-symbols-outlined text-lg">edit</span>
                                         </button>
-                                        <button 
+                                        <button
                                             onClick={() => handleDelete(product.id)}
-                                            className="p-1 text-slate-400 hover:text-primary transition-colors" 
+                                            className="p-1 text-slate-400 hover:text-primary transition-colors"
                                             title="Xóa"
                                         >
                                             <span className="material-symbols-outlined text-lg">delete</span>

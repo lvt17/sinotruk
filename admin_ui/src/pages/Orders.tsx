@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNotification } from '../components/shared/Notification';
 import ViewOrderModal from '../components/ViewOrderModal';
 import EditOrderModal from '../components/EditOrderModal';
 import CreateOrderModal from '../components/CreateOrderModal';
@@ -10,6 +11,7 @@ const mockOrders = [
 ];
 
 const Orders: React.FC = () => {
+    const notification = useNotification();
     const [search, setSearch] = useState('');
     const [statusFilter, setStatusFilter] = useState('');
     const [dayInput, setDayInput] = useState('');
@@ -21,21 +23,21 @@ const Orders: React.FC = () => {
 
     const filteredOrders = mockOrders.filter(order => {
         const matchesSearch = order.tenphieu.toLowerCase().includes(search.toLowerCase());
-        const matchesStatus = !statusFilter || 
+        const matchesStatus = !statusFilter ||
             (statusFilter === 'completed' && order.completed) ||
             (statusFilter === 'pending' && !order.completed) ||
             (statusFilter === 'locked' && order.lock);
-        
+
         // Filter by date components - filter immediately as user types in any field
         const orderDate = new Date(order.created_at);
         const orderDay = orderDate.getDate();
         const orderMonth = orderDate.getMonth() + 1;
         const orderYear = orderDate.getFullYear();
-        
+
         const matchesDay = !dayInput || String(orderDay).padStart(2, '0').startsWith(dayInput.padStart(2, '0'));
         const matchesMonth = !monthInput || String(orderMonth).padStart(2, '0').startsWith(monthInput.padStart(2, '0'));
         const matchesYear = !yearInput || String(orderYear).startsWith(yearInput);
-        
+
         return matchesSearch && matchesStatus && matchesDay && matchesMonth && matchesYear;
     });
 
@@ -44,11 +46,11 @@ const Orders: React.FC = () => {
     };
 
     const handleExportPDF = (id: number) => {
-        alert(`Xuất PDF đơn hàng #${id}`);
+        notification.success(`Đã xuất PDF đơn hàng #${id}`);
     };
 
     const handleExportExcel = (id: number) => {
-        alert(`Xuất Excel đơn hàng #${id}`);
+        notification.success(`Đã xuất Excel đơn hàng #${id}`);
     };
 
     const handleEdit = (id: number) => {
@@ -63,7 +65,7 @@ const Orders: React.FC = () => {
                     <h1 className="text-3xl font-bold text-slate-800 tracking-tight">Đơn hàng</h1>
                     <p className="text-slate-500">Quản lý đơn đặt hàng từ Trung Quốc</p>
                 </div>
-                <button 
+                <button
                     onClick={() => setShowCreateModal(true)}
                     className="flex items-center gap-2 px-6 py-2.5 bg-primary hover:bg-primary-dark text-white text-sm font-bold rounded-xl transition-colors shadow-lg shadow-primary/20"
                 >
@@ -82,7 +84,7 @@ const Orders: React.FC = () => {
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                     />
-                    <select 
+                    <select
                         className="input max-w-xs"
                         value={statusFilter}
                         onChange={(e) => setStatusFilter(e.target.value)}
@@ -92,11 +94,11 @@ const Orders: React.FC = () => {
                         <option value="completed">Hoàn thành</option>
                         <option value="locked">Đã khóa</option>
                     </select>
-                    
+
                     {/* Date filter - 3 separate inputs like date picker */}
                     <div className="flex items-center gap-1 max-w-xs">
-                        <input 
-                            type="text" 
+                        <input
+                            type="text"
                             className="input w-16 text-center"
                             placeholder="DD"
                             maxLength={2}
@@ -113,8 +115,8 @@ const Orders: React.FC = () => {
                             }}
                         />
                         <span className="text-slate-400">/</span>
-                        <input 
-                            type="text" 
+                        <input
+                            type="text"
                             className="input w-16 text-center"
                             placeholder="MM"
                             maxLength={2}
@@ -130,8 +132,8 @@ const Orders: React.FC = () => {
                             }}
                         />
                         <span className="text-slate-400">/</span>
-                        <input 
-                            type="text" 
+                        <input
+                            type="text"
                             className="input w-20 text-center"
                             placeholder="YYYY"
                             maxLength={4}
@@ -184,30 +186,30 @@ const Orders: React.FC = () => {
                                 <td className="text-slate-600">{order.created_at}</td>
                                 <td>
                                     <div className="flex items-center gap-2">
-                                        <button 
+                                        <button
                                             onClick={() => handleView(order.id)}
-                                            className="p-1 text-slate-400 hover:text-blue-600 transition-colors" 
+                                            className="p-1 text-slate-400 hover:text-blue-600 transition-colors"
                                             title="Chi tiết"
                                         >
                                             <span className="material-symbols-outlined text-lg">visibility</span>
                                         </button>
-                                        <button 
+                                        <button
                                             onClick={() => handleExportPDF(order.id)}
-                                            className="p-1 text-slate-400 hover:text-green-600 transition-colors" 
+                                            className="p-1 text-slate-400 hover:text-green-600 transition-colors"
                                             title="Xuất PDF"
                                         >
                                             <span className="material-symbols-outlined text-lg">picture_as_pdf</span>
                                         </button>
-                                        <button 
+                                        <button
                                             onClick={() => handleExportExcel(order.id)}
-                                            className="p-1 text-slate-400 hover:text-yellow-600 transition-colors" 
+                                            className="p-1 text-slate-400 hover:text-yellow-600 transition-colors"
                                             title="Xuất Excel"
                                         >
                                             <span className="material-symbols-outlined text-lg">table_view</span>
                                         </button>
-                                        <button 
+                                        <button
                                             onClick={() => handleEdit(order.id)}
-                                            className="p-1 text-slate-400 hover:text-primary transition-colors" 
+                                            className="p-1 text-slate-400 hover:text-primary transition-colors"
                                             title="Sửa"
                                         >
                                             <span className="material-symbols-outlined text-lg">edit</span>
@@ -221,20 +223,20 @@ const Orders: React.FC = () => {
             </div>
 
             {viewingOrder && (
-                <ViewOrderModal 
-                    orderId={viewingOrder} 
-                    onClose={() => setViewingOrder(null)} 
+                <ViewOrderModal
+                    orderId={viewingOrder}
+                    onClose={() => setViewingOrder(null)}
                 />
             )}
             {editingOrder && (
-                <EditOrderModal 
-                    orderId={editingOrder} 
-                    onClose={() => setEditingOrder(null)} 
+                <EditOrderModal
+                    orderId={editingOrder}
+                    onClose={() => setEditingOrder(null)}
                 />
             )}
             {showCreateModal && (
-                <CreateOrderModal 
-                    onClose={() => setShowCreateModal(false)} 
+                <CreateOrderModal
+                    onClose={() => setShowCreateModal(false)}
                 />
             )}
         </div>

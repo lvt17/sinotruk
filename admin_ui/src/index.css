@@ -77,3 +77,20 @@ body {
 .card {
   @apply bg-white border border-slate-200 rounded-3xl p-6 shadow-sm;
 }
+
+/* Notification animations */
+@keyframes slide-in-right {
+  from {
+    transform: translateX(120%);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-in-right {
+  animation: slide-in-right 0.3s ease-out forwards;
+}

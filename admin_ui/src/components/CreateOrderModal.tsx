@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNotification } from './shared/Notification';
 
 interface CreateOrderModalProps {
     onClose: () => void;
@@ -6,6 +7,7 @@ interface CreateOrderModalProps {
 }
 
 const CreateOrderModal: React.FC<CreateOrderModalProps> = ({ onClose, onSave }) => {
+    const notification = useNotification();
     const [formData, setFormData] = useState({
         tenphieu: '',
         customer: '',
@@ -18,7 +20,7 @@ const CreateOrderModal: React.FC<CreateOrderModalProps> = ({ onClose, onSave }) 
         if (onSave) {
             onSave(formData);
         }
-        alert('Đơn hàng đã được tạo thành công');
+        notification.success('Đơn hàng đã được tạo thành công');
         onClose();
     };
 
@@ -51,8 +53,8 @@ const CreateOrderModal: React.FC<CreateOrderModalProps> = ({ onClose, onSave }) 
                             <label className="block text-sm font-medium text-slate-700 mb-2">
                                 Khách hàng <span className="text-red-500">*</span>
                             </label>
-                            <select 
-                                required 
+                            <select
+                                required
                                 value={formData.customer}
                                 onChange={(e) => setFormData({ ...formData, customer: e.target.value })}
                                 className="input"
@@ -103,4 +105,5 @@ const CreateOrderModal: React.FC<CreateOrderModalProps> = ({ onClose, onSave }) 
 };
 
 export default CreateOrderModal;
+
 

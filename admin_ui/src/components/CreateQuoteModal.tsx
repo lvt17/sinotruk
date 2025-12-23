@@ -1,26 +1,62 @@
 import React, { useState } from 'react';
+import { useNotification } from './shared/Notification';
+import ProductSelectionModal from './ProductSelectionModal';
 
 interface CreateQuoteModalProps {
     onClose: () => void;
     onSave?: (quote: any) => void;
 }
 
+interface SelectedProduct {
+    id: number;
+    code: string;
+    name: string;
+    price: number;
+    quantity: number;
+}
+
 const CreateQuoteModal: React.FC<CreateQuoteModalProps> = ({ onClose, onSave }) => {
+    const notification = useNotification();
     const [formData, setFormData] = useState({
         customer: '',
         validUntil: '',
         note: '',
     });
+    const [selectedProducts, setSelectedProducts] = useState<SelectedProduct[]>([]);
+    const [showProductModal, setShowProductModal] = useState(false);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+
+        if (selectedProducts.length === 0) {
+            notification.warning('Vui lòng thêm ít nhất một sản phẩm vào báo giá');
+            return;
+        }
+
         // In production, call API
         if (onSave) {
-            onSave(formData);
+            onSave({ ...formData, products: selectedProducts });
         }
-        alert('Báo giá đã được tạo thành công');
+        notification.success('Báo giá đã được tạo thành công');
         onClose();
     };
+
+    const handleProductSelect = (product: any, quantity: number) => {
+        const newProduct: SelectedProduct = {
+            id: product.id,
+            code: product.code,
+            name: product.name,
+            price: product.price,
+            quantity: quantity
+        };
+        setSelectedProducts(prev => [...prev, newProduct]);
+    };
+
+    const handleRemoveProduct = (id: number) => {
+        setSelectedProducts(prev => prev.filter(p => p.id !== id));
+    };
+
+    const totalAmount = selectedProducts.reduce((sum, p) => sum + (p.price * p.quantity), 0);
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" onClick={onClose}>
@@ -38,7 +74,7 @@ const CreateQuoteModal: React.FC<CreateQuoteModalProps> = ({ onClose, onSave }) 
                             <label className="block text-sm font-medium text-slate-700 mb-2">
                                 Khách hàng <span className="text-red-500">*</span>
                             </label>
-                            <select required className="input">
+                            <select required className="input" value={formData.customer} onChange={(e) => setFormData({ ...formData, customer: e.target.value })}>
                                 <option value="">Chọn khách hàng</option>
                                 <option value="1">Công ty ABC</option>
                                 <option value="2">Nguyễn Văn A</option>
@@ -70,10 +106,46 @@ const CreateQuoteModal: React.FC<CreateQuoteModalProps> = ({ onClose, onSave }) 
                     </div>
 
                     <div className="p-4 bg-slate-50 rounded-xl border border-slate-200">
-                        <p className="text-sm text-slate-600 mb-2">Danh sách sản phẩm sẽ được thêm ở đây</p>
-                        <button type="button" className="text-sm text-primary hover:text-primary-dark">
-                            + Thêm sản phẩm
-                        </button>
+                        <div className="flex items-center justify-between mb-3">
+                            <p className="text-sm font-medium text-slate-700">Danh sách sản phẩm</p>
+                            <button
+                                type="button"
+                                onClick={() => setShowProductModal(true)}
+                                className="flex items-center gap-2 px-4 py-2 text-sm text-primary hover:bg-primary/5 rounded-lg transition-colors font-medium"
+                            >
+                                <span className="material-symbols-outlined text-lg">add</span>
+                                Thêm sản phẩm
+                            </button>
+                        </div>
+
+                        {selectedProducts.length > 0 ? (
+                            <div className="space-y-2">
+                                {selectedProducts.map((product) => (
+                                    <div key={product.id} className="flex items-center justify-between p-3 bg-white rounded-lg border border-slate-200">
+                                        <div className="flex-1">
+                                            <p className="font-medium text-slate-800">{product.name}</p>
+                                            <p className="text-xs text-slate-500">Mã: {product.code} | SL: {product.quantity}</p>
+                                        </div>
+                                        <div className="flex items-center gap-3">
+                                            <p className="font-bold text-primary">{new Intl.NumberFormat('vi-VN').format(product.price * product.quantity)}đ</p>
+                                            <button
+                                                type="button"
+                                                onClick={() => handleRemoveProduct(product.id)}
+                                                className="p-1 text-slate-400 hover:text-red-600 transition-colors"
+                                            >
+                                                <span className="material-symbols-outlined text-lg">delete</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))}
+                                <div className="pt-3 border-t border-slate-200 flex items-center justify-between">
+                                    <p className="font-bold text-slate-800">Tổng giá trị:</p>
+                                    <p className="text-xl font-bold text-primary">{new Intl.NumberFormat('vi-VN').format(totalAmount)}đ</p>
+                                </div>
+                            </div>
+                        ) : (
+                            <p className="text-sm text-slate-500 text-center py-4">Chưa có sản phẩm nào</p>
+                        )}
                     </div>
 
                     <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-200">
@@ -86,9 +158,17 @@ const CreateQuoteModal: React.FC<CreateQuoteModalProps> = ({ onClose, onSave }) 
                     </div>
                 </form>
             </div>
+
+            {showProductModal && (
+                <ProductSelectionModal
+                    onClose={() => setShowProductModal(false)}
+                    onSelect={handleProductSelect}
+                />
+            )}
         </div>
     );
 };
 
 export default CreateQuoteModal;
+
 

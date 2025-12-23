@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNotification } from '../components/shared/Notification';
 import CreateExportModal from '../components/CreateExportModal';
 import * as XLSX from 'xlsx';
 
@@ -10,6 +11,7 @@ const mockExports = [
 ];
 
 const Exports: React.FC = () => {
+    const notification = useNotification();
     const [search, setSearch] = useState('');
     const [statusFilter, setStatusFilter] = useState('');
     const [showCreateModal, setShowCreateModal] = useState(false);
@@ -17,7 +19,7 @@ const Exports: React.FC = () => {
     const filteredExports = mockExports.filter(e => {
         const matchesSearch = e.tenphieu.toLowerCase().includes(search.toLowerCase()) ||
             e.customer.toLowerCase().includes(search.toLowerCase());
-        const matchesStatus = !statusFilter || 
+        const matchesStatus = !statusFilter ||
             (statusFilter === 'completed' && e.status === 'Hoàn thành') ||
             (statusFilter === 'processing' && e.status === 'Đang xử lý') ||
             (statusFilter === 'pending' && e.status === 'Chờ duyệt');
@@ -29,18 +31,19 @@ const Exports: React.FC = () => {
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, 'Xuất kho');
         XLSX.writeFile(wb, `xuat-kho-${new Date().toISOString().split('T')[0]}.xlsx`);
+        notification.success('Đã xuất file Excel thành công');
     };
 
     const handleView = (id: number) => {
-        alert(`Xem chi tiết phiếu xuất #${id}`);
+        notification.info(`Xem chi tiết phiếu xuất #${id}`);
     };
 
     const handleExportPDF = (id: number) => {
-        alert(`Xuất PDF phiếu xuất #${id}`);
+        notification.success(`Đã xuất PDF phiếu xuất #${id}`);
     };
 
     const handleEdit = (id: number) => {
-        alert(`Sửa phiếu xuất #${id}`);
+        notification.info(`Sửa phiếu xuất #${id}`);
     };
 
     return (
@@ -51,7 +54,7 @@ const Exports: React.FC = () => {
                     <h1 className="text-3xl font-bold text-slate-800 tracking-tight">Xuất kho</h1>
                     <p className="text-slate-500">Quản lý phiếu xuất kho</p>
                 </div>
-                <button 
+                <button
                     onClick={() => setShowCreateModal(true)}
                     className="flex items-center gap-2 px-6 py-2.5 bg-primary hover:bg-primary-dark text-white text-sm font-bold rounded-xl transition-colors shadow-lg shadow-primary/20"
                 >
@@ -72,7 +75,7 @@ const Exports: React.FC = () => {
                             onChange={(e) => setSearch(e.target.value)}
                         />
                     </div>
-                    <select 
+                    <select
                         className="input max-w-xs"
                         value={statusFilter}
                         onChange={(e) => setStatusFilter(e.target.value)}
@@ -82,7 +85,7 @@ const Exports: React.FC = () => {
                         <option value="processing">Đang xử lý</option>
                         <option value="pending">Chờ duyệt</option>
                     </select>
-                    <button 
+                    <button
                         onClick={handleExportExcel}
                         className="btn btn-secondary flex items-center gap-2"
                     >
@@ -113,33 +116,32 @@ const Exports: React.FC = () => {
                                 <td className="text-slate-600">{new Intl.NumberFormat('vi-VN').format(exportItem.money)}đ</td>
                                 <td className="text-slate-600">{exportItem.date}</td>
                                 <td>
-                                    <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                                        exportItem.status === 'Hoàn thành' ? 'bg-green-100 text-green-700' :
-                                        exportItem.status === 'Đang xử lý' ? 'bg-yellow-100 text-yellow-700' :
-                                        'bg-slate-100 text-slate-600'
-                                    }`}>
+                                    <span className={`px-3 py-1 rounded-full text-xs font-bold ${exportItem.status === 'Hoàn thành' ? 'bg-green-100 text-green-700' :
+                                            exportItem.status === 'Đang xử lý' ? 'bg-yellow-100 text-yellow-700' :
+                                                'bg-slate-100 text-slate-600'
+                                        }`}>
                                         {exportItem.status}
                                     </span>
                                 </td>
                                 <td>
                                     <div className="flex items-center gap-2">
-                                        <button 
+                                        <button
                                             onClick={() => handleView(exportItem.id)}
-                                            className="p-1 text-slate-400 hover:text-blue-600 transition-colors" 
+                                            className="p-1 text-slate-400 hover:text-blue-600 transition-colors"
                                             title="Chi tiết"
                                         >
                                             <span className="material-symbols-outlined text-lg">visibility</span>
                                         </button>
-                                        <button 
+                                        <button
                                             onClick={() => handleExportPDF(exportItem.id)}
-                                            className="p-1 text-slate-400 hover:text-green-600 transition-colors" 
+                                            className="p-1 text-slate-400 hover:text-green-600 transition-colors"
                                             title="Xuất PDF"
                                         >
                                             <span className="material-symbols-outlined text-lg">picture_as_pdf</span>
                                         </button>
-                                        <button 
+                                        <button
                                             onClick={() => handleEdit(exportItem.id)}
-                                            className="p-1 text-slate-400 hover:text-primary transition-colors" 
+                                            className="p-1 text-slate-400 hover:text-primary transition-colors"
                                             title="Sửa"
                                         >
                                             <span className="material-symbols-outlined text-lg">edit</span>
