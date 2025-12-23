@@ -67,9 +67,16 @@ const Products = () => {
         query = query.gt('id', lastId)
       }
 
-      // Category filter
+      // Category filter - check if selected category is vehicle or part
       if (selectedCategory !== 'all') {
-        query = query.eq('category_id', parseInt(selectedCategory))
+        const selectedCat = categories.find(c => String(c.id) === selectedCategory)
+        if (selectedCat && selectedCat.is_vehicle_name) {
+          // Filter by vehicle_ids array contains
+          query = query.contains('vehicle_ids', [parseInt(selectedCategory)])
+        } else {
+          // Filter by category_id
+          query = query.eq('category_id', parseInt(selectedCategory))
+        }
       }
 
       // Search filter
@@ -103,7 +110,7 @@ const Products = () => {
       setLoading(false)
       setLoadingMore(false)
     }
-  }, [selectedCategory, searchTerm, lastId])
+  }, [selectedCategory, searchTerm, lastId, categories])
 
   // Initial load and filter changes
   useEffect(() => {
@@ -165,31 +172,62 @@ const Products = () => {
           <motion.div
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
-            className="mb-10 p-6 bg-white border border-slate-200 rounded-2xl shadow-sm"
+            className="mb-10 p-6 bg-white border border-slate-200 rounded-2xl shadow-sm space-y-6"
           >
-            <h4 className="text-slate-800 font-bold mb-4 uppercase tracking-wider text-sm">Danh mục</h4>
-            <div className="flex flex-wrap gap-3">
-              <button
-                className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${selectedCategory === 'all'
-                  ? 'bg-primary text-white'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-800'
-                  }`}
-                onClick={() => setSelectedCategory('all')}
-              >
-                Tất cả
-              </button>
-              {categories.map((cat) => (
+            {/* Part Categories */}
+            <div>
+              <h4 className="text-slate-800 font-bold mb-3 uppercase tracking-wider text-sm flex items-center gap-2">
+                <span className="material-symbols-outlined text-primary text-lg">category</span>
+                BỘ PHẬN
+              </h4>
+              <div className="flex flex-wrap gap-2">
                 <button
-                  key={cat.id}
-                  className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${selectedCategory === String(cat.id)
+                  className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${selectedCategory === 'all'
                     ? 'bg-primary text-white'
                     : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-800'
                     }`}
-                  onClick={() => setSelectedCategory(String(cat.id))}
+                  onClick={() => setSelectedCategory('all')}
                 >
-                  {cat.name}
+                  TẤT CẢ
                 </button>
-              ))}
+                {categories.filter(c => !c.is_vehicle_name).map((cat) => (
+                  <button
+                    key={cat.id}
+                    className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${selectedCategory === String(cat.id)
+                      ? 'bg-primary text-white'
+                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-800'
+                      }`}
+                    onClick={() => setSelectedCategory(String(cat.id))}
+                  >
+                    {cat.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Vehicle Categories */}
+            <div>
+              <h4 className="text-slate-800 font-bold mb-3 uppercase tracking-wider text-sm flex items-center gap-2">
+                <span className="material-symbols-outlined text-blue-500 text-lg">local_shipping</span>
+                HÃNG XE
+              </h4>
+              <div className="flex flex-wrap gap-2">
+                {categories.filter(c => c.is_vehicle_name).map((cat) => (
+                  <button
+                    key={cat.id}
+                    className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${selectedCategory === String(cat.id)
+                      ? 'bg-blue-500 text-white'
+                      : 'bg-blue-50 text-blue-600 hover:bg-blue-100 hover:text-blue-800 border border-blue-200'
+                      }`}
+                    onClick={() => setSelectedCategory(String(cat.id))}
+                  >
+                    {cat.name}
+                  </button>
+                ))}
+                {categories.filter(c => c.is_vehicle_name).length === 0 && (
+                  <p className="text-slate-400 text-sm">Chưa có hãng xe</p>
+                )}
+              </div>
             </div>
           </motion.div>
         )}
