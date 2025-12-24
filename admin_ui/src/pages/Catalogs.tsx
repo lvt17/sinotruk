@@ -1,0 +1,292 @@
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useNotification } from '../components/shared/Notification';
+import { catalogService, CatalogArticle } from '../services/supabase';
+import EditorJS from '@editorjs/editorjs';
+import Header from '@editorjs/header';
+import List from '@editorjs/list';
+import Paragraph from '@editorjs/paragraph';
+
+const Catalogs: React.FC = () => {
+    const notification = useNotification();
+    const [articles, setArticles] = useState<CatalogArticle[]>([]);
+    const [isEditing, setIsEditing] = useState(false);
+    const [editingArticle, setEditingArticle] = useState<CatalogArticle | null>(null);
+    const [formData, setFormData] = useState({ title: '', slug: '' });
+    const [_loading, setLoading] = useState(true);
+    const editorRef = useRef<EditorJS | null>(null);
+    const editorContainerRef = useRef<HTMLDivElement>(null);
+
+    const loadArticles = async () => {
+        setLoading(true);
+        try {
+            const data = await catalogService.getAll();
+            setArticles(data);
+        } catch (err) {
+            console.error('Error loading articles:', err);
+            notification.error('Không thể tải bài viết');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        loadArticles();
+    }, []);
+
+    const initEditor = useCallback((content?: object) => {
+        if (editorRef.current) {
+            editorRef.current.destroy();
+        }
+
+        if (editorContainerRef.current) {
+            editorRef.current = new EditorJS({
+                holder: editorContainerRef.current,
+                tools: {
+                    header: {
+                        class: Header as any,
+                        config: {
+                            levels: [2, 3, 4],
+                            defaultLevel: 2
+                        }
+                    },
+                    list: {
+                        class: List as any,
+                        inlineToolbar: true
+                    },
+                    paragraph: {
+                        class: Paragraph as any,
+                        inlineToolbar: true
+                    }
+                },
+                data: content as any || { blocks: [] },
+                placeholder: 'Bắt đầu viết nội dung bài viết...',
+            });
+        }
+    }, []);
+
+    const handleNewArticle = () => {
+        setEditingArticle(null);
+        setFormData({ title: '', slug: '' });
+        setIsEditing(true);
+        setTimeout(() => initEditor(), 100);
+    };
+
+    const handleEditArticle = (article: CatalogArticle) => {
+        setEditingArticle(article);
+        setFormData({ title: article.title, slug: article.slug });
+        setIsEditing(true);
+        setTimeout(() => initEditor(article.content), 100);
+    };
+
+    const handleSave = async () => {
+        if (!formData.title.trim()) {
+            notification.warning('Vui lòng nhập tiêu đề');
+            return;
+        }
+
+        try {
+            const content = await editorRef.current?.save();
+            const slug = formData.slug || formData.title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+
+            if (editingArticle) {
+                await catalogService.update(editingArticle.id, {
+                    title: formData.title,
+                    slug,
+                    content: content || {}
+                });
+                notification.success('Đã cập nhật bài viết');
+            } else {
+                await catalogService.create({
+                    title: formData.title,
+                    slug,
+                    content: content || {},
+                    is_published: false
+                });
+                notification.success('Đã tạo bài viết mới');
+            }
+
+            setIsEditing(false);
+            editorRef.current?.destroy();
+            editorRef.current = null;
+            loadArticles();
+        } catch (error: any) {
+            notification.error(error.message || 'Có lỗi xảy ra');
+        }
+    };
+
+    const handleTogglePublish = async (article: CatalogArticle) => {
+        try {
+            await catalogService.update(article.id, { is_published: !article.is_published });
+            notification.success(article.is_published ? 'Đã ẩn bài viết' : 'Đã xuất bản bài viết');
+            loadArticles();
+        } catch (error: any) {
+            notification.error(error.message || 'Có lỗi xảy ra');
+        }
+    };
+
+    const handleDelete = async (article: CatalogArticle) => {
+        if (confirm(`Bạn có chắc muốn xóa bài viết "${article.title}"?`)) {
+            try {
+                await catalogService.delete(article.id);
+                notification.success('Đã xóa bài viết');
+                loadArticles();
+            } catch (error: any) {
+                notification.error(error.message || 'Có lỗi xảy ra');
+            }
+        }
+    };
+
+    const handleCancel = () => {
+        setIsEditing(false);
+        editorRef.current?.destroy();
+        editorRef.current = null;
+    };
+
+    if (isEditing) {
+        return (
+            <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                    <h1 className="text-2xl font-bold text-slate-800">
+                        {editingArticle ? 'Sửa bài viết' : 'Tạo bài viết mới'}
+                    </h1>
+                    <div className="flex gap-2">
+                        <button
+                            onClick={handleCancel}
+                            className="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 font-medium rounded-xl transition-colors"
+                        >
+                            Hủy
+                        </button>
+                        <button
+                            onClick={handleSave}
+                            className="px-6 py-2 bg-primary hover:bg-primary-dark text-white font-bold rounded-xl transition-colors"
+                        >
+                            Lưu
+                        </button>
+                    </div>
+                </div>
+
+                <div className="card space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-sm font-medium text-slate-700 mb-1">Tiêu đề *</label>
+                            <input
+                                type="text"
+                                value={formData.title}
+                                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                                className="input w-full"
+                                placeholder="Nhập tiêu đề bài viết"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-slate-700 mb-1">Slug (URL)</label>
+                            <input
+                                type="text"
+                                value={formData.slug}
+                                onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+                                className="input w-full"
+                                placeholder="tu-dong-tao-tu-tieu-de"
+                            />
+                        </div>
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium text-slate-700 mb-2">Nội dung</label>
+                        <div
+                            ref={editorContainerRef}
+                            className="border border-slate-200 rounded-xl p-4 min-h-[300px] bg-white prose prose-slate max-w-none"
+                        />
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <div className="space-y-6">
+            {/* Page Header */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <h1 className="text-2xl md:text-3xl font-bold text-slate-800 tracking-tight uppercase">Catalog / Bài viết</h1>
+                <button
+                    onClick={handleNewArticle}
+                    className="flex items-center justify-center gap-2 px-6 py-2.5 bg-primary hover:bg-primary-dark text-white text-sm font-bold rounded-xl transition-colors shadow-lg shadow-primary/20"
+                >
+                    <span className="material-symbols-outlined text-xl">add</span>
+                    Viết bài mới
+                </button>
+            </div>
+
+            {/* Articles List */}
+            <div className="card p-0 overflow-hidden">
+                <table className="admin-table w-full">
+                    <thead>
+                        <tr className="bg-slate-50">
+                            <th>Tiêu đề</th>
+                            <th className="w-32">Trạng thái</th>
+                            <th className="w-40">Ngày tạo</th>
+                            <th className="text-right px-6 w-36">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {articles.length > 0 ? articles.map(article => (
+                            <tr key={article.id} className="hover:bg-slate-50/80 transition-colors">
+                                <td>
+                                    <p className="font-bold text-slate-800">{article.title}</p>
+                                    <p className="text-xs text-slate-400">/{article.slug}</p>
+                                </td>
+                                <td>
+                                    <span className={`badge ${article.is_published ? 'badge-green' : 'badge-gray'}`}>
+                                        {article.is_published ? 'Đã xuất bản' : 'Bản nháp'}
+                                    </span>
+                                </td>
+                                <td className="text-sm text-slate-500">
+                                    {new Date(article.created_at).toLocaleDateString('vi-VN')}
+                                </td>
+                                <td className="text-right px-4">
+                                    <div className="flex items-center justify-end gap-1">
+                                        <button
+                                            onClick={() => handleTogglePublish(article)}
+                                            className={`p-2 rounded-lg transition-colors ${article.is_published ? 'text-orange-500 hover:bg-orange-50' : 'text-green-600 hover:bg-green-50'}`}
+                                            title={article.is_published ? 'Ẩn' : 'Xuất bản'}
+                                        >
+                                            <span className="material-symbols-outlined text-base">
+                                                {article.is_published ? 'visibility_off' : 'publish'}
+                                            </span>
+                                        </button>
+                                        <button
+                                            onClick={() => handleEditArticle(article)}
+                                            className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                            title="Sửa"
+                                        >
+                                            <span className="material-symbols-outlined text-base">edit</span>
+                                        </button>
+                                        <button
+                                            onClick={() => handleDelete(article)}
+                                            className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                                            title="Xóa"
+                                        >
+                                            <span className="material-symbols-outlined text-base">delete</span>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        )) : (
+                            <tr>
+                                <td colSpan={4} className="py-16 text-center">
+                                    <div className="flex flex-col items-center gap-2 opacity-50">
+                                        <span className="material-symbols-outlined text-5xl">article</span>
+                                        <p className="font-medium">Chưa có bài viết nào</p>
+                                        <button onClick={handleNewArticle} className="text-primary font-bold hover:underline">
+                                            Tạo bài viết đầu tiên
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        )}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    );
+};
+
+export default Catalogs;
