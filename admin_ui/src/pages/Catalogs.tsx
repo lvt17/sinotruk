@@ -429,7 +429,7 @@ const Catalogs: React.FC = () => {
                                 <span className="material-symbols-outlined text-green-500 mt-0.5">publish</span>
                                 <div>
                                     <p className="font-bold text-slate-800">Xuất bản / Ẩn bài</p>
-                                    <p className="text-sm">Bấm nút <span className="inline-flex items-center"><span className="material-symbols-outlined text-xs text-green-500">visibility</span></span> để <strong>xuất bản</strong> bài viết lên trang khách hàng. Bấm nút <span className="inline-flex items-center"><span className="material-symbols-outlined text-xs text-red-500">visibility_off</span></span> để <strong>ẩn</strong> bài.</p>
+                                    <p className="text-sm">Bấm nút <span className="inline-flex items-center"><span className="material-symbols-outlined text-xs text-green-500">publish</span></span> để <strong>xuất bản</strong> bài viết lên trang khách hàng. Bấm nút <span className="inline-flex items-center"><span className="material-symbols-outlined text-xs text-red-500">visibility_off</span></span> để <strong>ẩn</strong> bài.</p>
                                 </div>
                             </div>
                         </div>
