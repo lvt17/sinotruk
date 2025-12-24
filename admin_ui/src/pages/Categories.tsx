@@ -41,7 +41,7 @@ const Categories: React.FC = () => {
         }
 
         try {
-            await categoryService.create(newCategoryName.toUpperCase(), newIsVehicle);
+            await categoryService.create({ name: newCategoryName.toUpperCase(), is_vehicle_name: newIsVehicle });
             notification.success(`Đã thêm danh mục "${newCategoryName}"`);
             setNewCategoryName('');
             setNewIsVehicle(false);
@@ -62,7 +62,7 @@ const Categories: React.FC = () => {
         if (!editName.trim() || !editingId) return;
 
         try {
-            await categoryService.update(editingId, editName.toUpperCase(), editIsVehicle);
+            await categoryService.update(editingId, { name: editName.toUpperCase(), is_vehicle_name: editIsVehicle });
             notification.success('Đã cập nhật danh mục');
             setEditingId(null);
             loadCategories();

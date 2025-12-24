@@ -137,8 +137,32 @@ const Products: React.FC = () => {
         setEditingProduct(product);
     };
 
-    const handleDelete = (id: number) => {
-        notification.warning(`Xác nhận gỡ sản phẩm #${id} khỏi danh mục?`);
+    const handleDelete = async (product: Product) => {
+        if (window.confirm(`Bạn có chắc muốn xóa sản phẩm "${product.name}"?`)) {
+            try {
+                await productService.delete(product.id);
+                notification.success(`Đã xóa sản phẩm "${product.name}"`);
+                loadData();
+            } catch (error: any) {
+                notification.error(error.message || 'Có lỗi xảy ra khi xóa sản phẩm');
+            }
+        }
+    };
+
+    const handleToggleHomepage = async (product: Product) => {
+        try {
+            await productService.update(product.id, { show_on_homepage: !product.show_on_homepage });
+            notification.success(product.show_on_homepage ? 'Đã ẩn sản phẩm khỏi trang chủ' : 'Đã hiển thị sản phẩm trên trang chủ');
+            loadData();
+        } catch (error: any) {
+            notification.error(error.message || 'Có lỗi xảy ra');
+        }
+    };
+
+    const handleCopyLink = (product: Product) => {
+        const url = `https://sinotruk-hanoi.vercel.app/products/${product.id}`;
+        navigator.clipboard.writeText(url);
+        notification.success('Đã copy link sản phẩm');
     };
 
     return (
@@ -161,7 +185,7 @@ const Products: React.FC = () => {
                         title="Tải Catalog Excel"
                     >
                         <span className="material-symbols-outlined">download</span>
-                        <span className="hidden sm:inline">Xuất Catalog</span>
+                        <span className="hidden sm:inline">Xuất Excel</span>
                     </button>
                     <button
                         onClick={() => setShowAddModal(true)}
@@ -179,7 +203,7 @@ const Products: React.FC = () => {
                     <div className="flex-1">
                         <input
                             type="text"
-                            placeholder="Tra cứu nhanh theo tên, mã sản phẩm, thông số..."
+                            placeholder="Tra cứu nhanh theo tên, mã sản phẩm..."
                             className="input w-full"
                             value={search}
                             onChange={(e) => {
@@ -197,28 +221,27 @@ const Products: React.FC = () => {
             {/* Products Catalog Table */}
             <div className="card p-0 overflow-hidden border-slate-200/60">
                 <div className="overflow-x-auto">
-                    <table className="admin-table w-full min-w-[900px]">
+                    <table className="admin-table w-full min-w-[800px]">
                         <thead>
                             <tr className="bg-slate-50">
-                                <th className="w-24 text-center">Ảnh kỹ thuật</th>
-                                <th className="w-40">Mã định danh (PN)</th>
-                                <th>Tên gọi khoa học</th>
-                                <th>Giá niêm yết</th>
-                                <th>Trạng thái tồn</th>
-                                <th>Phân loại</th>
-                                <th className="text-right px-6">Thao tác</th>
+                                <th className="w-20 text-center">Ảnh</th>
+                                <th className="w-36">Mã SP (PN)</th>
+                                <th>Tên sản phẩm</th>
+                                <th className="w-32">Danh mục</th>
+                                <th className="w-24 text-center">Trang chủ</th>
+                                <th className="text-right px-6 w-40">Thao tác</th>
                             </tr>
                         </thead>
                         <tbody>
                             {paginatedData.products.length > 0 ? (
                                 paginatedData.products.map((product) => (
                                     <tr key={product.id} className="hover:bg-slate-50/80 transition-colors">
-                                        <td className="py-4">
-                                            <div className="w-16 h-16 mx-auto rounded-xl bg-slate-50 border border-slate-100 overflow-hidden shadow-sm group relative cursor-zoom-in">
+                                        <td className="py-3">
+                                            <div className="w-14 h-14 mx-auto rounded-xl bg-slate-50 border border-slate-100 overflow-hidden shadow-sm">
                                                 <img
-                                                    src={product.image || 'https://res.cloudinary.com/dgv7d7n6q/image/upload/v1734944400/product_placeholder.png'}
+                                                    src={product.thumbnail || product.image || 'https://res.cloudinary.com/dgv7d7n6q/image/upload/v1734944400/product_placeholder.png'}
                                                     alt={product.name}
-                                                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                                                    className="w-full h-full object-cover"
                                                 />
                                             </div>
                                         </td>
@@ -227,44 +250,44 @@ const Products: React.FC = () => {
                                                 {product.code}
                                             </span>
                                         </td>
-                                        <td className="max-w-[250px]">
-                                            <p className="font-bold text-slate-800 leading-tight">{product.name}</p>
+                                        <td className="max-w-[280px]">
+                                            <p className="font-bold text-slate-800 leading-tight truncate">{product.name}</p>
                                             <p className="text-[10px] text-slate-400 uppercase mt-1">Sinotruk Genuine Parts</p>
                                         </td>
-                                        <td className="font-bold text-slate-700">
-                                            {new Intl.NumberFormat('vi-VN').format(product.price)}đ
-                                        </td>
                                         <td>
-                                            <div className="flex flex-col gap-1">
-                                                <span className={`text-xs font-bold ${product.total < 10 ? 'text-red-500' : 'text-green-600'}`}>
-                                                    Số lượng: {product.total}
-                                                </span>
-                                                <div className="w-24 h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                                                    <div
-                                                        className={`h-full rounded-full ${product.total < 10 ? 'bg-red-500' : 'bg-green-500'}`}
-                                                        style={{ width: `${Math.min(product.total, 100)}%` }}
-                                                    />
-                                                </div>
-                                            </div>
+                                            <span className="badge badge-gray text-xs">{categories.find(c => c.id === product.category_id)?.name || '-'}</span>
                                         </td>
-                                        <td>
-                                            <span className="badge badge-gray">{categories.find(c => c.id === product.category_id)?.name || '-'}</span>
+                                        <td className="text-center">
+                                            <button
+                                                onClick={() => handleToggleHomepage(product)}
+                                                className={`w-10 h-6 rounded-full relative transition-colors ${product.show_on_homepage !== false ? 'bg-green-500' : 'bg-slate-300'}`}
+                                                title={product.show_on_homepage !== false ? 'Đang hiện trên trang chủ' : 'Đang ẩn khỏi trang chủ'}
+                                            >
+                                                <span className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all shadow ${product.show_on_homepage !== false ? 'left-5' : 'left-1'}`}></span>
+                                            </button>
                                         </td>
-                                        <td className="text-right px-6">
-                                            <div className="flex items-center justify-end gap-2">
+                                        <td className="text-right px-4">
+                                            <div className="flex items-center justify-end gap-1">
                                                 <button
-                                                    onClick={() => handleEdit(product)}
-                                                    className="p-2 text-slate-400 hover:text-blue-600 transition-colors bg-white rounded-xl border border-slate-100 shadow-sm hover:border-blue-200"
-                                                    title="Sửa thông số"
+                                                    onClick={() => handleCopyLink(product)}
+                                                    className="p-2 text-slate-400 hover:text-green-600 transition-colors bg-white rounded-lg border border-slate-100 shadow-sm hover:border-green-200"
+                                                    title="Copy link sản phẩm"
                                                 >
-                                                    <span className="material-symbols-outlined text-lg">edit_note</span>
+                                                    <span className="material-symbols-outlined text-base">link</span>
                                                 </button>
                                                 <button
-                                                    onClick={() => handleDelete(product.id)}
-                                                    className="p-2 text-slate-400 hover:text-red-500 transition-colors bg-white rounded-xl border border-slate-100 shadow-sm hover:border-red-200"
-                                                    title="Gỡ khỏi danh mục"
+                                                    onClick={() => handleEdit(product)}
+                                                    className="p-2 text-slate-400 hover:text-blue-600 transition-colors bg-white rounded-lg border border-slate-100 shadow-sm hover:border-blue-200"
+                                                    title="Sửa sản phẩm"
                                                 >
-                                                    <span className="material-symbols-outlined text-lg">delete_sweep</span>
+                                                    <span className="material-symbols-outlined text-base">edit</span>
+                                                </button>
+                                                <button
+                                                    onClick={() => handleDelete(product)}
+                                                    className="p-2 text-slate-400 hover:text-red-500 transition-colors bg-white rounded-lg border border-slate-100 shadow-sm hover:border-red-200"
+                                                    title="Xóa sản phẩm"
+                                                >
+                                                    <span className="material-symbols-outlined text-base">delete</span>
                                                 </button>
                                             </div>
                                         </td>
@@ -272,7 +295,7 @@ const Products: React.FC = () => {
                                 ))
                             ) : (
                                 <tr>
-                                    <td colSpan={7} className="py-20 text-center">
+                                    <td colSpan={6} className="py-20 text-center">
                                         <div className="flex flex-col items-center gap-2 opacity-50">
                                             <span className="material-symbols-outlined text-6xl">inventory_2</span>
                                             <p className="font-bold">Không tìm thấy sản phẩm nào phù hợp</p>

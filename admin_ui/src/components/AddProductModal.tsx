@@ -14,12 +14,10 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ onClose, onAdd }) => 
     const [formData, setFormData] = useState({
         code: '',
         name: '',
-        price: 0,
-        price_bulk: 0,
-        total: 0,
         category_id: 0,
         description: '',
         image: '',
+        show_on_homepage: true,
     });
     const [isUploading, setIsUploading] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -95,12 +93,11 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ onClose, onAdd }) => 
             const newProduct = await productService.create({
                 code: formData.code,
                 name: formData.name,
-                price: formData.price,
-                price_bulk: formData.price_bulk,
-                total: formData.total,
                 category_id: formData.category_id || null,
                 description: formData.description,
                 image: formData.image || null,
+                thumbnail: formData.image || null, // Use first image as thumbnail
+                show_on_homepage: formData.show_on_homepage,
             });
 
             notification.success('Sản phẩm đã được thêm thành công!');
@@ -177,47 +174,7 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ onClose, onAdd }) => 
                         />
                     </div>
 
-                    <div className="grid grid-cols-3 gap-4">
-                        <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-2">
-                                Giá lẻ (VNĐ)
-                            </label>
-                            <input
-                                type="number"
-                                min="0"
-                                value={formData.price}
-                                onChange={(e) => setFormData({ ...formData, price: Number(e.target.value) })}
-                                className="input"
-                                placeholder="850000"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-2">
-                                Giá sỉ (VNĐ)
-                            </label>
-                            <input
-                                type="number"
-                                min="0"
-                                value={formData.price_bulk}
-                                onChange={(e) => setFormData({ ...formData, price_bulk: Number(e.target.value) })}
-                                className="input"
-                                placeholder="750000"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-2">
-                                Tồn kho
-                            </label>
-                            <input
-                                type="number"
-                                min="0"
-                                value={formData.total}
-                                onChange={(e) => setFormData({ ...formData, total: Number(e.target.value) })}
-                                className="input"
-                                placeholder="10"
-                            />
-                        </div>
-                    </div>
+
 
                     <div>
                         <label className="block text-sm font-medium text-slate-700 mb-2">Hình ảnh sản phẩm</label>
@@ -273,14 +230,14 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ onClose, onAdd }) => 
                     {formData.name && (
                         <div className="p-4 bg-slate-50 rounded-xl border border-slate-200">
                             <p className="text-sm text-slate-500 mb-2">Xem trước</p>
-                            <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-4">
+                                {formData.image && (
+                                    <img src={formData.image} alt="Preview" className="w-12 h-12 object-cover rounded-lg" />
+                                )}
                                 <div>
                                     <p className="font-bold text-slate-800">{formData.name}</p>
                                     <p className="text-xs text-slate-500">Mã: {formData.code || '---'}</p>
                                 </div>
-                                <p className="font-bold text-primary text-lg">
-                                    {new Intl.NumberFormat('vi-VN').format(formData.price)}đ
-                                </p>
                             </div>
                         </div>
                     )}

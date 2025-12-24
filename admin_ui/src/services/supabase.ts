@@ -11,14 +11,13 @@ export interface Product {
     id: number;
     code: string;
     name: string;
-    price: number;
-    price_bulk: number;
-    total: number;
     category_id: number | null;
     category_ids?: number[];
     vehicle_ids?: number[];
     image: string | null;
+    thumbnail?: string | null;
     description: string | null;
+    show_on_homepage?: boolean;
     created_at: string;
     updated_at: string;
 }
@@ -26,7 +25,21 @@ export interface Product {
 export interface Category {
     id: number;
     name: string;
+    code?: string;
+    thumbnail?: string;
     is_vehicle_name?: boolean;
+    is_visible?: boolean;
+    created_at: string;
+    updated_at: string;
+}
+
+export interface CatalogArticle {
+    id: number;
+    title: string;
+    slug: string;
+    content: object; // EditorJS JSON
+    thumbnail?: string;
+    is_published: boolean;
     created_at: string;
     updated_at: string;
 }
@@ -113,20 +126,20 @@ export const categoryService = {
         return data || [];
     },
 
-    create: async (name: string, is_vehicle_name: boolean = false) => {
+    create: async (category: { name: string; code?: string; thumbnail?: string; is_vehicle_name?: boolean; is_visible?: boolean }) => {
         const { data, error } = await supabase
             .from('categories')
-            .insert([{ name, is_vehicle_name }])
+            .insert([category])
             .select()
             .single();
         if (error) throw error;
         return data;
     },
 
-    update: async (id: number, name: string, is_vehicle_name: boolean) => {
+    update: async (id: number, category: { name?: string; code?: string; thumbnail?: string; is_vehicle_name?: boolean; is_visible?: boolean }) => {
         const { data, error } = await supabase
             .from('categories')
-            .update({ name, is_vehicle_name })
+            .update(category)
             .eq('id', id)
             .select()
             .single();
@@ -143,8 +156,76 @@ export const categoryService = {
     }
 };
 
+// Catalog Article Service
+export const catalogService = {
+    getAll: async (publishedOnly: boolean = false) => {
+        let query = supabase
+            .from('catalog_articles')
+            .select('*')
+            .order('created_at', { ascending: false });
+
+        if (publishedOnly) {
+            query = query.eq('is_published', true);
+        }
+
+        const { data, error } = await query;
+        if (error) throw error;
+        return data || [];
+    },
+
+    getById: async (id: number) => {
+        const { data, error } = await supabase
+            .from('catalog_articles')
+            .select('*')
+            .eq('id', id)
+            .single();
+        if (error) throw error;
+        return data;
+    },
+
+    getBySlug: async (slug: string) => {
+        const { data, error } = await supabase
+            .from('catalog_articles')
+            .select('*')
+            .eq('slug', slug)
+            .single();
+        if (error) throw error;
+        return data;
+    },
+
+    create: async (article: { title: string; slug: string; content: object; thumbnail?: string; is_published?: boolean }) => {
+        const { data, error } = await supabase
+            .from('catalog_articles')
+            .insert([article])
+            .select()
+            .single();
+        if (error) throw error;
+        return data;
+    },
+
+    update: async (id: number, article: { title?: string; slug?: string; content?: object; thumbnail?: string; is_published?: boolean }) => {
+        const { data, error } = await supabase
+            .from('catalog_articles')
+            .update({ ...article, updated_at: new Date().toISOString() })
+            .eq('id', id)
+            .select()
+            .single();
+        if (error) throw error;
+        return data;
+    },
+
+    delete: async (id: number) => {
+        const { error } = await supabase
+            .from('catalog_articles')
+            .delete()
+            .eq('id', id);
+        if (error) throw error;
+    }
+};
+
 export default {
     products: productService,
     categories: categoryService,
+    catalogs: catalogService,
     supabase
 };

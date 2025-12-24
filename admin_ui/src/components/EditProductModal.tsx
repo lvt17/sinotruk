@@ -19,13 +19,11 @@ const EditProductModal: React.FC<EditProductModalProps> = ({ product, onClose, o
     const [formData, setFormData] = useState({
         code: product.code || '',
         name: product.name || '',
-        price: product.price || 0,
-        price_bulk: product.price_bulk || 0,
-        total: product.total || 0,
         category_id: product.category_id || null,
         vehicle_ids: product.vehicle_ids || [],
         description: product.description || '',
         image: product.image || '',
+        show_on_homepage: product.show_on_homepage !== false,
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
@@ -111,13 +109,12 @@ const EditProductModal: React.FC<EditProductModalProps> = ({ product, onClose, o
             await productService.update(product.id, {
                 code: formData.code,
                 name: formData.name,
-                price: formData.price,
-                price_bulk: formData.price_bulk,
-                total: formData.total,
                 category_id: formData.category_id,
                 vehicle_ids: formData.vehicle_ids,
                 description: formData.description,
                 image: formData.image || null,
+                thumbnail: formData.image || null,
+                show_on_homepage: formData.show_on_homepage,
             });
 
             notification.success('Đã cập nhật sản phẩm thành công!');
@@ -156,16 +153,6 @@ const EditProductModal: React.FC<EditProductModalProps> = ({ product, onClose, o
                                 required
                                 value={formData.code}
                                 onChange={(e) => setFormData({ ...formData, code: e.target.value.toUpperCase() })}
-                                className="input"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-2">Tồn kho</label>
-                            <input
-                                type="number"
-                                min="0"
-                                value={formData.total}
-                                onChange={(e) => setFormData({ ...formData, total: Number(e.target.value) })}
                                 className="input"
                             />
                         </div>
@@ -215,8 +202,8 @@ const EditProductModal: React.FC<EditProductModalProps> = ({ product, onClose, o
                                     type="button"
                                     onClick={() => toggleVehicle(cat.id)}
                                     className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${formData.vehicle_ids.includes(cat.id)
-                                            ? 'bg-blue-500 text-white shadow-md'
-                                            : 'bg-white text-slate-600 border border-slate-200 hover:border-blue-300 hover:text-blue-600'
+                                        ? 'bg-blue-500 text-white shadow-md'
+                                        : 'bg-white text-slate-600 border border-slate-200 hover:border-blue-300 hover:text-blue-600'
                                         }`}
                                 >
                                     {formData.vehicle_ids.includes(cat.id) && (
@@ -230,28 +217,7 @@ const EditProductModal: React.FC<EditProductModalProps> = ({ product, onClose, o
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
-                        <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-2">Giá lẻ (VNĐ)</label>
-                            <input
-                                type="number"
-                                min="0"
-                                value={formData.price}
-                                onChange={(e) => setFormData({ ...formData, price: Number(e.target.value) })}
-                                className="input"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-2">Giá sỉ (VNĐ)</label>
-                            <input
-                                type="number"
-                                min="0"
-                                value={formData.price_bulk}
-                                onChange={(e) => setFormData({ ...formData, price_bulk: Number(e.target.value) })}
-                                className="input"
-                            />
-                        </div>
-                    </div>
+
 
                     {/* Image Upload */}
                     <div>
