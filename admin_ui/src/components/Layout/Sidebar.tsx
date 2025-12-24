@@ -1,29 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { NavLink, useLocation, useNavigate } from 'react-router-dom';
-import { getCategories } from '../../data/mockDatabase';
+import { NavLink } from 'react-router-dom';
 import { getProfile } from '../../lib/supabase';
 import ProfileModal from '../ProfileModal';
-
-interface Category {
-    id: string;
-    label: string;
-}
 
 const ADMIN_NAME_KEY = 'sinotruk_admin_name';
 const ADMIN_AVATAR_KEY = 'sinotruk_admin_avatar';
 
 const Sidebar: React.FC<{ isOpen?: boolean; onClose?: () => void }> = ({ isOpen, onClose }) => {
-    const [isProductsExpanded, setIsProductsExpanded] = useState(false);
-    const [categories, setCategories] = useState<Category[]>([]);
     const [adminName, setAdminName] = useState(() => localStorage.getItem(ADMIN_NAME_KEY) || 'Admin');
     const [adminAvatar, setAdminAvatar] = useState(() => localStorage.getItem(ADMIN_AVATAR_KEY) || '');
     const [showProfileModal, setShowProfileModal] = useState(false);
-    const location = useLocation();
-    const navigate = useNavigate();
-
-    useEffect(() => {
-        setCategories(getCategories());
-    }, [location.pathname]);
 
     // Load profile from Supabase on mount
     useEffect(() => {
@@ -56,14 +42,6 @@ const Sidebar: React.FC<{ isOpen?: boolean; onClose?: () => void }> = ({ isOpen,
         localStorage.setItem(ADMIN_NAME_KEY, name);
         localStorage.setItem(ADMIN_AVATAR_KEY, avatar);
         window.dispatchEvent(new Event('profileUpdate'));
-    };
-
-    const isProductsActive = location.pathname.includes('/products');
-
-    const handleCategoryClick = (categoryId: string) => {
-        if (categoryId === 'ALL') navigate('/products');
-        else navigate(`/products?category=${categoryId}`);
-        onClose?.();
     };
 
     return (
@@ -101,32 +79,16 @@ const Sidebar: React.FC<{ isOpen?: boolean; onClose?: () => void }> = ({ isOpen,
                         <span className="font-medium">Dashboard</span>
                     </NavLink>
 
-                    <div>
-                        <button
-                            onClick={() => setIsProductsExpanded(!isProductsExpanded)}
-                            className={`w-full flex items-center justify-between gap-3 px-4 py-3 rounded-xl transition-colors ${isProductsActive ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-slate-700 hover:bg-slate-100'}`}
-                        >
-                            <div className="flex items-center gap-3">
-                                <span className="material-symbols-outlined text-xl">inventory_2</span>
-                                <span className="font-medium">Sản phẩm</span>
-                            </div>
-                            <span className={`material-symbols-outlined text-lg transition-transform ${isProductsExpanded ? 'rotate-180' : ''}`}>expand_more</span>
-                        </button>
-
-                        {isProductsExpanded && (
-                            <div className="mt-1 ml-4 pl-4 border-l-2 border-slate-200 space-y-1">
-                                {categories.map((cat) => (
-                                    <button
-                                        key={cat.id}
-                                        onClick={() => handleCategoryClick(cat.id)}
-                                        className="w-full text-left px-3 py-2 text-sm text-slate-600 hover:text-primary hover:bg-slate-50 rounded-lg transition-colors"
-                                    >
-                                        {cat.label}
-                                    </button>
-                                ))}
-                            </div>
-                        )}
-                    </div>
+                    <NavLink
+                        to="/products"
+                        onClick={onClose}
+                        className={({ isActive }) =>
+                            `flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${isActive ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-slate-700 hover:bg-slate-100'}`
+                        }
+                    >
+                        <span className="material-symbols-outlined text-xl">inventory_2</span>
+                        <span className="font-medium">Sản phẩm</span>
+                    </NavLink>
 
                     <NavLink
                         to="/categories"

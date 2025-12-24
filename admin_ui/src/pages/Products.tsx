@@ -274,6 +274,41 @@ const Products: React.FC = () => {
                         />
                     </div>
                 </div>
+
+                {/* Category Filter Chips */}
+                <div className="flex flex-wrap gap-2 mt-4">
+                    <button
+                        onClick={() => {
+                            const newParams = new URLSearchParams(searchParams);
+                            newParams.delete('category');
+                            newParams.delete('cursor');
+                            setSearchParams(newParams);
+                        }}
+                        className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${categoryFilter === 'ALL'
+                                ? 'bg-primary text-white'
+                                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                            }`}
+                    >
+                        Tất cả
+                    </button>
+                    {categories.map(cat => (
+                        <button
+                            key={cat.id}
+                            onClick={() => {
+                                const newParams = new URLSearchParams(searchParams);
+                                newParams.set('category', String(cat.id));
+                                newParams.delete('cursor');
+                                setSearchParams(newParams);
+                            }}
+                            className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${categoryFilter === String(cat.id)
+                                    ? 'bg-primary text-white'
+                                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                                }`}
+                        >
+                            {cat.name}
+                        </button>
+                    ))}
+                </div>
             </div>
 
             {/* Products Catalog Table */}
