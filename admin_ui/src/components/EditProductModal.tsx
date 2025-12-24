@@ -1,10 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import { useNotification } from './shared/Notification';
-import { productService, categoryService, Category, Product } from '../services/supabase';
+import { productService, categoryService, imageService, productImageService, Category, Product, ProductImage } from '../services/supabase';
 
 interface CategoryWithVehicle extends Category {
     is_vehicle_name?: boolean;
+}
+
+interface UploadedImage {
+    id?: number;
+    url: string;
+    isNew?: boolean;
+    imageId?: number;
 }
 
 interface EditProductModalProps {
@@ -22,68 +29,102 @@ const EditProductModal: React.FC<EditProductModalProps> = ({ product, onClose, o
         category_id: product.category_id || null,
         vehicle_ids: product.vehicle_ids || [],
         description: product.description || '',
-        image: product.image || '',
         show_on_homepage: product.show_on_homepage !== false,
     });
+    const [images, setImages] = useState<UploadedImage[]>([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
 
     useEffect(() => {
-        const loadCategories = async () => {
+        const loadData = async () => {
             try {
-                const data = await categoryService.getAll();
-                setCategories(data);
+                // Load categories
+                const catData = await categoryService.getAll();
+                setCategories(catData);
+
+                // Load existing product images
+                const productImages = await productImageService.getByProduct(product.id);
+                const existingImages = productImages.map((pi: ProductImage) => ({
+                    id: pi.id,
+                    imageId: pi.image_id,
+                    url: pi.image?.url || '',
+                    isNew: false
+                }));
+
+                // If no images in junction table but product has legacy image field
+                if (existingImages.length === 0 && product.image) {
+                    setImages([{ url: product.image, isNew: false }]);
+                } else {
+                    setImages(existingImages);
+                }
             } catch (err) {
-                console.error('Error loading categories:', err);
+                console.error('Error loading data:', err);
             }
         };
-        loadCategories();
-    }, []);
+        loadData();
+    }, [product.id, product.image]);
 
     const vehicleCategories = categories.filter(c => c.is_vehicle_name);
     const partCategories = categories.filter(c => !c.is_vehicle_name);
 
     const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
-
-        if (file.size > 5 * 1024 * 1024) {
-            notification.error('Ảnh quá lớn. Vui lòng chọn ảnh dưới 5MB.');
-            return;
-        }
+        const files = e.target.files;
+        if (!files || files.length === 0) return;
 
         setIsUploading(true);
 
-        try {
-            const reader = new FileReader();
-            const base64Promise = new Promise((resolve, reject) => {
-                reader.onload = () => resolve(reader.result);
-                reader.onerror = reject;
-                reader.readAsDataURL(file);
-            });
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
 
-            const base64Image = await base64Promise;
-
-            const response = await fetch('/api/upload', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ image: base64Image }),
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || 'Upload failed');
+            if (file.size > 5 * 1024 * 1024) {
+                notification.error(`Ảnh ${file.name} quá lớn. Tối đa 5MB.`);
+                continue;
             }
 
-            const result = await response.json();
-            setFormData({ ...formData, image: result.secure_url });
-            notification.success('Tải ảnh lên thành công!');
-        } catch (error: any) {
-            console.error('Error uploading image:', error);
-            notification.error(error.message || 'Không thể tải ảnh lên.');
-        } finally {
-            setIsUploading(false);
+            try {
+                const reader = new FileReader();
+                const base64Promise = new Promise<string>((resolve, reject) => {
+                    reader.onload = () => resolve(reader.result as string);
+                    reader.onerror = reject;
+                    reader.readAsDataURL(file);
+                });
+
+                const base64Image = await base64Promise;
+
+                const response = await fetch('/api/upload', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ image: base64Image }),
+                });
+
+                if (!response.ok) throw new Error('Upload failed');
+
+                const result = await response.json();
+                setImages(prev => [...prev, { url: result.secure_url, isNew: true }]);
+            } catch (error: any) {
+                console.error('Error uploading image:', error);
+                notification.error(`Không thể tải ảnh ${file.name}`);
+            }
         }
+
+        setIsUploading(false);
+        notification.success('Đã tải ảnh lên');
+        e.target.value = '';
+    };
+
+    const removeImage = async (index: number) => {
+        const img = images[index];
+
+        // If it's an existing image (has id), remove from product_images
+        if (img.id && img.imageId) {
+            try {
+                await productImageService.removeFromProduct(product.id, img.imageId);
+            } catch (err) {
+                console.error('Error removing image:', err);
+            }
+        }
+
+        setImages(prev => prev.filter((_, i) => i !== index));
     };
 
     const toggleVehicle = (vehicleId: number) => {
@@ -106,16 +147,32 @@ const EditProductModal: React.FC<EditProductModalProps> = ({ product, onClose, o
         setIsSubmitting(true);
 
         try {
+            // Update product basic info
+            const thumbnail = images.length > 0 ? images[0].url : null;
             await productService.update(product.id, {
                 code: formData.code,
                 name: formData.name,
                 category_id: formData.category_id,
                 vehicle_ids: formData.vehicle_ids,
                 description: formData.description,
-                image: formData.image || null,
-                thumbnail: formData.image || null,
+                image: thumbnail,
+                thumbnail: thumbnail,
                 show_on_homepage: formData.show_on_homepage,
             });
+
+            // Save new images
+            for (let i = 0; i < images.length; i++) {
+                const img = images[i];
+                if (img.isNew) {
+                    const savedImage = await imageService.create(img.url);
+                    await productImageService.addToProduct(
+                        product.id,
+                        savedImage.id,
+                        i === 0,
+                        i
+                    );
+                }
+            }
 
             notification.success('Đã cập nhật sản phẩm thành công!');
 
@@ -156,6 +213,21 @@ const EditProductModal: React.FC<EditProductModalProps> = ({ product, onClose, o
                                 className="input"
                             />
                         </div>
+                        <div>
+                            <label className="block text-sm font-medium text-slate-700 mb-2">
+                                Danh mục
+                            </label>
+                            <select
+                                value={formData.category_id || 0}
+                                onChange={(e) => setFormData({ ...formData, category_id: Number(e.target.value) || null })}
+                                className="input"
+                            >
+                                <option value={0}>Chọn danh mục</option>
+                                {partCategories.map((cat) => (
+                                    <option key={cat.id} value={cat.id}>{cat.name}</option>
+                                ))}
+                            </select>
+                        </div>
                     </div>
 
                     <div>
@@ -171,87 +243,75 @@ const EditProductModal: React.FC<EditProductModalProps> = ({ product, onClose, o
                         />
                     </div>
 
-                    {/* Part Category - Single Select */}
-                    <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-2">
-                            <span className="material-symbols-outlined text-sm align-middle mr-1">category</span>
-                            Bộ phận
-                        </label>
-                        <select
-                            value={formData.category_id || ''}
-                            onChange={(e) => setFormData({ ...formData, category_id: e.target.value ? Number(e.target.value) : null })}
-                            className="input"
-                        >
-                            <option value="">Chọn bộ phận</option>
-                            {partCategories.map(cat => (
-                                <option key={cat.id} value={cat.id}>{cat.name}</option>
-                            ))}
-                        </select>
-                    </div>
-
                     {/* Vehicle Categories - Multi Select */}
-                    <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-2">
-                            <span className="material-symbols-outlined text-sm align-middle mr-1">local_shipping</span>
-                            Loại xe (chọn nhiều)
-                        </label>
-                        <div className="flex flex-wrap gap-2 p-3 bg-blue-50/50 rounded-xl border border-blue-100">
-                            {vehicleCategories.length > 0 ? vehicleCategories.map(cat => (
-                                <button
-                                    key={cat.id}
-                                    type="button"
-                                    onClick={() => toggleVehicle(cat.id)}
-                                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${formData.vehicle_ids.includes(cat.id)
-                                        ? 'bg-blue-500 text-white shadow-md'
-                                        : 'bg-white text-slate-600 border border-slate-200 hover:border-blue-300 hover:text-blue-600'
-                                        }`}
-                                >
-                                    {formData.vehicle_ids.includes(cat.id) && (
-                                        <span className="material-symbols-outlined text-sm mr-1 align-middle">check</span>
-                                    )}
-                                    {cat.name}
-                                </button>
-                            )) : (
-                                <p className="text-xs text-slate-400">Chưa có loại xe nào. Thêm trong Danh mục.</p>
-                            )}
-                        </div>
-                    </div>
-
-
-
-                    {/* Image Upload */}
-                    <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-2">Hình ảnh</label>
-                        <div className="flex items-center gap-4 p-3 bg-slate-50 rounded-xl border-2 border-dashed border-slate-200 hover:border-primary transition-colors cursor-pointer relative group">
-                            <input
-                                type="file"
-                                accept="image/*"
-                                onChange={handleImageUpload}
-                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                                disabled={isUploading}
-                            />
-
-                            {formData.image ? (
-                                <div className="relative w-16 h-16 rounded-lg overflow-hidden shadow">
-                                    <img src={formData.image} alt="Preview" className="w-full h-full object-cover" />
-                                </div>
-                            ) : (
-                                <div className="w-16 h-16 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-400">
-                                    {isUploading ? (
-                                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary"></div>
-                                    ) : (
-                                        <span className="material-symbols-outlined text-2xl">add_photo_alternate</span>
-                                    )}
-                                </div>
-                            )}
-
-                            <div className="flex-1">
-                                <p className="text-sm font-medium text-slate-700">
-                                    {isUploading ? 'Đang tải...' : formData.image ? 'Đổi ảnh' : 'Chọn ảnh'}
-                                </p>
-                                <p className="text-xs text-slate-400">Max 5MB</p>
+                    {vehicleCategories.length > 0 && (
+                        <div>
+                            <label className="block text-sm font-medium text-slate-700 mb-2">
+                                Dòng xe phù hợp
+                            </label>
+                            <div className="flex flex-wrap gap-2">
+                                {vehicleCategories.map((cat) => (
+                                    <button
+                                        key={cat.id}
+                                        type="button"
+                                        onClick={() => toggleVehicle(cat.id)}
+                                        className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${formData.vehicle_ids.includes(cat.id)
+                                                ? 'bg-primary text-white'
+                                                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                                            }`}
+                                    >
+                                        {cat.name}
+                                    </button>
+                                ))}
                             </div>
                         </div>
+                    )}
+
+                    {/* Multi-Image Upload */}
+                    <div>
+                        <label className="block text-sm font-medium text-slate-700 mb-2">
+                            Hình ảnh sản phẩm <span className="text-slate-400 text-xs">(có thể chọn nhiều ảnh)</span>
+                        </label>
+
+                        <div className="grid grid-cols-4 gap-3 mb-3">
+                            {images.map((img, index) => (
+                                <div key={index} className="relative aspect-square rounded-xl overflow-hidden border-2 border-slate-200 group">
+                                    <img src={img.url} alt={`Image ${index + 1}`} className="w-full h-full object-cover" />
+                                    {index === 0 && (
+                                        <div className="absolute top-1 left-1 bg-primary text-white text-[10px] px-1.5 py-0.5 rounded font-bold">
+                                            CHÍNH
+                                        </div>
+                                    )}
+                                    <button
+                                        type="button"
+                                        onClick={() => removeImage(index)}
+                                        className="absolute top-1 right-1 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                                    >
+                                        <span className="material-symbols-outlined text-sm">close</span>
+                                    </button>
+                                </div>
+                            ))}
+
+                            <label className="aspect-square rounded-xl border-2 border-dashed border-slate-300 hover:border-primary flex flex-col items-center justify-center cursor-pointer transition-colors bg-slate-50 hover:bg-slate-100">
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    multiple
+                                    onChange={handleImageUpload}
+                                    className="hidden"
+                                    disabled={isUploading}
+                                />
+                                {isUploading ? (
+                                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+                                ) : (
+                                    <>
+                                        <span className="material-symbols-outlined text-2xl text-slate-400">add_photo_alternate</span>
+                                        <span className="text-[10px] text-slate-400 mt-1 font-bold">THÊM ẢNH</span>
+                                    </>
+                                )}
+                            </label>
+                        </div>
+                        <p className="text-xs text-slate-400">Ảnh đầu tiên sẽ là ảnh đại diện. Định dạng: JPG, PNG, WEBP. Tối đa 5MB/ảnh.</p>
                     </div>
 
                     <div>
@@ -259,10 +319,26 @@ const EditProductModal: React.FC<EditProductModalProps> = ({ product, onClose, o
                         <textarea
                             value={formData.description}
                             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                            className="input min-h-[60px]"
+                            className="input min-h-[100px]"
+                            placeholder="Mô tả chi tiết về sản phẩm..."
                         />
                     </div>
 
+                    {/* Homepage Toggle */}
+                    <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl">
+                        <input
+                            type="checkbox"
+                            id="show_on_homepage"
+                            checked={formData.show_on_homepage}
+                            onChange={(e) => setFormData({ ...formData, show_on_homepage: e.target.checked })}
+                            className="w-4 h-4 accent-primary"
+                        />
+                        <label htmlFor="show_on_homepage" className="text-sm text-slate-700">
+                            Hiển thị trên trang chủ
+                        </label>
+                    </div>
+
+                    {/* Actions */}
                     <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-200">
                         <button
                             type="button"
@@ -274,7 +350,7 @@ const EditProductModal: React.FC<EditProductModalProps> = ({ product, onClose, o
                         </button>
                         <button
                             type="submit"
-                            disabled={isSubmitting || isUploading}
+                            disabled={isSubmitting}
                             className="px-6 py-2.5 bg-primary text-white rounded-xl hover:bg-primary-dark transition-colors font-medium disabled:opacity-50 flex items-center gap-2"
                         >
                             {isSubmitting ? (

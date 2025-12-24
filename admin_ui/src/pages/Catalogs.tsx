@@ -6,6 +6,7 @@ import EditorJS from '@editorjs/editorjs';
 import Header from '@editorjs/header';
 import List from '@editorjs/list';
 import Paragraph from '@editorjs/paragraph';
+import ImageTool from '@editorjs/image';
 
 const Catalogs: React.FC = () => {
     const notification = useNotification();
@@ -35,6 +36,43 @@ const Catalogs: React.FC = () => {
         loadArticles();
     }, []);
 
+    // Upload image handler for EditorJS
+    const uploadImageByFile = async (file: File) => {
+        try {
+            const reader = new FileReader();
+            const base64Promise = new Promise<string>((resolve, reject) => {
+                reader.onload = () => resolve(reader.result as string);
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+            const base64Image = await base64Promise;
+
+            const response = await fetch('/api/upload', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ image: base64Image }),
+            });
+
+            if (!response.ok) throw new Error('Upload failed');
+            const result = await response.json();
+
+            return {
+                success: 1,
+                file: { url: result.secure_url }
+            };
+        } catch (error) {
+            notification.error('Không thể tải ảnh lên');
+            return { success: 0 };
+        }
+    };
+
+    const uploadImageByUrl = async (url: string) => {
+        return {
+            success: 1,
+            file: { url }
+        };
+    };
+
     const initEditor = useCallback((content?: object) => {
         if (editorRef.current) {
             editorRef.current.destroy();
@@ -59,12 +97,21 @@ const Catalogs: React.FC = () => {
                     paragraph: {
                         class: Paragraph as any,
                         inlineToolbar: true
+                    },
+                    image: {
+                        class: ImageTool as any,
+                        config: {
+                            uploader: {
+                                uploadByFile: uploadImageByFile,
+                                uploadByUrl: uploadImageByUrl
+                            }
+                        }
                     }
                 },
                 data: content as any || { blocks: [] },
-                placeholder: 'Click vào đây để bắt đầu viết...',
+                placeholder: 'Bắt đầu viết nội dung...',
                 autofocus: true,
-                minHeight: 200,
+                minHeight: 300,
             });
         }
     }, []);
@@ -202,36 +249,13 @@ const Catalogs: React.FC = () => {
                         </div>
                     </div>
 
-                    {/* Editor Help */}
-                    <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
-                        <div className="flex items-start gap-3">
-                            <span className="material-symbols-outlined text-blue-500 text-xl">tips_and_updates</span>
-                            <div className="text-sm text-blue-700">
-                                <p className="font-medium mb-1">Hướng dẫn sử dụng Editor:</p>
-                                <ul className="list-disc list-inside space-y-1 text-blue-600">
-                                    <li>Click vào vùng soạn thảo để bắt đầu viết</li>
-                                    <li>Nhấn <kbd className="px-1.5 py-0.5 bg-white rounded border text-xs">Enter</kbd> để tạo dòng mới</li>
-                                    <li>Bôi đen văn bản để định dạng <b>in đậm</b> hoặc <i>in nghiêng</i></li>
-                                    <li>Nhấn <kbd className="px-1.5 py-0.5 bg-white rounded border text-xs">Tab</kbd> hoặc click dấu <b>+</b> bên trái để thêm block mới (Heading, List)</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-
                     <div>
                         <label className="block text-sm font-medium text-slate-700 mb-2">
-                            <span className="flex items-center gap-2">
-                                <span className="material-symbols-outlined text-lg">edit_note</span>
-                                Nội dung bài viết
-                            </span>
+                            Nội dung bài viết
                         </label>
                         <div
                             ref={editorContainerRef}
-                            className="border-2 border-slate-200 rounded-xl p-6 min-h-[350px] bg-white focus-within:border-primary transition-colors"
-                            style={{
-                                lineHeight: '1.8',
-                                fontSize: '16px'
-                            }}
+                            className="border-2 border-slate-200 rounded-xl p-6 min-h-[400px] bg-white focus-within:border-primary transition-colors"
                         />
                     </div>
                 </div>

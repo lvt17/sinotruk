@@ -1,7 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import { useNotification } from './shared/Notification';
-import { productService, categoryService, Category } from '../services/supabase';
+import { productService, categoryService, imageService, productImageService, Category } from '../services/supabase';
+
+interface UploadedImage {
+    id?: number;
+    url: string;
+    isNew?: boolean;
+}
 
 interface AddProductModalProps {
     onClose: () => void;
@@ -16,9 +22,9 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ onClose, onAdd }) => 
         name: '',
         category_id: 0,
         description: '',
-        image: '',
         show_on_homepage: true,
     });
+    const [images, setImages] = useState<UploadedImage[]>([]);
     const [isUploading, setIsUploading] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -36,46 +42,52 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ onClose, onAdd }) => 
     }, []);
 
     const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
-
-        if (file.size > 5 * 1024 * 1024) {
-            notification.error('Ảnh quá lớn. Vui lòng chọn ảnh dưới 5MB.');
-            return;
-        }
+        const files = e.target.files;
+        if (!files || files.length === 0) return;
 
         setIsUploading(true);
 
-        try {
-            const reader = new FileReader();
-            const base64Promise = new Promise((resolve, reject) => {
-                reader.onload = () => resolve(reader.result);
-                reader.onerror = reject;
-                reader.readAsDataURL(file);
-            });
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
 
-            const base64Image = await base64Promise;
-
-            const response = await fetch('/api/upload', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ image: base64Image }),
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || 'Upload failed');
+            if (file.size > 5 * 1024 * 1024) {
+                notification.error(`Ảnh ${file.name} quá lớn. Tối đa 5MB.`);
+                continue;
             }
 
-            const result = await response.json();
-            setFormData({ ...formData, image: result.secure_url });
-            notification.success('Tải ảnh lên thành công');
-        } catch (error: any) {
-            console.error('Error uploading image:', error);
-            notification.error(error.message || 'Không thể tải ảnh lên.');
-        } finally {
-            setIsUploading(false);
+            try {
+                const reader = new FileReader();
+                const base64Promise = new Promise<string>((resolve, reject) => {
+                    reader.onload = () => resolve(reader.result as string);
+                    reader.onerror = reject;
+                    reader.readAsDataURL(file);
+                });
+
+                const base64Image = await base64Promise;
+
+                const response = await fetch('/api/upload', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ image: base64Image }),
+                });
+
+                if (!response.ok) throw new Error('Upload failed');
+
+                const result = await response.json();
+                setImages(prev => [...prev, { url: result.secure_url, isNew: true }]);
+            } catch (error: any) {
+                console.error('Error uploading image:', error);
+                notification.error(`Không thể tải ảnh ${file.name}`);
+            }
         }
+
+        setIsUploading(false);
+        notification.success('Đã tải ảnh lên');
+        e.target.value = ''; // Reset input
+    };
+
+    const removeImage = (index: number) => {
+        setImages(prev => prev.filter((_, i) => i !== index));
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -89,16 +101,31 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ onClose, onAdd }) => 
         setIsSubmitting(true);
 
         try {
-            // Save to Supabase
+            // Create product first
+            const thumbnail = images.length > 0 ? images[0].url : null;
             const newProduct = await productService.create({
                 code: formData.code,
                 name: formData.name,
                 category_id: formData.category_id || null,
                 description: formData.description,
-                image: formData.image || null,
-                thumbnail: formData.image || null, // Use first image as thumbnail
+                image: thumbnail,
+                thumbnail: thumbnail,
                 show_on_homepage: formData.show_on_homepage,
             });
+
+            // Save images to images table and link to product
+            for (let i = 0; i < images.length; i++) {
+                const img = images[i];
+                // Create image record
+                const savedImage = await imageService.create(img.url);
+                // Link to product
+                await productImageService.addToProduct(
+                    newProduct.id,
+                    savedImage.id,
+                    i === 0, // First image is primary
+                    i
+                );
+            }
 
             notification.success('Sản phẩm đã được thêm thành công!');
 
@@ -174,46 +201,53 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ onClose, onAdd }) => 
                         />
                     </div>
 
-
-
+                    {/* Multi-Image Upload */}
                     <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-2">Hình ảnh sản phẩm</label>
-                        <div className="flex items-start gap-4 p-4 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200 hover:border-primary transition-colors cursor-pointer relative group">
-                            <input
-                                type="file"
-                                accept="image/*"
-                                onChange={handleImageUpload}
-                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                                disabled={isUploading}
-                            />
+                        <label className="block text-sm font-medium text-slate-700 mb-2">
+                            Hình ảnh sản phẩm <span className="text-slate-400 text-xs">(có thể chọn nhiều ảnh)</span>
+                        </label>
 
-                            {formData.image ? (
-                                <div className="relative w-24 h-24 rounded-xl overflow-hidden shadow-md">
-                                    <img src={formData.image} alt="Preview" className="w-full h-full object-cover" />
-                                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                                        <span className="text-white text-xs font-bold">Thay đổi</span>
-                                    </div>
-                                </div>
-                            ) : (
-                                <div className="w-24 h-24 rounded-xl bg-white border border-slate-200 flex flex-col items-center justify-center text-slate-400">
-                                    {isUploading ? (
-                                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
-                                    ) : (
-                                        <>
-                                            <span className="material-symbols-outlined text-3xl">add_photo_alternate</span>
-                                            <span className="text-[10px] mt-1 font-bold">TẢI ẢNH</span>
-                                        </>
+                        {/* Image Gallery */}
+                        <div className="grid grid-cols-4 gap-3 mb-3">
+                            {images.map((img, index) => (
+                                <div key={index} className="relative aspect-square rounded-xl overflow-hidden border-2 border-slate-200 group">
+                                    <img src={img.url} alt={`Image ${index + 1}`} className="w-full h-full object-cover" />
+                                    {index === 0 && (
+                                        <div className="absolute top-1 left-1 bg-primary text-white text-[10px] px-1.5 py-0.5 rounded font-bold">
+                                            CHÍNH
+                                        </div>
                                     )}
+                                    <button
+                                        type="button"
+                                        onClick={() => removeImage(index)}
+                                        className="absolute top-1 right-1 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                                    >
+                                        <span className="material-symbols-outlined text-sm">close</span>
+                                    </button>
                                 </div>
-                            )}
+                            ))}
 
-                            <div className="flex-1 flex flex-col justify-center h-24">
-                                <p className="text-sm font-bold text-slate-700">
-                                    {isUploading ? 'Đang tải lên...' : formData.image ? 'Đã tải ảnh lên' : 'Nhấn để chọn ảnh'}
-                                </p>
-                                <p className="text-xs text-slate-400 mt-1">Định dạng: JPG, PNG, WEBP. Tối đa 5MB.</p>
-                            </div>
+                            {/* Upload Button */}
+                            <label className="aspect-square rounded-xl border-2 border-dashed border-slate-300 hover:border-primary flex flex-col items-center justify-center cursor-pointer transition-colors bg-slate-50 hover:bg-slate-100">
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    multiple
+                                    onChange={handleImageUpload}
+                                    className="hidden"
+                                    disabled={isUploading}
+                                />
+                                {isUploading ? (
+                                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+                                ) : (
+                                    <>
+                                        <span className="material-symbols-outlined text-2xl text-slate-400">add_photo_alternate</span>
+                                        <span className="text-[10px] text-slate-400 mt-1 font-bold">THÊM ẢNH</span>
+                                    </>
+                                )}
+                            </label>
                         </div>
+                        <p className="text-xs text-slate-400">Ảnh đầu tiên sẽ là ảnh đại diện. Định dạng: JPG, PNG, WEBP. Tối đa 5MB/ảnh.</p>
                     </div>
 
                     <div>
@@ -225,22 +259,6 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ onClose, onAdd }) => 
                             placeholder="Mô tả chi tiết về sản phẩm..."
                         />
                     </div>
-
-                    {/* Preview */}
-                    {formData.name && (
-                        <div className="p-4 bg-slate-50 rounded-xl border border-slate-200">
-                            <p className="text-sm text-slate-500 mb-2">Xem trước</p>
-                            <div className="flex items-center gap-4">
-                                {formData.image && (
-                                    <img src={formData.image} alt="Preview" className="w-12 h-12 object-cover rounded-lg" />
-                                )}
-                                <div>
-                                    <p className="font-bold text-slate-800">{formData.name}</p>
-                                    <p className="text-xs text-slate-500">Mã: {formData.code || '---'}</p>
-                                </div>
-                            </div>
-                        </div>
-                    )}
 
                     {/* Actions */}
                     <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-200">
