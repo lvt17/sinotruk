@@ -16,6 +16,7 @@ const Catalogs: React.FC = () => {
     const [formData, setFormData] = useState({ title: '', slug: '' });
     const [_loading, setLoading] = useState(true);
     const [deleteArticle, setDeleteArticle] = useState<CatalogArticle | null>(null);
+    const [showHelp, setShowHelp] = useState(false);
     const editorRef = useRef<EditorJS | null>(null);
     const editorContainerRef = useRef<HTMLDivElement>(null);
 
@@ -204,9 +205,18 @@ const Catalogs: React.FC = () => {
         return (
             <div className="space-y-6">
                 <div className="flex items-center justify-between">
-                    <h1 className="text-2xl font-bold text-slate-800">
-                        {editingArticle ? 'Sửa bài viết' : 'Tạo bài viết mới'}
-                    </h1>
+                    <div className="flex items-center gap-3">
+                        <h1 className="text-2xl font-bold text-slate-800">
+                            {editingArticle ? 'Sửa bài viết' : 'Tạo bài viết mới'}
+                        </h1>
+                        <button
+                            onClick={() => setShowHelp(true)}
+                            className="w-8 h-8 rounded-full border-2 border-slate-300 text-slate-400 hover:border-primary hover:text-primary flex items-center justify-center transition-colors"
+                            title="Hướng dẫn sử dụng"
+                        >
+                            <span className="text-sm font-bold">?</span>
+                        </button>
+                    </div>
                     <div className="flex gap-2">
                         <button
                             onClick={handleCancel}
@@ -359,6 +369,74 @@ const Catalogs: React.FC = () => {
                 message="Bạn có chắc chắn muốn xóa bài viết này?"
                 itemName={deleteArticle?.title}
             />
+
+            {/* Help Modal */}
+            {showHelp && (
+                <div
+                    className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm"
+                    onClick={() => setShowHelp(false)}
+                >
+                    <div
+                        className="bg-white rounded-2xl shadow-2xl max-w-lg w-full mx-4 overflow-hidden animate-scale-in"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div className="p-6 border-b border-slate-100 flex items-center justify-between">
+                            <h3 className="text-xl font-bold text-slate-800">Hướng dẫn sử dụng Editor</h3>
+                            <button
+                                onClick={() => setShowHelp(false)}
+                                className="p-2 text-slate-400 hover:text-slate-600 transition-colors"
+                            >
+                                <span className="material-symbols-outlined">close</span>
+                            </button>
+                        </div>
+                        <div className="p-6 space-y-4 text-slate-600">
+                            <div className="flex items-start gap-3">
+                                <span className="material-symbols-outlined text-primary mt-0.5">edit</span>
+                                <div>
+                                    <p className="font-bold text-slate-800">Viết nội dung</p>
+                                    <p className="text-sm">Click vào vùng soạn thảo và bắt đầu gõ nội dung bài viết.</p>
+                                </div>
+                            </div>
+                            <div className="flex items-start gap-3">
+                                <span className="material-symbols-outlined text-primary mt-0.5">add_circle</span>
+                                <div>
+                                    <p className="font-bold text-slate-800">Thêm block mới</p>
+                                    <p className="text-sm">Nhấn <strong>Enter</strong> để tạo dòng mới. Click dấu <strong>+</strong> bên trái để thêm heading, list, hoặc ảnh.</p>
+                                </div>
+                            </div>
+                            <div className="flex items-start gap-3">
+                                <span className="material-symbols-outlined text-primary mt-0.5">format_bold</span>
+                                <div>
+                                    <p className="font-bold text-slate-800">Định dạng văn bản</p>
+                                    <p className="text-sm">Bôi đen text rồi chọn <strong>Bold</strong>, <em>Italic</em>, hoặc <u>Link</u> từ thanh công cụ hiện ra.</p>
+                                </div>
+                            </div>
+                            <div className="flex items-start gap-3">
+                                <span className="material-symbols-outlined text-primary mt-0.5">image</span>
+                                <div>
+                                    <p className="font-bold text-slate-800">Chèn hình ảnh</p>
+                                    <p className="text-sm">Click dấu <strong>+</strong> → chọn <strong>Image</strong> → upload ảnh hoặc paste URL.</p>
+                                </div>
+                            </div>
+                            <div className="flex items-start gap-3">
+                                <span className="material-symbols-outlined text-primary mt-0.5">drag_indicator</span>
+                                <div>
+                                    <p className="font-bold text-slate-800">Sắp xếp lại</p>
+                                    <p className="text-sm">Kéo thả các block bằng icon <strong>⋮⋮</strong> bên trái để thay đổi thứ tự.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="p-4 bg-slate-50 border-t border-slate-100">
+                            <button
+                                onClick={() => setShowHelp(false)}
+                                className="w-full py-3 bg-primary text-white font-bold rounded-xl hover:bg-primary-dark transition-colors"
+                            >
+                                Đã hiểu
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
