@@ -205,18 +205,9 @@ const Catalogs: React.FC = () => {
         return (
             <div className="space-y-6">
                 <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        <h1 className="text-2xl font-bold text-slate-800">
-                            {editingArticle ? 'Sửa bài viết' : 'Tạo bài viết mới'}
-                        </h1>
-                        <button
-                            onClick={() => setShowHelp(true)}
-                            className="w-8 h-8 rounded-full border-2 border-slate-300 text-slate-400 hover:border-primary hover:text-primary flex items-center justify-center transition-colors"
-                            title="Hướng dẫn sử dụng"
-                        >
-                            <span className="text-sm font-bold">?</span>
-                        </button>
-                    </div>
+                    <h1 className="text-2xl font-bold text-slate-800">
+                        {editingArticle ? 'Sửa bài viết' : 'Tạo bài viết mới'}
+                    </h1>
                     <div className="flex gap-2">
                         <button
                             onClick={handleCancel}
@@ -281,13 +272,22 @@ const Catalogs: React.FC = () => {
             {/* Page Header */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <h1 className="text-2xl md:text-3xl font-bold text-slate-800 tracking-tight uppercase">Catalog / Bài viết</h1>
-                <button
-                    onClick={handleNewArticle}
-                    className="flex items-center justify-center gap-2 px-6 py-2.5 bg-primary hover:bg-primary-dark text-white text-sm font-bold rounded-xl transition-colors shadow-lg shadow-primary/20"
-                >
-                    <span className="material-symbols-outlined text-xl">add</span>
-                    Viết bài mới
-                </button>
+                <div className="flex items-center gap-2">
+                    <button
+                        onClick={() => setShowHelp(true)}
+                        className="w-10 h-10 rounded-full border-2 border-slate-300 text-slate-400 hover:border-primary hover:text-primary flex items-center justify-center transition-colors"
+                        title="Hướng dẫn sử dụng"
+                    >
+                        <span className="text-lg font-bold">?</span>
+                    </button>
+                    <button
+                        onClick={handleNewArticle}
+                        className="flex items-center justify-center gap-2 px-6 py-2.5 bg-primary hover:bg-primary-dark text-white text-sm font-bold rounded-xl transition-colors shadow-lg shadow-primary/20"
+                    >
+                        <span className="material-symbols-outlined text-xl">add</span>
+                        Viết bài mới
+                    </button>
+                </div>
             </div>
 
             {/* Articles List */}
