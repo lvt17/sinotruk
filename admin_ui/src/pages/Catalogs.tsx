@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNotification } from '../components/shared/Notification';
+import ConfirmDeleteModal from '../components/shared/ConfirmDeleteModal';
 import { catalogService, CatalogArticle } from '../services/supabase';
 import EditorJS from '@editorjs/editorjs';
 import Header from '@editorjs/header';
@@ -13,6 +14,7 @@ const Catalogs: React.FC = () => {
     const [editingArticle, setEditingArticle] = useState<CatalogArticle | null>(null);
     const [formData, setFormData] = useState({ title: '', slug: '' });
     const [_loading, setLoading] = useState(true);
+    const [deleteArticle, setDeleteArticle] = useState<CatalogArticle | null>(null);
     const editorRef = useRef<EditorJS | null>(null);
     const editorContainerRef = useRef<HTMLDivElement>(null);
 
@@ -47,7 +49,8 @@ const Catalogs: React.FC = () => {
                         config: {
                             levels: [2, 3, 4],
                             defaultLevel: 2
-                        }
+                        },
+                        inlineToolbar: true
                     },
                     list: {
                         class: List as any,
@@ -59,7 +62,9 @@ const Catalogs: React.FC = () => {
                     }
                 },
                 data: content as any || { blocks: [] },
-                placeholder: 'Bắt đầu viết nội dung bài viết...',
+                placeholder: 'Click vào đây để bắt đầu viết...',
+                autofocus: true,
+                minHeight: 200,
             });
         }
     }, []);
@@ -86,7 +91,10 @@ const Catalogs: React.FC = () => {
 
         try {
             const content = await editorRef.current?.save();
-            const slug = formData.slug || formData.title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+            const slug = formData.slug || formData.title.toLowerCase()
+                .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+                .replace(/đ/g, 'd').replace(/Đ/g, 'D')
+                .replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
 
             if (editingArticle) {
                 await catalogService.update(editingArticle.id, {
@@ -124,15 +132,15 @@ const Catalogs: React.FC = () => {
         }
     };
 
-    const handleDelete = async (article: CatalogArticle) => {
-        if (confirm(`Bạn có chắc muốn xóa bài viết "${article.title}"?`)) {
-            try {
-                await catalogService.delete(article.id);
-                notification.success('Đã xóa bài viết');
-                loadArticles();
-            } catch (error: any) {
-                notification.error(error.message || 'Có lỗi xảy ra');
-            }
+    const confirmDelete = async () => {
+        if (!deleteArticle) return;
+        try {
+            await catalogService.delete(deleteArticle.id);
+            notification.success('Đã xóa bài viết');
+            setDeleteArticle(null);
+            loadArticles();
+        } catch (error: any) {
+            notification.error(error.message || 'Có lỗi xảy ra');
         }
     };
 
@@ -158,9 +166,10 @@ const Catalogs: React.FC = () => {
                         </button>
                         <button
                             onClick={handleSave}
-                            className="px-6 py-2 bg-primary hover:bg-primary-dark text-white font-bold rounded-xl transition-colors"
+                            className="px-6 py-2 bg-primary hover:bg-primary-dark text-white font-bold rounded-xl transition-colors flex items-center gap-2"
                         >
-                            Lưu
+                            <span className="material-symbols-outlined text-lg">save</span>
+                            Lưu bài viết
                         </button>
                     </div>
                 </div>
@@ -168,7 +177,9 @@ const Catalogs: React.FC = () => {
                 <div className="card space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1">Tiêu đề *</label>
+                            <label className="block text-sm font-medium text-slate-700 mb-1">
+                                Tiêu đề bài viết <span className="text-red-500">*</span>
+                            </label>
                             <input
                                 type="text"
                                 value={formData.title}
@@ -178,22 +189,49 @@ const Catalogs: React.FC = () => {
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1">Slug (URL)</label>
+                            <label className="block text-sm font-medium text-slate-700 mb-1">
+                                Slug (URL) <span className="text-slate-400 text-xs">(tự động tạo nếu để trống)</span>
+                            </label>
                             <input
                                 type="text"
                                 value={formData.slug}
                                 onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
                                 className="input w-full"
-                                placeholder="tu-dong-tao-tu-tieu-de"
+                                placeholder="vi-du-slug-bai-viet"
                             />
                         </div>
                     </div>
 
+                    {/* Editor Help */}
+                    <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                        <div className="flex items-start gap-3">
+                            <span className="material-symbols-outlined text-blue-500 text-xl">tips_and_updates</span>
+                            <div className="text-sm text-blue-700">
+                                <p className="font-medium mb-1">Hướng dẫn sử dụng Editor:</p>
+                                <ul className="list-disc list-inside space-y-1 text-blue-600">
+                                    <li>Click vào vùng soạn thảo để bắt đầu viết</li>
+                                    <li>Nhấn <kbd className="px-1.5 py-0.5 bg-white rounded border text-xs">Enter</kbd> để tạo dòng mới</li>
+                                    <li>Bôi đen văn bản để định dạng <b>in đậm</b> hoặc <i>in nghiêng</i></li>
+                                    <li>Nhấn <kbd className="px-1.5 py-0.5 bg-white rounded border text-xs">Tab</kbd> hoặc click dấu <b>+</b> bên trái để thêm block mới (Heading, List)</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
                     <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-2">Nội dung</label>
+                        <label className="block text-sm font-medium text-slate-700 mb-2">
+                            <span className="flex items-center gap-2">
+                                <span className="material-symbols-outlined text-lg">edit_note</span>
+                                Nội dung bài viết
+                            </span>
+                        </label>
                         <div
                             ref={editorContainerRef}
-                            className="border border-slate-200 rounded-xl p-4 min-h-[300px] bg-white prose prose-slate max-w-none"
+                            className="border-2 border-slate-200 rounded-xl p-6 min-h-[350px] bg-white focus-within:border-primary transition-colors"
+                            style={{
+                                lineHeight: '1.8',
+                                fontSize: '16px'
+                            }}
                         />
                     </div>
                 </div>
@@ -260,7 +298,7 @@ const Catalogs: React.FC = () => {
                                             <span className="material-symbols-outlined text-base">edit</span>
                                         </button>
                                         <button
-                                            onClick={() => handleDelete(article)}
+                                            onClick={() => setDeleteArticle(article)}
                                             className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                                             title="Xóa"
                                         >
@@ -285,6 +323,15 @@ const Catalogs: React.FC = () => {
                     </tbody>
                 </table>
             </div>
+
+            <ConfirmDeleteModal
+                isOpen={!!deleteArticle}
+                onClose={() => setDeleteArticle(null)}
+                onConfirm={confirmDelete}
+                title="Xóa bài viết"
+                message="Bạn có chắc chắn muốn xóa bài viết này?"
+                itemName={deleteArticle?.title}
+            />
         </div>
     );
 };

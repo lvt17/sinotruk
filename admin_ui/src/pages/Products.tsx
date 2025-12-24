@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useNotification } from '../components/shared/Notification';
+import ConfirmDeleteModal from '../components/shared/ConfirmDeleteModal';
 import AddProductModal from '../components/AddProductModal';
 import EditProductModal from '../components/EditProductModal';
 import * as XLSX from 'xlsx';
@@ -18,6 +19,7 @@ const Products: React.FC = () => {
     const [products, setProducts] = useState<Product[]>([]);
     const [categories, setCategories] = useState<Category[]>([]);
     const [_loading, setLoading] = useState(true);
+    const [deleteProduct, setDeleteProduct] = useState<Product | null>(null);
 
     // Get category and cursor from URL params  
     const categoryFilter = searchParams.get('category') || 'ALL';
@@ -138,14 +140,18 @@ const Products: React.FC = () => {
     };
 
     const handleDelete = async (product: Product) => {
-        if (window.confirm(`Bạn có chắc muốn xóa sản phẩm "${product.name}"?`)) {
-            try {
-                await productService.delete(product.id);
-                notification.success(`Đã xóa sản phẩm "${product.name}"`);
-                loadData();
-            } catch (error: any) {
-                notification.error(error.message || 'Có lỗi xảy ra khi xóa sản phẩm');
-            }
+        setDeleteProduct(product);
+    };
+
+    const confirmDelete = async () => {
+        if (!deleteProduct) return;
+        try {
+            await productService.delete(deleteProduct.id);
+            notification.success(`Đã xóa sản phẩm "${deleteProduct.name}"`);
+            setDeleteProduct(null);
+            loadData();
+        } catch (error: any) {
+            notification.error(error.message || 'Có lỗi xảy ra khi xóa sản phẩm');
         }
     };
 
@@ -381,6 +387,15 @@ const Products: React.FC = () => {
                     }}
                 />
             )}
+
+            <ConfirmDeleteModal
+                isOpen={!!deleteProduct}
+                onClose={() => setDeleteProduct(null)}
+                onConfirm={confirmDelete}
+                title="Xóa sản phẩm"
+                message="Bạn có chắc chắn muốn xóa sản phẩm này?"
+                itemName={deleteProduct?.name}
+            />
         </div>
     );
 };
