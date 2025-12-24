@@ -6,14 +6,20 @@ import { getCatalogArticles } from '../services/supabase'
 const renderContent = (content) => {
   if (!content || !content.blocks) return null
 
+  // Helper to extract text from list item (can be string or object)
+  const getItemText = (item) => {
+    if (typeof item === 'string') return item
+    if (typeof item === 'object' && item !== null) {
+      return item.content || item.text || ''
+    }
+    return ''
+  }
+
   return content.blocks.map((block, index) => {
     switch (block.type) {
       case 'header':
-        const HeaderTag = `h${block.data.level || 2}`
         return (
-          <HeaderTag key={index} className="text-2xl font-bold text-slate-800 mt-6 mb-3">
-            {block.data.text}
-          </HeaderTag>
+          <div key={index} className="text-2xl font-bold text-slate-800 mt-6 mb-3" dangerouslySetInnerHTML={{ __html: block.data.text }} />
         )
       case 'paragraph':
         return (
@@ -22,11 +28,24 @@ const renderContent = (content) => {
       case 'list':
         const ListTag = block.data.style === 'ordered' ? 'ol' : 'ul'
         return (
-          <ListTag key={index} className={`${block.data.style === 'ordered' ? 'list-decimal' : 'list-disc'} list-inside text-slate-600 mb-4 space-y-1`}>
+          <ListTag key={index} className={`${block.data.style === 'ordered' ? 'list-decimal' : 'list-disc'} list-inside text-slate-600 mb-4 space-y-1 pl-4`}>
             {block.data.items.map((item, i) => (
-              <li key={i} dangerouslySetInnerHTML={{ __html: item }} />
+              <li key={i} dangerouslySetInnerHTML={{ __html: getItemText(item) }} />
             ))}
           </ListTag>
+        )
+      case 'checklist':
+        return (
+          <div key={index} className="mb-4 space-y-2">
+            {block.data.items.map((item, i) => (
+              <div key={i} className="flex items-center gap-2 text-slate-600">
+                <span className={`material-symbols-outlined text-lg ${item.checked ? 'text-green-500' : 'text-slate-300'}`}>
+                  {item.checked ? 'check_box' : 'check_box_outline_blank'}
+                </span>
+                <span dangerouslySetInnerHTML={{ __html: item.text || '' }} />
+              </div>
+            ))}
+          </div>
         )
       case 'image':
         return (
