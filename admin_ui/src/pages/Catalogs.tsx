@@ -92,7 +92,10 @@ const Catalogs: React.FC = () => {
                     },
                     list: {
                         class: List as any,
-                        inlineToolbar: true
+                        inlineToolbar: true,
+                        config: {
+                            defaultStyle: 'unordered'
+                        }
                     },
                     paragraph: {
                         class: Paragraph as any,
