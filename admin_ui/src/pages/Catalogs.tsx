@@ -275,10 +275,10 @@ const Catalogs: React.FC = () => {
                 <div className="flex items-center gap-2">
                     <button
                         onClick={() => setShowHelp(true)}
-                        className="w-10 h-10 rounded-full border-2 border-slate-300 text-slate-400 hover:border-primary hover:text-primary flex items-center justify-center transition-colors"
+                        className="w-8 h-8 rounded-full border-2 border-slate-300 text-slate-400 hover:border-primary hover:text-primary flex items-center justify-center transition-colors"
                         title="Hướng dẫn sử dụng"
                     >
-                        <span className="text-lg font-bold">?</span>
+                        <span className="text-sm font-bold">?</span>
                     </button>
                     <button
                         onClick={handleNewArticle}
@@ -423,6 +423,13 @@ const Catalogs: React.FC = () => {
                                 <div>
                                     <p className="font-bold text-slate-800">Sắp xếp lại</p>
                                     <p className="text-sm">Kéo thả các block bằng icon <strong>⋮⋮</strong> bên trái để thay đổi thứ tự.</p>
+                                </div>
+                            </div>
+                            <div className="flex items-start gap-3">
+                                <span className="material-symbols-outlined text-green-500 mt-0.5">publish</span>
+                                <div>
+                                    <p className="font-bold text-slate-800">Xuất bản / Ẩn bài</p>
+                                    <p className="text-sm">Bài viết có trạng thái "<strong>Xuất bản</strong>" sẽ hiển trên trang khách hàng. Bấm nút <span className="inline-flex items-center"><span className="material-symbols-outlined text-xs">visibility_off</span></span> để ẩn.</p>
                                 </div>
                             </div>
                         </div>
