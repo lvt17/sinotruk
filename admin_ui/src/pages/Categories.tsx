@@ -23,11 +23,11 @@ const Categories: React.FC = () => {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const editFileInputRef = useRef<HTMLInputElement>(null);
 
-    // New category form
+    // New category form - use 'type' field: 'vehicle' or 'part'
     const [newForm, setNewForm] = useState({
         name: '',
         code: '',
-        is_vehicle_name: false,
+        type: 'part' as 'vehicle' | 'part', // Default to 'part' (Phụ tùng)
         is_visible: true,
         thumbnail: ''
     });
@@ -36,7 +36,7 @@ const Categories: React.FC = () => {
     const [editForm, setEditForm] = useState({
         name: '',
         code: '',
-        is_vehicle_name: false,
+        type: 'part' as 'vehicle' | 'part',
         is_visible: true,
         thumbnail: ''
     });
@@ -105,16 +105,22 @@ const Categories: React.FC = () => {
             return;
         }
 
+        // Validate: If type is 'vehicle', thumbnail is required
+        if (newForm.type === 'vehicle' && !newForm.thumbnail) {
+            notification.warning('Vui lòng upload ảnh đại diện cho danh mục xe');
+            return;
+        }
+
         try {
             await categoryService.create({
                 name: newForm.name.toUpperCase(),
                 code: newForm.code.toUpperCase() || undefined,
-                is_vehicle_name: newForm.is_vehicle_name,
+                is_vehicle_name: newForm.type === 'vehicle',
                 is_visible: newForm.is_visible,
                 thumbnail: newForm.thumbnail || undefined
             });
             notification.success(`Đã thêm danh mục "${newForm.name}"`);
-            setNewForm({ name: '', code: '', is_vehicle_name: false, is_visible: true, thumbnail: '' });
+            setNewForm({ name: '', code: '', type: 'part', is_visible: true, thumbnail: '' });
             setIsAdding(false);
             loadCategories();
         } catch (error: any) {
@@ -127,7 +133,7 @@ const Categories: React.FC = () => {
         setEditForm({
             name: cat.name,
             code: cat.code || '',
-            is_vehicle_name: cat.is_vehicle_name || false,
+            type: cat.is_vehicle_name ? 'vehicle' : 'part',
             is_visible: cat.is_visible !== false,
             thumbnail: cat.thumbnail || ''
         });
@@ -136,11 +142,17 @@ const Categories: React.FC = () => {
     const handleSaveEdit = async () => {
         if (!editForm.name.trim() || !editingId) return;
 
+        // Validate: If type is 'vehicle', thumbnail is required
+        if (editForm.type === 'vehicle' && !editForm.thumbnail) {
+            notification.warning('Vui lòng upload ảnh đại diện cho danh mục xe');
+            return;
+        }
+
         try {
             await categoryService.update(editingId, {
                 name: editForm.name.toUpperCase(),
                 code: editForm.code.toUpperCase() || undefined,
-                is_vehicle_name: editForm.is_vehicle_name,
+                is_vehicle_name: editForm.type === 'vehicle',
                 is_visible: editForm.is_visible,
                 thumbnail: editForm.thumbnail || undefined
             });
@@ -183,31 +195,33 @@ const Categories: React.FC = () => {
             }`}>
             {editingId === cat.id ? (
                 <div className="flex flex-wrap items-center gap-2 w-full">
-                    {/* Thumbnail preview/upload for edit */}
-                    <div className="relative">
-                        {editForm.thumbnail ? (
-                            <img src={editForm.thumbnail} alt="Thumbnail" className="w-12 h-12 rounded-lg object-cover" />
-                        ) : (
-                            <div className="w-12 h-12 rounded-lg bg-slate-200 flex items-center justify-center">
-                                <span className="material-symbols-outlined text-slate-400 text-lg">image</span>
-                            </div>
-                        )}
-                        <button
-                            type="button"
-                            onClick={() => editFileInputRef.current?.click()}
-                            className="absolute -bottom-1 -right-1 w-6 h-6 bg-primary text-white rounded-full flex items-center justify-center text-xs"
-                            disabled={uploading}
-                        >
-                            {uploading ? '...' : <span className="material-symbols-outlined text-xs">add_photo_alternate</span>}
-                        </button>
-                        <input
-                            ref={editFileInputRef}
-                            type="file"
-                            accept="image/*"
-                            onChange={(e) => handleFileUpload(e, true)}
-                            className="hidden"
-                        />
-                    </div>
+                    {/* Thumbnail upload for edit - only show for vehicle type */}
+                    {editForm.type === 'vehicle' && (
+                        <div className="relative">
+                            {editForm.thumbnail ? (
+                                <img src={editForm.thumbnail} alt="Thumbnail" className="w-12 h-12 rounded-lg object-cover" />
+                            ) : (
+                                <div className="w-12 h-12 rounded-lg bg-red-100 border-2 border-dashed border-red-300 flex items-center justify-center">
+                                    <span className="material-symbols-outlined text-red-400 text-lg">image</span>
+                                </div>
+                            )}
+                            <button
+                                type="button"
+                                onClick={() => editFileInputRef.current?.click()}
+                                className="absolute -bottom-1 -right-1 w-6 h-6 bg-primary text-white rounded-full flex items-center justify-center text-xs"
+                                disabled={uploading}
+                            >
+                                {uploading ? '...' : <span className="material-symbols-outlined text-xs">add_photo_alternate</span>}
+                            </button>
+                            <input
+                                ref={editFileInputRef}
+                                type="file"
+                                accept="image/*"
+                                onChange={(e) => handleFileUpload(e, true)}
+                                className="hidden"
+                            />
+                        </div>
+                    )}
                     <input
                         type="text"
                         placeholder="Tên"
@@ -222,10 +236,15 @@ const Categories: React.FC = () => {
                         onChange={(e) => setEditForm({ ...editForm, code: e.target.value })}
                         className="input py-1.5 px-2 text-sm w-20"
                     />
-                    <label className="flex items-center gap-1 text-xs">
-                        <input type="checkbox" checked={editForm.is_vehicle_name} onChange={(e) => setEditForm({ ...editForm, is_vehicle_name: e.target.checked })} />
-                        Xe
-                    </label>
+                    {/* Type dropdown */}
+                    <select
+                        value={editForm.type}
+                        onChange={(e) => setEditForm({ ...editForm, type: e.target.value as 'vehicle' | 'part' })}
+                        className="input py-1.5 px-2 text-sm w-24"
+                    >
+                        <option value="vehicle">Xe</option>
+                        <option value="part">Phụ tùng</option>
+                    </select>
                     <label className="flex items-center gap-1 text-xs">
                         <input type="checkbox" checked={editForm.is_visible} onChange={(e) => setEditForm({ ...editForm, is_visible: e.target.checked })} />
                         Hiện
@@ -244,7 +263,7 @@ const Categories: React.FC = () => {
                         <img src={cat.thumbnail} alt={cat.name} className="w-10 h-10 rounded-lg object-cover flex-shrink-0" />
                     ) : (
                         <div className="w-10 h-10 rounded-lg bg-slate-200 flex items-center justify-center flex-shrink-0">
-                            <span className="material-symbols-outlined text-slate-400 text-lg">image</span>
+                            <span className="material-symbols-outlined text-slate-400 text-lg">{isVehicle ? 'local_shipping' : 'category'}</span>
                         </div>
                     )}
                     <div className="flex-1 min-w-0">
@@ -253,6 +272,9 @@ const Categories: React.FC = () => {
                             {cat.code && (
                                 <span className="text-xs bg-white px-1.5 py-0.5 rounded border border-slate-200 text-slate-500 font-mono">{cat.code}</span>
                             )}
+                            <span className={`text-xs px-1.5 py-0.5 rounded ${isVehicle ? 'bg-blue-100 text-blue-600' : 'bg-slate-100 text-slate-500'}`}>
+                                {isVehicle ? 'Xe' : 'Phụ tùng'}
+                            </span>
                             {cat.is_visible === false && (
                                 <span className="text-xs bg-red-100 text-red-600 px-1.5 py-0.5 rounded">Ẩn</span>
                             )}
@@ -299,50 +321,6 @@ const Categories: React.FC = () => {
                 <div className="card">
                     <h3 className="font-bold text-slate-800 mb-4">Thêm danh mục mới</h3>
 
-                    {/* Thumbnail Upload */}
-                    <div className="mb-4">
-                        <label className="block text-sm font-medium text-slate-700 mb-2">Ảnh đại diện</label>
-                        <div className="flex items-center gap-4">
-                            {newForm.thumbnail ? (
-                                <div className="relative">
-                                    <img src={newForm.thumbnail} alt="Preview" className="w-24 h-24 rounded-xl object-cover border-2 border-slate-200" />
-                                    <button
-                                        type="button"
-                                        onClick={() => setNewForm({ ...newForm, thumbnail: '' })}
-                                        className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center"
-                                    >
-                                        <span className="material-symbols-outlined text-xs">close</span>
-                                    </button>
-                                </div>
-                            ) : (
-                                <div
-                                    onClick={() => fileInputRef.current?.click()}
-                                    className="w-24 h-24 rounded-xl border-2 border-dashed border-slate-300 flex flex-col items-center justify-center cursor-pointer hover:border-primary hover:bg-primary/5 transition-colors"
-                                >
-                                    {uploading ? (
-                                        <div className="animate-spin w-6 h-6 border-2 border-primary border-t-transparent rounded-full"></div>
-                                    ) : (
-                                        <>
-                                            <span className="material-symbols-outlined text-slate-400 text-2xl">add_photo_alternate</span>
-                                            <span className="text-xs text-slate-400 mt-1">Upload</span>
-                                        </>
-                                    )}
-                                </div>
-                            )}
-                            <input
-                                ref={fileInputRef}
-                                type="file"
-                                accept="image/*"
-                                onChange={(e) => handleFileUpload(e, false)}
-                                className="hidden"
-                            />
-                            <div className="text-sm text-slate-500">
-                                <p>Ảnh sẽ được lưu trên Cloudinary</p>
-                                <p className="text-xs text-slate-400">JPG, PNG, tối đa 5MB</p>
-                            </div>
-                        </div>
-                    </div>
-
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                         <div>
                             <label className="block text-sm font-medium text-slate-700 mb-1">Tên danh mục *</label>
@@ -366,17 +344,21 @@ const Categories: React.FC = () => {
                             />
                         </div>
                     </div>
+
                     <div className="flex flex-wrap gap-4 mb-4">
-                        <label className="flex items-center gap-2 cursor-pointer p-3 bg-blue-50 rounded-xl border border-blue-200 hover:border-blue-400 transition-colors">
-                            <input
-                                type="checkbox"
-                                checked={newForm.is_vehicle_name}
-                                onChange={(e) => setNewForm({ ...newForm, is_vehicle_name: e.target.checked })}
-                                className="w-4 h-4 rounded border-slate-300 text-primary focus:ring-primary"
-                            />
-                            <span className="font-medium text-blue-700 text-sm">Đây là HÃNG XE</span>
-                        </label>
-                        <label className="flex items-center gap-2 cursor-pointer p-3 bg-green-50 rounded-xl border border-green-200 hover:border-green-400 transition-colors">
+                        {/* Type Dropdown */}
+                        <div>
+                            <label className="block text-sm font-medium text-slate-700 mb-1">Loại danh mục *</label>
+                            <select
+                                value={newForm.type}
+                                onChange={(e) => setNewForm({ ...newForm, type: e.target.value as 'vehicle' | 'part' })}
+                                className="input w-40"
+                            >
+                                <option value="part">Phụ tùng</option>
+                                <option value="vehicle">Xe</option>
+                            </select>
+                        </div>
+                        <label className="flex items-center gap-2 cursor-pointer p-3 bg-green-50 rounded-xl border border-green-200 hover:border-green-400 transition-colors self-end">
                             <input
                                 type="checkbox"
                                 checked={newForm.is_visible}
@@ -386,6 +368,55 @@ const Categories: React.FC = () => {
                             <span className="font-medium text-green-700 text-sm">Hiển thị trên website</span>
                         </label>
                     </div>
+
+                    {/* Thumbnail Upload - Only show when type is 'vehicle' */}
+                    {newForm.type === 'vehicle' && (
+                        <div className="mb-4 p-4 bg-blue-50 rounded-xl border border-blue-200">
+                            <label className="block text-sm font-medium text-blue-700 mb-2">
+                                Ảnh đại diện * <span className="text-red-500">(Bắt buộc cho danh mục Xe)</span>
+                            </label>
+                            <div className="flex items-center gap-4">
+                                {newForm.thumbnail ? (
+                                    <div className="relative">
+                                        <img src={newForm.thumbnail} alt="Preview" className="w-24 h-24 rounded-xl object-cover border-2 border-blue-300" />
+                                        <button
+                                            type="button"
+                                            onClick={() => setNewForm({ ...newForm, thumbnail: '' })}
+                                            className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center"
+                                        >
+                                            <span className="material-symbols-outlined text-xs">close</span>
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <div
+                                        onClick={() => fileInputRef.current?.click()}
+                                        className="w-24 h-24 rounded-xl border-2 border-dashed border-red-400 bg-red-50 flex flex-col items-center justify-center cursor-pointer hover:border-primary hover:bg-primary/5 transition-colors"
+                                    >
+                                        {uploading ? (
+                                            <div className="animate-spin w-6 h-6 border-2 border-primary border-t-transparent rounded-full"></div>
+                                        ) : (
+                                            <>
+                                                <span className="material-symbols-outlined text-red-400 text-2xl">add_photo_alternate</span>
+                                                <span className="text-xs text-red-400 mt-1">Bắt buộc</span>
+                                            </>
+                                        )}
+                                    </div>
+                                )}
+                                <input
+                                    ref={fileInputRef}
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={(e) => handleFileUpload(e, false)}
+                                    className="hidden"
+                                />
+                                <div className="text-sm text-blue-600">
+                                    <p>Ảnh sẽ hiển thị trên trang chủ</p>
+                                    <p className="text-xs text-blue-400">JPG, PNG, tối đa 5MB</p>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
                     <div className="flex gap-2">
                         <button
                             onClick={handleAddCategory}
@@ -395,7 +426,7 @@ const Categories: React.FC = () => {
                             Lưu
                         </button>
                         <button
-                            onClick={() => { setIsAdding(false); setNewForm({ name: '', code: '', is_vehicle_name: false, is_visible: true, thumbnail: '' }); }}
+                            onClick={() => { setIsAdding(false); setNewForm({ name: '', code: '', type: 'part', is_visible: true, thumbnail: '' }); }}
                             className="px-6 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-xl transition-colors"
                         >
                             Hủy
@@ -408,14 +439,14 @@ const Categories: React.FC = () => {
             <div className="card">
                 <div className="flex items-center gap-2 mb-4">
                     <span className="material-symbols-outlined text-primary">local_shipping</span>
-                    <h3 className="font-bold text-slate-800">Loại xe ({vehicleCategories.length})</h3>
+                    <h3 className="font-bold text-slate-800">Danh mục Xe ({vehicleCategories.length})</h3>
                 </div>
                 {vehicleCategories.length > 0 ? (
                     <div className="grid gap-2">
                         {vehicleCategories.map(cat => renderCategoryCard(cat, true))}
                     </div>
                 ) : (
-                    <p className="text-slate-400 text-sm">Chưa có loại xe nào</p>
+                    <p className="text-slate-400 text-sm">Chưa có danh mục xe nào</p>
                 )}
             </div>
 
@@ -423,14 +454,14 @@ const Categories: React.FC = () => {
             <div className="card">
                 <div className="flex items-center gap-2 mb-4">
                     <span className="material-symbols-outlined text-primary">category</span>
-                    <h3 className="font-bold text-slate-800">Bộ phận ({partCategories.length})</h3>
+                    <h3 className="font-bold text-slate-800">Danh mục Phụ tùng ({partCategories.length})</h3>
                 </div>
                 {partCategories.length > 0 ? (
                     <div className="grid gap-2">
                         {partCategories.map(cat => renderCategoryCard(cat, false))}
                     </div>
                 ) : (
-                    <p className="text-slate-400 text-sm">Chưa có bộ phận nào</p>
+                    <p className="text-slate-400 text-sm">Chưa có danh mục phụ tùng nào</p>
                 )}
             </div>
 
