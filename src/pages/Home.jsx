@@ -13,11 +13,11 @@ const Home = () => {
       <Hero />
       <StatsSection />
       <CategoryShowcase />
-      <VehicleShowcase />
       <VideoSection />
       <ProductGrid />
       <AboutSection />
       <CategorySection />
+      <VehicleShowcase />
     </div>
   )
 }
