@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNotification } from '../components/shared/Notification';
 import { categoryService, Category } from '../services/supabase';
 
@@ -9,19 +9,27 @@ interface CategoryWithExtras extends Category {
     is_visible?: boolean;
 }
 
+// Cloudinary config
+const CLOUDINARY_CLOUD_NAME = 'dxggvypzl';
+const CLOUDINARY_UPLOAD_PRESET = 'sinotruk_unsigned';
+
 const Categories: React.FC = () => {
     const notification = useNotification();
     const [categories, setCategories] = useState<CategoryWithExtras[]>([]);
     const [isAdding, setIsAdding] = useState(false);
     const [editingId, setEditingId] = useState<number | null>(null);
     const [_loading, setLoading] = useState(true);
+    const [uploading, setUploading] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const editFileInputRef = useRef<HTMLInputElement>(null);
 
     // New category form
     const [newForm, setNewForm] = useState({
         name: '',
         code: '',
         is_vehicle_name: false,
-        is_visible: true
+        is_visible: true,
+        thumbnail: ''
     });
 
     // Edit form
@@ -29,8 +37,50 @@ const Categories: React.FC = () => {
         name: '',
         code: '',
         is_vehicle_name: false,
-        is_visible: true
+        is_visible: true,
+        thumbnail: ''
     });
+
+    // Upload to Cloudinary
+    const uploadToCloudinary = async (file: File): Promise<string> => {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+        formData.append('folder', 'categories');
+
+        const response = await fetch(
+            `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
+            { method: 'POST', body: formData }
+        );
+
+        if (!response.ok) {
+            throw new Error('Upload failed');
+        }
+
+        const data = await response.json();
+        return data.secure_url;
+    };
+
+    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, isEdit: boolean) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        setUploading(true);
+        try {
+            const url = await uploadToCloudinary(file);
+            if (isEdit) {
+                setEditForm({ ...editForm, thumbnail: url });
+            } else {
+                setNewForm({ ...newForm, thumbnail: url });
+            }
+            notification.success('Đã tải ảnh lên thành công');
+        } catch (error) {
+            console.error('Upload error:', error);
+            notification.error('Không thể tải ảnh lên');
+        } finally {
+            setUploading(false);
+        }
+    };
 
     const loadCategories = async () => {
         setLoading(true);
@@ -60,10 +110,11 @@ const Categories: React.FC = () => {
                 name: newForm.name.toUpperCase(),
                 code: newForm.code.toUpperCase() || undefined,
                 is_vehicle_name: newForm.is_vehicle_name,
-                is_visible: newForm.is_visible
+                is_visible: newForm.is_visible,
+                thumbnail: newForm.thumbnail || undefined
             });
             notification.success(`Đã thêm danh mục "${newForm.name}"`);
-            setNewForm({ name: '', code: '', is_vehicle_name: false, is_visible: true });
+            setNewForm({ name: '', code: '', is_vehicle_name: false, is_visible: true, thumbnail: '' });
             setIsAdding(false);
             loadCategories();
         } catch (error: any) {
@@ -77,7 +128,8 @@ const Categories: React.FC = () => {
             name: cat.name,
             code: cat.code || '',
             is_vehicle_name: cat.is_vehicle_name || false,
-            is_visible: cat.is_visible !== false
+            is_visible: cat.is_visible !== false,
+            thumbnail: cat.thumbnail || ''
         });
     };
 
@@ -89,7 +141,8 @@ const Categories: React.FC = () => {
                 name: editForm.name.toUpperCase(),
                 code: editForm.code.toUpperCase() || undefined,
                 is_vehicle_name: editForm.is_vehicle_name,
-                is_visible: editForm.is_visible
+                is_visible: editForm.is_visible,
+                thumbnail: editForm.thumbnail || undefined
             });
             notification.success('Đã cập nhật danh mục');
             setEditingId(null);
@@ -126,10 +179,35 @@ const Categories: React.FC = () => {
 
     const renderCategoryCard = (cat: CategoryWithExtras, isVehicle: boolean) => (
         <div key={cat.id} className={`flex items-center gap-3 px-4 py-3 rounded-xl border ${cat.is_visible === false ? 'bg-slate-100 border-slate-200 opacity-60' :
-                isVehicle ? 'bg-blue-50 border-blue-200' : 'bg-slate-50 border-slate-200'
+            isVehicle ? 'bg-blue-50 border-blue-200' : 'bg-slate-50 border-slate-200'
             }`}>
             {editingId === cat.id ? (
                 <div className="flex flex-wrap items-center gap-2 w-full">
+                    {/* Thumbnail preview/upload for edit */}
+                    <div className="relative">
+                        {editForm.thumbnail ? (
+                            <img src={editForm.thumbnail} alt="Thumbnail" className="w-12 h-12 rounded-lg object-cover" />
+                        ) : (
+                            <div className="w-12 h-12 rounded-lg bg-slate-200 flex items-center justify-center">
+                                <span className="material-symbols-outlined text-slate-400 text-lg">image</span>
+                            </div>
+                        )}
+                        <button
+                            type="button"
+                            onClick={() => editFileInputRef.current?.click()}
+                            className="absolute -bottom-1 -right-1 w-6 h-6 bg-primary text-white rounded-full flex items-center justify-center text-xs"
+                            disabled={uploading}
+                        >
+                            {uploading ? '...' : <span className="material-symbols-outlined text-xs">add_photo_alternate</span>}
+                        </button>
+                        <input
+                            ref={editFileInputRef}
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => handleFileUpload(e, true)}
+                            className="hidden"
+                        />
+                    </div>
                     <input
                         type="text"
                         placeholder="Tên"
@@ -161,6 +239,14 @@ const Categories: React.FC = () => {
                 </div>
             ) : (
                 <>
+                    {/* Thumbnail display */}
+                    {cat.thumbnail ? (
+                        <img src={cat.thumbnail} alt={cat.name} className="w-10 h-10 rounded-lg object-cover flex-shrink-0" />
+                    ) : (
+                        <div className="w-10 h-10 rounded-lg bg-slate-200 flex items-center justify-center flex-shrink-0">
+                            <span className="material-symbols-outlined text-slate-400 text-lg">image</span>
+                        </div>
+                    )}
                     <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
                             <span className={`font-medium ${isVehicle ? 'text-blue-700' : 'text-slate-700'}`}>{cat.name}</span>
@@ -212,6 +298,51 @@ const Categories: React.FC = () => {
             {isAdding && (
                 <div className="card">
                     <h3 className="font-bold text-slate-800 mb-4">Thêm danh mục mới</h3>
+
+                    {/* Thumbnail Upload */}
+                    <div className="mb-4">
+                        <label className="block text-sm font-medium text-slate-700 mb-2">Ảnh đại diện</label>
+                        <div className="flex items-center gap-4">
+                            {newForm.thumbnail ? (
+                                <div className="relative">
+                                    <img src={newForm.thumbnail} alt="Preview" className="w-24 h-24 rounded-xl object-cover border-2 border-slate-200" />
+                                    <button
+                                        type="button"
+                                        onClick={() => setNewForm({ ...newForm, thumbnail: '' })}
+                                        className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center"
+                                    >
+                                        <span className="material-symbols-outlined text-xs">close</span>
+                                    </button>
+                                </div>
+                            ) : (
+                                <div
+                                    onClick={() => fileInputRef.current?.click()}
+                                    className="w-24 h-24 rounded-xl border-2 border-dashed border-slate-300 flex flex-col items-center justify-center cursor-pointer hover:border-primary hover:bg-primary/5 transition-colors"
+                                >
+                                    {uploading ? (
+                                        <div className="animate-spin w-6 h-6 border-2 border-primary border-t-transparent rounded-full"></div>
+                                    ) : (
+                                        <>
+                                            <span className="material-symbols-outlined text-slate-400 text-2xl">add_photo_alternate</span>
+                                            <span className="text-xs text-slate-400 mt-1">Upload</span>
+                                        </>
+                                    )}
+                                </div>
+                            )}
+                            <input
+                                ref={fileInputRef}
+                                type="file"
+                                accept="image/*"
+                                onChange={(e) => handleFileUpload(e, false)}
+                                className="hidden"
+                            />
+                            <div className="text-sm text-slate-500">
+                                <p>Ảnh sẽ được lưu trên Cloudinary</p>
+                                <p className="text-xs text-slate-400">JPG, PNG, tối đa 5MB</p>
+                            </div>
+                        </div>
+                    </div>
+
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                         <div>
                             <label className="block text-sm font-medium text-slate-700 mb-1">Tên danh mục *</label>
@@ -258,12 +389,13 @@ const Categories: React.FC = () => {
                     <div className="flex gap-2">
                         <button
                             onClick={handleAddCategory}
-                            className="px-6 py-2.5 bg-green-500 hover:bg-green-600 text-white font-bold rounded-xl transition-colors"
+                            disabled={uploading}
+                            className="px-6 py-2.5 bg-green-500 hover:bg-green-600 text-white font-bold rounded-xl transition-colors disabled:opacity-50"
                         >
                             Lưu
                         </button>
                         <button
-                            onClick={() => { setIsAdding(false); setNewForm({ name: '', code: '', is_vehicle_name: false, is_visible: true }); }}
+                            onClick={() => { setIsAdding(false); setNewForm({ name: '', code: '', is_vehicle_name: false, is_visible: true, thumbnail: '' }); }}
                             className="px-6 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-xl transition-colors"
                         >
                             Hủy
