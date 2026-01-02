@@ -150,13 +150,12 @@ const Products = () => {
         {/* Search & Filter */}
         <div className="flex flex-col md:flex-row gap-4 mb-10">
           <div className="flex-grow relative">
-            <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">search</span>
             <input
               type="text"
               placeholder="Tìm kiếm sản phẩm, mã sản phẩm..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-12 pr-4 py-4 bg-white border border-slate-200 rounded-2xl text-slate-800 placeholder-slate-400 focus:outline-none focus:border-primary transition-all shadow-sm"
+              className="w-full pl-4 pr-4 py-4 bg-white border border-slate-200 rounded-2xl text-slate-800 placeholder-slate-400 focus:outline-none focus:border-primary transition-all shadow-sm"
             />
           </div>
           <button

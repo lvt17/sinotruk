@@ -328,13 +328,12 @@ const Categories: React.FC = () => {
             {/* Search Box */}
             <div className="card">
                 <div className="relative">
-                    <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
                     <input
                         type="text"
                         placeholder="Tìm kiếm danh mục theo tên hoặc mã..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="input w-full pl-10"
+                        className="input w-full"
                     />
                     {searchTerm && (
                         <button
