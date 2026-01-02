@@ -16,6 +16,8 @@ const ImportExcelModal: React.FC<ImportExcelModalProps> = ({ onClose, onImportCo
     const [isImporting, setIsImporting] = useState(false);
     const [importProgress, setImportProgress] = useState({ current: 0, total: 0 });
     const [categories, setCategories] = useState<Category[]>([]);
+    const [imageFiles, setImageFiles] = useState<File[]>([]);
+    const imageInputRef = useRef<HTMLInputElement>(null);
 
     // Load categories on mount
     React.useEffect(() => {
@@ -48,7 +50,8 @@ const ImportExcelModal: React.FC<ImportExcelModalProps> = ({ onClose, onImportCo
                 'Mã sản phẩm (*)': 'VD: XLKVX123',
                 'Tên sản phẩm (*)': 'VD: Xilanh kích cabin VX350',
                 'Mã nhà sản xuất': 'VD: WEICHAI-612600130777',
-                'ID danh mục': 'VD: 1 (xem sheet Danh mục)',
+                'Danh mục (*)': 'Nhập Tên hoặc ID (Sheet 2)',
+                'Ảnh (Tên file)': 'VD: hinh-anh.jpg',
                 'Mô tả': 'Phụ tùng chính hãng Sinotruk',
                 'Hiện trang chủ (1/0)': '1'
             }
@@ -67,7 +70,7 @@ const ImportExcelModal: React.FC<ImportExcelModalProps> = ({ onClose, onImportCo
         const ws1 = XLSX.utils.json_to_sheet(templateData);
         // Set column widths
         ws1['!cols'] = [
-            { wch: 20 }, { wch: 35 }, { wch: 25 }, { wch: 25 }, { wch: 40 }, { wch: 20 }
+            { wch: 20 }, { wch: 35 }, { wch: 25 }, { wch: 25 }, { wch: 20 }, { wch: 40 }, { wch: 20 }
         ];
         XLSX.utils.book_append_sheet(wb, ws1, 'Nhập sản phẩm');
 
@@ -119,13 +122,63 @@ const ImportExcelModal: React.FC<ImportExcelModalProps> = ({ onClose, onImportCo
                     continue;
                 }
 
+                // Find category ID by name or ID
+                const categoryInput = row['Danh mục (*)'] || row['Danh mục'] || row['ID danh mục'] || row.category_id;
+                let categoryId: number | null = null;
+
+                if (categoryInput) {
+                    const inputStr = String(categoryInput).trim().toLowerCase();
+                    const foundCat = categories.find(c =>
+                        c.id.toString() === inputStr ||
+                        c.name.toLowerCase() === inputStr
+                    );
+                    if (foundCat) {
+                        categoryId = foundCat.id;
+                    } else if (!isNaN(parseInt(inputStr))) {
+                        categoryId = parseInt(inputStr);
+                    }
+                }
+
+                // Handle Image Upload
+                let imageUrl = row.image || row.Image || row['Ảnh'] || null;
+                const fileNameColumn = row['Ảnh (Tên file)'] || row['Tên file ảnh'] || row.filename;
+
+                if (fileNameColumn && imageFiles.length > 0) {
+                    const targetFile = imageFiles.find(f => f.name === String(fileNameColumn).trim());
+                    if (targetFile) {
+                        try {
+                            const reader = new FileReader();
+                            const base64Promise = new Promise<string>((resolve, reject) => {
+                                reader.onload = () => resolve(reader.result as string);
+                                reader.onerror = reject;
+                                reader.readAsDataURL(targetFile);
+                            });
+                            const base64Image = await base64Promise;
+
+                            const response = await fetch('/api/upload', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ image: base64Image }),
+                            });
+
+                            if (response.ok) {
+                                const result = await response.json();
+                                imageUrl = result.secure_url;
+                            }
+                        } catch (err) {
+                            console.error('Error uploading image for row:', code, err);
+                        }
+                    }
+                }
+
                 const product = {
                     code: String(code).toUpperCase().trim(),
                     name: String(name).trim(),
                     manufacturer_code: row['Mã nhà sản xuất'] || row.manufacturer_code || null,
-                    category_id: row['ID danh mục'] ? parseInt(row['ID danh mục']) : (row.category_id ? parseInt(row.category_id) : null),
+                    category_id: categoryId,
                     description: row['Mô tả'] || row.description || 'Phụ tùng chính hãng Sinotruk, nhập khẩu trực tiếp từ nhà máy.',
-                    image: row.image || row.Image || row['Ảnh'] || null,
+                    image: imageUrl,
+                    thumbnail: imageUrl,
                     show_on_homepage: row['Hiện trang chủ (1/0)'] !== '0' && row['Hiện trang chủ (1/0)'] !== 0,
                 };
 
@@ -222,6 +275,48 @@ const ImportExcelModal: React.FC<ImportExcelModalProps> = ({ onClose, onImportCo
                                     <span className="material-symbols-outlined text-4xl text-slate-400">upload_file</span>
                                     <p className="font-medium text-slate-600">Click để chọn file</p>
                                     <p className="text-sm text-slate-400">Định dạng: .xlsx, .xls</p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Image Upload */}
+                    <div>
+                        <label className="block text-sm font-medium text-slate-700 mb-2">
+                            Chọn tệp ảnh mô tả (Tùy chọn)
+                        </label>
+                        <div
+                            onClick={() => imageInputRef.current?.click()}
+                            className={`border-2 border-dashed rounded-xl p-4 text-center cursor-pointer transition-colors ${imageFiles.length > 0 ? 'border-blue-400 bg-blue-50' : 'border-slate-300 hover:border-primary bg-slate-50'
+                                }`}
+                        >
+                            <input
+                                ref={imageInputRef}
+                                type="file"
+                                accept="image/*"
+                                multiple
+                                onChange={(e) => {
+                                    const files = Array.from(e.target.files || []);
+                                    setImageFiles(prev => [...prev, ...files]);
+                                }}
+                                className="hidden"
+                            />
+                            {imageFiles.length > 0 ? (
+                                <div className="flex flex-col items-center gap-1">
+                                    <span className="material-symbols-outlined text-2xl text-blue-500">image</span>
+                                    <p className="font-medium text-blue-700">Đã chọn {imageFiles.length} ảnh</p>
+                                    <button
+                                        type="button"
+                                        onClick={(e) => { e.stopPropagation(); setImageFiles([]); }}
+                                        className="text-xs text-slate-500 hover:text-red-500 underline"
+                                    >
+                                        Xóa tất cả ảnh
+                                    </button>
+                                </div>
+                            ) : (
+                                <div className="flex flex-col items-center gap-1">
+                                    <span className="material-symbols-outlined text-2xl text-slate-400">add_photo_alternate</span>
+                                    <p className="text-sm font-medium text-slate-600">Chọn ảnh khớp với tên file trong Excel</p>
                                 </div>
                             )}
                         </div>
