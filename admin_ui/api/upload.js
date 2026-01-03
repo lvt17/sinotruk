@@ -76,44 +76,24 @@ export default async function handler(req, res) {
 
         // Add watermark overlay if enabled
         if (watermarkSettings.enabled && !skipWatermark) {
-            // Cloudinary text needs specific escaping
-            // 1. Text must be encodeURIComponent
-            // 2. Commas and slashes must be double escaped for some reason in certain SDK versions
-            const escapedText = encodeURIComponent(watermarkSettings.text)
-                .replace(/%/g, '%25') // Double escape for Cloudinary
-                .replace(/\(/g, '%28')
-                .replace(/\)/g, '%29');
+            // Simplified watermark for testing
+            const testText = 'SINOTRUK';
 
-            console.log('Escaped Watermark Text:', escapedText);
+            console.log('Using Test Watermark:', testText);
 
-            // Tiled watermark for maximum visibility
+            // Just one simple corner watermark
             transformations.push({
                 overlay: {
                     font_family: 'Arial',
-                    font_size: 40,
+                    font_size: 60,
                     font_weight: 'bold',
-                    text: escapedText
-                },
-                flags: 'tiled',
-                angle: 45,
-                opacity: Math.floor(watermarkSettings.opacity * 0.3),
-                color: 'white'
-            });
-
-            // Prominent corner watermark
-            transformations.push({
-                overlay: {
-                    font_family: 'Arial',
-                    font_size: 50,
-                    font_weight: 'bold',
-                    text: escapedText
+                    text: testText
                 },
                 gravity: 'south_east',
-                x: 20,
-                y: 20,
-                opacity: watermarkSettings.opacity,
-                color: 'white',
-                border: '2px_solid_black'
+                x: 30,
+                y: 30,
+                opacity: 90, // Very heavy opacity for testing
+                color: 'red', // Red color to be unmistakable
             });
         }
 
