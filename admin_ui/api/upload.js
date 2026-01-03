@@ -75,23 +75,21 @@ export default async function handler(req, res) {
 
         // Add watermark overlay if enabled
         if (watermarkSettings.enabled && !skipWatermark) {
-            // Background shadow/glow for better contrast
+            // Tiled watermark for maximum visibility
             transformations.push({
                 overlay: {
                     font_family: 'Arial',
-                    font_size: 52,
+                    font_size: 40,
                     font_weight: 'bold',
                     text: watermarkSettings.text
                 },
-                gravity: 'south_east',
-                x: 22,
-                y: 22,
-                opacity: Math.floor(watermarkSettings.opacity * 0.4),
-                color: 'black',
-                effect: 'blur:200'
+                flags: 'tiled',
+                angle: 45,
+                opacity: Math.floor(watermarkSettings.opacity * 0.3),
+                color: 'white'
             });
 
-            // Main text
+            // Prominent corner watermark
             transformations.push({
                 overlay: {
                     font_family: 'Arial',
