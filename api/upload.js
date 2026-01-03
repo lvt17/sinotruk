@@ -84,27 +84,30 @@ export default async function handler(req, res) {
 
         // Add watermark overlay if enabled
         if (watermarkSettings.enabled && !skipWatermark) {
-            // Cloudinary text needs specific double escaping for non-ASCII characters
-            const escapedText = encodeURIComponent(watermarkSettings.text)
-                .replace(/%/g, '%25')
-                .replace(/\(/g, '%28')
-                .replace(/\)/g, '%29');
+            // Cloudinary text overlay requires specific escaping:
+            // - Spaces should be %20
+            // - Commas should be %2C
+            // - Slashes should be %2F
+            // The Node SDK often handles this, but for Unicode/Vietnamese, 
+            // explicit encodeURIComponent is safer, BUT we must NOT double escape %.
+            const escapedText = encodeURIComponent(watermarkSettings.text);
 
-            // Tiled watermark for diagonal effect
+            // Note: We avoid 'tiled' for now as it can cause canvas distortion if not matched with proper dimensions
+            // We'll use a diagonal overlay by placing it in the center with an angle
             transformations.push({
                 overlay: {
                     font_family: 'Arial',
-                    font_size: 40,
+                    font_size: 45,
                     font_weight: 'bold',
                     text: escapedText
                 },
-                flags: 'tiled',
+                gravity: 'center',
                 angle: 45,
-                opacity: Math.floor(watermarkSettings.opacity * 0.3),
+                opacity: Math.floor(watermarkSettings.opacity * 0.4),
                 color: 'white'
             });
 
-            // Corner watermark for prominence
+            // Prominent corner watermark
             transformations.push({
                 overlay: {
                     font_family: 'Arial',
